@@ -17,7 +17,7 @@ export function FooterSection({ onLoginClick }: FooterSectionProps) {
               <img
                 src="/VSOPS.png"
                 alt="VSOPS"
-                className="h-8 w-auto object-contain brightness-0 invert"
+                className="h-8 w-auto object-contain rounded"
               />
             </div>
             <p className="max-w-xs text-sm leading-relaxed text-slate-400">
@@ -72,12 +72,12 @@ export function FooterSection({ onLoginClick }: FooterSectionProps) {
               <img
                 src="/logo_hospital.png"
                 alt="Hospital de Niños"
-                className="h-8 w-auto object-contain brightness-0 invert"
+                className="h-8 w-auto object-contain rounded"
               />
               <img
                 src="/logo_ministerio.png"
                 alt="MPPOP"
-                className="h-8 w-auto object-contain brightness-0 invert"
+                className="h-6 w-auto object-contain rounded"
               />
             </div>
           </div>

@@ -50,7 +50,7 @@ export function HeroSection({ onLoginClick, onCtaClick }: HeroSectionProps) {
             <img
               src="/VSOPS.png"
               alt="VSOPS"
-              className="h-8 w-auto object-contain brightness-0 invert"
+              className="h-8 w-auto object-contain rounded"
             />
 
             {/* Login Button */}
