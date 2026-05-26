@@ -15,6 +15,9 @@ import {
   Wrench,
   MapPin,
   Layers,
+  KeyRound,
+  Copy,
+  Check,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -191,6 +194,9 @@ export function AdminView({ profile }: AdminViewProps) {
   const [showAddUserDialog, setShowAddUserDialog] = useState(false)
   const [showEditUserDialog, setShowEditUserDialog] = useState(false)
   const [showDeleteUserDialog, setShowDeleteUserDialog] = useState(false)
+  const [showResetPasswordDialog, setShowResetPasswordDialog] = useState(false)
+  const [resetPasswordResult, setResetPasswordResult] = useState<{ email: string; temp_password: string } | null>(null)
+  const [copiedPassword, setCopiedPassword] = useState(false)
   const [selectedUser, setSelectedUser] = useState<UserWithProfile | null>(null)
   const [userForm, setUserForm] = useState<UserFormData>(emptyUserForm)
   const [editUserForm, setEditUserForm] = useState<EditUserFormData>({
@@ -428,6 +434,41 @@ export function AdminView({ profile }: AdminViewProps) {
     setShowEditUserDialog(true)
   }
   const handleDeleteUserOpen = (user: UserWithProfile) => { setSelectedUser(user); setShowDeleteUserDialog(true) }
+  const handleResetPasswordOpen = (user: UserWithProfile) => {
+    setSelectedUser(user)
+    setResetPasswordResult(null)
+    setCopiedPassword(false)
+    setShowResetPasswordDialog(true)
+  }
+
+  const handleResetPassword = async () => {
+    if (!selectedUser) return
+    setSubmitting(true)
+    try {
+      const res = await fetch(`/api/admin/users/${selectedUser.id}/reset-password`, { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        setResetPasswordResult(data.data)
+        setCopiedPassword(false)
+      } else {
+        toast.error(data.error || 'Error al resetear contraseña')
+        setShowResetPasswordDialog(false)
+      }
+    } catch {
+      toast.error('Error de conexión')
+      setShowResetPasswordDialog(false)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleCopyPassword = () => {
+    if (resetPasswordResult?.temp_password) {
+      navigator.clipboard.writeText(resetPasswordResult.temp_password)
+      setCopiedPassword(true)
+      setTimeout(() => setCopiedPassword(false), 2000)
+    }
+  }
 
   const handleCreateUser = async () => {
     if (!userForm.email || !userForm.password || !userForm.nombre_completo || !userForm.rol) {
@@ -794,6 +835,9 @@ export function AdminView({ profile }: AdminViewProps) {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleResetPasswordOpen(user)} title="Resetear contraseña" disabled={user.id === profile.id}>
+                              <KeyRound className="h-4 w-4" /><span className="sr-only">Resetear Contraseña</span>
+                            </Button>
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditUserOpen(user)}>
                               <Pencil className="h-4 w-4" /><span className="sr-only">Editar</span>
                             </Button>
@@ -1206,6 +1250,69 @@ export function AdminView({ profile }: AdminViewProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Reset Password Dialog */}
+      <Dialog open={showResetPasswordDialog} onOpenChange={(open) => { if (!open && !submitting) setShowResetPasswordDialog(false) }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-amber-600" />
+              Resetear Contraseña
+            </DialogTitle>
+            <DialogDescription>
+              {resetPasswordResult
+                ? 'La contraseña ha sido reseteada exitosamente.'
+                : `Se generará una nueva contraseña temporal para "${selectedUser?.profile?.nombre_completo || selectedUser?.email}". El usuario deberá cambiarla al iniciar sesión.`}
+            </DialogDescription>
+          </DialogHeader>
+
+          {resetPasswordResult ? (
+            <div className="space-y-4 py-2">
+              <div className="rounded-lg border bg-amber-50 p-4 space-y-3">
+                <div className="grid gap-1.5">
+                  <p className="text-xs font-medium text-amber-800">Usuario</p>
+                  <p className="text-sm font-mono text-amber-900">{resetPasswordResult.email}</p>
+                </div>
+                <div className="grid gap-1.5">
+                  <p className="text-xs font-medium text-amber-800">Nueva Contraseña Temporal</p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 rounded bg-white px-3 py-2 text-base font-mono font-bold text-amber-900 border border-amber-200 select-all">
+                      {resetPasswordResult.temp_password}
+                    </code>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 shrink-0"
+                      onClick={handleCopyPassword}
+                    >
+                      {copiedPassword ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                <p className="text-xs font-medium text-red-800">
+                  Importante: Comparta esta contraseña al usuario de forma segura. Al iniciar sesión, el sistema le solicitará cambiarla obligatoriamente.
+                </p>
+              </div>
+              <DialogFooter>
+                <Button onClick={() => setShowResetPasswordDialog(false)}>
+                  Cerrar
+                </Button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setShowResetPasswordDialog(false)} disabled={submitting}>
+                Cancelar
+              </Button>
+              <Button onClick={handleResetPassword} disabled={submitting} className="bg-amber-600 hover:bg-amber-700">
+                {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Reseteando...</> : <><KeyRound className="mr-2 h-4 w-4" />Resetear Contraseña</>}
+              </Button>
+            </DialogFooter>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Add Unidad Dialog */}
       <Dialog open={showAddUnidadDialog} onOpenChange={setShowAddUnidadDialog}>
