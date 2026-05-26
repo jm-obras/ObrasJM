@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query
 
     if (error) {
+      console.error('[GET /api/alcance] Query error:', error.message, error.details)
       return NextResponse.json(
         { error: error.message },
         { status: 500 }
@@ -125,8 +126,9 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
+      console.error('[POST /api/alcance] Insert error:', error.message, error.details, error.hint)
       return NextResponse.json(
-        { error: error.message },
+        { error: error.message, details: error.details, hint: error.hint },
         { status: 400 }
       )
     }
@@ -137,7 +139,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ data: enrichedData }, { status: 201 })
-  } catch {
+  } catch (err) {
+    console.error('[POST /api/alcance] Unhandled error:', err)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
