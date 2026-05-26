@@ -8,7 +8,7 @@ import { GallerySection } from './gallery-section'
 import { ServicesSection } from './services-section'
 import { FooterSection } from './footer-section'
 import { LoginForm } from '@/components/login-form'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 
 export function LandingPage({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
   const [showLogin, setShowLogin] = useState(false)
@@ -33,6 +33,10 @@ export function LandingPage({ onLoginSuccess }: { onLoginSuccess?: () => void })
       {/* Login Modal */}
       <Dialog open={showLogin} onOpenChange={setShowLogin}>
         <DialogContent className="sm:max-w-lg p-0 border-0 overflow-hidden bg-transparent shadow-none">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Iniciar Sesión</DialogTitle>
+            <DialogDescription>Formulario de inicio de sesión del sistema ObrasJM.</DialogDescription>
+          </DialogHeader>
           <LoginForm embedded onLoginSuccess={() => {
             setShowLogin(false)
             onLoginSuccess?.()

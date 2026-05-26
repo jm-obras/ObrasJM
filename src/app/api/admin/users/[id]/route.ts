@@ -109,9 +109,10 @@ export async function PUT(
       .single()
 
     return NextResponse.json({ data: currentProfile })
-  } catch {
+  } catch (err) {
+    console.error('[PUT /api/admin/users/[id]] Unhandled error:', err)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error interno del servidor: ' + (err instanceof Error ? err.message : String(err)) },
       { status: 500 }
     )
   }
@@ -178,9 +179,10 @@ export async function DELETE(
     }
 
     return NextResponse.json({ message: 'Usuario eliminado exitosamente' })
-  } catch {
+  } catch (err) {
+    console.error('[DELETE /api/admin/users/[id]] Unhandled error:', err)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error interno del servidor: ' + (err instanceof Error ? err.message : String(err)) },
       { status: 500 }
     )
   }

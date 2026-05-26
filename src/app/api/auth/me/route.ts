@@ -36,7 +36,8 @@ export async function GET() {
       },
       profile,
     })
-  } catch {
+  } catch (err) {
+    console.error('[GET /api/auth/me] Unhandled error:', err)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

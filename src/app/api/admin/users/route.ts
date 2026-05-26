@@ -17,6 +17,7 @@ export async function GET() {
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
+      console.error('[GET /api/admin/users] Auth error:', authError?.message)
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
     }
 
@@ -27,6 +28,7 @@ export async function GET() {
       .single()
 
     if (profileError || !profile) {
+      console.error('[GET /api/admin/users] Profile error:', profileError?.message)
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
@@ -37,12 +39,22 @@ export async function GET() {
       )
     }
 
+    // Check admin client config
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('[GET /api/admin/users] SUPABASE_SERVICE_ROLE_KEY is not set')
+      return NextResponse.json(
+        { error: 'Error de configuración: falta la clave de servicio de Supabase' },
+        { status: 500 }
+      )
+    }
+
     const adminClient = createAdminClient()
     const { data: usersData, error: usersError } = await adminClient.auth.admin.listUsers()
 
     if (usersError) {
+      console.error('[GET /api/admin/users] List users error:', usersError.message)
       return NextResponse.json(
-        { error: usersError.message },
+        { error: 'Error listando usuarios: ' + usersError.message },
         { status: 500 }
       )
     }
@@ -52,8 +64,9 @@ export async function GET() {
       .select('*')
 
     if (profilesError) {
+      console.error('[GET /api/admin/users] Profiles error:', profilesError.message)
       return NextResponse.json(
-        { error: profilesError.message },
+        { error: 'Error obteniendo perfiles: ' + profilesError.message },
         { status: 500 }
       )
     }
@@ -72,9 +85,10 @@ export async function GET() {
     }))
 
     return NextResponse.json({ data: users })
-  } catch {
+  } catch (err) {
+    console.error('[GET /api/admin/users] Unhandled error:', err)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error interno del servidor: ' + (err instanceof Error ? err.message : String(err)) },
       { status: 500 }
     )
   }
@@ -123,6 +137,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check admin client config
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('[POST /api/admin/users] SUPABASE_SERVICE_ROLE_KEY is not set')
+      return NextResponse.json(
+        { error: 'Error de configuración: falta la clave de servicio de Supabase' },
+        { status: 500 }
+      )
+    }
+
     const adminClient = createAdminClient()
 
     const { data: newUserData, error: createError } = await adminClient.auth.admin.createUser({
@@ -139,8 +162,9 @@ export async function POST(request: NextRequest) {
     })
 
     if (createError) {
+      console.error('[POST /api/admin/users] Create user error:', createError.message)
       return NextResponse.json(
-        { error: createError.message },
+        { error: 'Error creando usuario en auth: ' + createError.message },
         { status: 400 }
       )
     }
@@ -160,6 +184,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (profileInsertError) {
+      console.error('[POST /api/admin/users] Profile insert error:', profileInsertError.message)
       await adminClient.auth.admin.deleteUser(newUserData.user.id)
       return NextResponse.json(
         { error: 'Error creando perfil: ' + profileInsertError.message },
@@ -183,9 +208,10 @@ export async function POST(request: NextRequest) {
         },
       },
     }, { status: 201 })
-  } catch {
+  } catch (err) {
+    console.error('[POST /api/admin/users] Unhandled error:', err)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error interno del servidor: ' + (err instanceof Error ? err.message : String(err)) },
       { status: 500 }
     )
   }

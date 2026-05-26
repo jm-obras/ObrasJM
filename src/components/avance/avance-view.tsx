@@ -1038,6 +1038,7 @@ export function AvanceView({ profile }: AvanceViewProps) {
         <DialogContent className="max-w-4xl p-2">
           <DialogHeader className="sr-only">
             <DialogTitle>Visor de Foto</DialogTitle>
+            <DialogDescription>Vista ampliada de la foto de evidencia.</DialogDescription>
           </DialogHeader>
           {viewerPhotoUrl && (
             <div className="flex items-center justify-center">

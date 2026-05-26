@@ -97,9 +97,10 @@ export async function POST(
         temp_password: tempPassword,
       },
     })
-  } catch {
+  } catch (err) {
+    console.error('[POST /api/admin/users/[id]/reset-password] Unhandled error:', err)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error interno del servidor: ' + (err instanceof Error ? err.message : String(err)) },
       { status: 500 }
     )
   }
