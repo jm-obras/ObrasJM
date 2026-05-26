@@ -17,7 +17,7 @@ export function FooterSection({ onLoginClick }: FooterSectionProps) {
               <img
                 src="/VSOPS.png"
                 alt="VSOPS"
-                className="h-8 w-auto object-contain rounded"
+                className="h-10 sm:h-14 w-auto object-contain"
               />
             </div>
             <p className="max-w-xs text-sm leading-relaxed text-slate-400">
