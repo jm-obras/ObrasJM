@@ -409,6 +409,27 @@ def build_content():
     ))
     story.append(Spacer(1, 12))
 
+    story.append(add_heading('Cambiar Contrasena desde el Menu', style_h2, level=1))
+    story.append(Paragraph(
+        'En cualquier momento puede cambiar su contrasena de forma voluntaria desde dentro del sistema:',
+        style_body
+    ))
+    story.extend(step_list([
+        'Haga clic en el menu desplegable con su nombre en la esquina superior derecha de la pantalla.',
+        'Seleccione la opcion <b>"Cambiar Contrasena"</b>.',
+        'Se abrira una ventana modal donde debe ingresar su <b>contrasena actual</b>, '
+        'la <b>nueva contrasena</b> (minimo 6 caracteres) y <b>confirmar la nueva contrasena</b>.',
+        'Haga clic en <b>"Cambiar Contrasena"</b> para guardar los cambios.',
+        'Si el cambio es exitoso, vera un mensaje de confirmacion verde y la ventana se cerrara automaticamente.',
+    ]))
+    story.append(Spacer(1, 8))
+    
+    story.append(tip_box(
+        '<b>Consejo:</b> Es recomendable cambiar su contrasena periodicamente por seguridad. '
+        'Si olvida su contrasena, debe contactar al Administrador del sistema para que la restablezca.'
+    ))
+    story.append(Spacer(1, 10))
+    
     story.append(add_heading('Cerrar Sesion', style_h2, level=1))
     story.append(Paragraph(
         'Para cerrar sesion, haga clic en el menu desplegable con su nombre en la esquina superior '
@@ -888,8 +909,9 @@ def build_content():
     
     faqs = [
         ('Olvide mi contrasena. Que puedo hacer?',
-         'Comuniquese con el Administrador del sistema para que restablezca su contrasena. '
-         'No hay funcion de recuperacion automatica de contrasena en el sistema.'),
+         'Desde el menu de usuario, seleccione <b>"Cambiar Contrasena"</b> si aun recuerda su contrasena '
+         'actual. Si la olvido completamente, comuniquese con el Administrador del sistema para que '
+         'restablezca su acceso. No hay funcion de recuperacion automatica de contrasena.'),
         
         ('Por que no veo la pestana "Alcance Planificado"?',
          'Si tiene el perfil de Directivo de Hospital, esta pestana no esta disponible para su rol. '
