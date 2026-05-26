@@ -37,19 +37,19 @@ export function LoginForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 px-4 py-8">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-lg">
         <CardHeader className="items-center text-center">
-          {/* Dos logos: VSOPS (izquierda) + Hospital (derecha) */}
-          <div className="flex items-center justify-center gap-3 mb-2">
+          {/* Dos logos: VSOPS (izquierda, rectangular ~4:1) + Hospital (derecha, cuadrado) */}
+          <div className="flex items-center justify-center gap-4 sm:gap-6 mb-2 w-full px-2">
             <img
               src="/VSOPS.png"
               alt="VSOPS"
-              className="h-20 w-20 sm:h-24 sm:w-24 object-contain"
+              className="h-10 w-auto sm:h-14 object-contain"
             />
             <img
               src="/logo_hospital.png"
               alt="Hospital J.M. de los Ríos"
-              className="h-20 w-20 sm:h-24 sm:w-24 object-contain"
+              className="h-12 w-12 sm:h-16 sm:w-16 object-contain"
             />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">

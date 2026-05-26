@@ -99,12 +99,12 @@ function AppContent() {
                 <img
                   src="/VSOPS.png"
                   alt="VSOPS"
-                  className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
+                  className="h-7 w-auto sm:h-9 object-contain"
                 />
                 <img
                   src="/logo_hospital.png"
                   alt="Hospital J.M. de los Ríos"
-                  className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
+                  className="h-7 w-7 sm:h-9 sm:w-9 object-contain"
                 />
               </div>
               <Separator orientation="vertical" className="h-8 hidden sm:block" />
