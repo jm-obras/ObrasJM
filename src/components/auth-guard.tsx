@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/lib/auth-context'
-import { LoginForm } from '@/components/login-form'
+import { LandingPage } from '@/components/landing/landing-page'
 import { ChangePasswordForm } from '@/components/change-password-form'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { ReactNode } from 'react'
@@ -38,10 +38,12 @@ export function AuthGuard({ children }: AuthGuardProps) {
     )
   }
 
+  // Not logged in: show the landing page (with login modal)
   if (!user) {
-    return <LoginForm />
+    return <LandingPage />
   }
 
+  // Must change password: show the change password form
   if (debe_cambiar_password) {
     return <ChangePasswordForm />
   }

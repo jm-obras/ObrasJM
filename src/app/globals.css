@@ -120,3 +120,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Landing page animations */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Smooth scrollbar for landing */
+html {
+  scroll-behavior: smooth;
+}
