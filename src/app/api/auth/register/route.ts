@@ -41,15 +41,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create profile entry
+    // Upsert profile - use upsert because the handle_new_user trigger
+    // may have already created a basic profile when the auth user was created
     const { error: profileError } = await adminClient
       .from('profiles')
-      .insert({
+      .upsert({
         id: data.user.id,
         nombre_completo,
         rol,
         activo: true,
-      })
+      }, { onConflict: 'id' })
 
     if (profileError) {
       // Try to clean up the created auth user

@@ -169,10 +169,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create profile - debe_cambiar_password = true for new users
-    const { error: profileInsertError } = await adminClient
+    // Upsert profile - use upsert because the handle_new_user trigger
+    // may have already created a basic profile when the auth user was created
+    const { error: profileUpsertError } = await adminClient
       .from('profiles')
-      .insert({
+      .upsert({
         id: newUserData.user.id,
         nombre_completo,
         rol,
@@ -181,13 +182,13 @@ export async function POST(request: NextRequest) {
         ente_pertenece: ente_pertenece || null,
         debe_cambiar_password: true,
         activo: true,
-      })
+      }, { onConflict: 'id' })
 
-    if (profileInsertError) {
-      console.error('[POST /api/admin/users] Profile insert error:', profileInsertError.message)
+    if (profileUpsertError) {
+      console.error('[POST /api/admin/users] Profile upsert error:', profileUpsertError.message)
       await adminClient.auth.admin.deleteUser(newUserData.user.id)
       return NextResponse.json(
-        { error: 'Error creando perfil: ' + profileInsertError.message },
+        { error: 'Error creando perfil: ' + profileUpsertError.message },
         { status: 500 }
       )
     }
