@@ -29,3 +29,25 @@ Stage Summary:
 - Auth flow: Unauthenticated → Landing Page, Login via modal → Dashboard
 - Images organized in /public/instituciones/ (8 logos) and /public/obras/ (9 photos)
 - Poppins font active for headings, Geist for body text
+
+---
+Task ID: 7
+Agent: Main
+Task: Generate PDF user manual organized by user profile (excluding admin)
+
+Work Log:
+- Explored codebase to understand all 5 non-admin roles and their permissions
+- Designed 9-section manual structure: Introduction, System Access, Dashboard, Role Guides (5 roles), Summary Table, Workflow, FAQ, Glossary, Contact
+- Generated color palette via pdf.py palette.generate
+- Created ReportLab Python script with TOC, styled tables, role banners, tip/warning boxes
+- Created HTML cover page using Template 07 (Solid Sidebar - Institutional)
+- Fixed font paths (LiberationSerif/Sans instead of Times New Roman)
+- Fixed cover overlap (hline too close to footer text)
+- Generated 15-page PDF with cover + body merged via pypdf
+- Quality checks: PASSED (8/8 critical checks), 4 non-blocking warnings (cover page size variance, TOC fill ratio)
+
+Stage Summary:
+- PDF manual generated at /home/z/my-project/Manual_Usuario_Sistema_PAF.pdf (139KB, 15 pages)
+- Covers all 5 user profiles: Contratista, Inspector, Ingeniera Residente, Directivo Hospital, Ingenieria Hospital
+- Includes: cover page, TOC, step-by-step guides, permission tables, workflow diagram, FAQ, glossary
+- Content in Spanish, didactic and illustrative format with colored role banners
