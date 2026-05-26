@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Manual de Usuario - ObrasJM</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page {
+    size: 960px 720px;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', 'Microsoft YaHei', sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 960px;
+    height: 720px;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+  }
+
+  /* Header bar with logos */
+  .header {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 72px;
+    background: #1B2A4A;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 36px;
+    z-index: 10;
+  }
+
+  .header .logo-left img {
+    height: 42px;
+    width: auto;
+  }
+
+  .header .logo-right img {
+    height: 48px;
+    width: 48px;
+    border-radius: 6px;
+  }
+
+  .header .header-title {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Content area */
+  .content {
+    position: absolute;
+    top: 72px; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 60px;
+  }
+
+  /* Cover page */
+  .cover-bg {
+    background: linear-gradient(135deg, #1B2A4A 0%, #2A4A6A 50%, #1B3A4A 100%);
+  }
+
+  .cover-content {
+    text-align: center;
+    color: #fff;
+  }
+
+  .cover-content .cover-logos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    margin-bottom: 48px;
+  }
+
+  .cover-content .cover-logos img.logo-vsops {
+    height: 64px;
+    width: auto;
+  }
+
+  .cover-content .cover-logos img.logo-hospital {
+    height: 80px;
+    width: 80px;
+    border-radius: 12px;
+    border: 3px solid rgba(255,255,255,0.3);
+  }
+
+  .cover-content .cover-divider {
+    width: 120px;
+    height: 3px;
+    background: #2A9D8F;
+    margin: 0 auto 32px;
+  }
+
+  .cover-content h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+  }
+
+  .cover-content .subtitle {
+    font-size: 22px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 40px;
+  }
+
+  .cover-content .version {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 24px;
+  }
+
+  /* Section title pages */
+  .section-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1B2A4A;
+    text-align: center;
+  }
+
+  .section-subtitle {
+    font-size: 18px;
+    color: #3D5A80;
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  /* Step pages */
+  .step-layout {
+    display: flex;
+    width: 100%;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  .step-layout .left-panel {
+    flex: 1;
+  }
+
+  .step-layout .right-panel {
+    flex: 1;
+  }
+
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #2A9D8F;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 50%;
+    margin-bottom: 16px;
+  }
+
+  .step-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1B2A4A;
+    margin-bottom: 16px;
+  }
+
+  .step-desc {
+    font-size: 15px;
+    color: #3D5A80;
+    line-height: 1.7;
+  }
+
+  .step-desc strong {
+    color: #1B2A4A;
+    font-weight: 600;
+  }
+
+  /* Annotation boxes */
+  .annotation {
+    background: #F0F4F8;
+    border-left: 4px solid #2A9D8F;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #1B2A4A;
+  }
+
+  .annotation.warning {
+    background: #FFF8E1;
+    border-left-color: #F59E0B;
+  }
+
+  .annotation.info {
+    background: #E8F5E9;
+    border-left-color: #10B981;
+  }
+
+  .annotation.blue {
+    background: #E3F2FD;
+    border-left-color: #1E5F8C;
+  }
+
+  /* Bullet points */
+  .bullet-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .bullet-list li {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: #3D5A80;
+    line-height: 1.5;
+  }
+
+  .bullet-list li::before {
+    content: '▸';
+    position: absolute;
+    left: 4px;
+    color: #2A9D8F;
+    font-weight: 700;
+  }
+
+  /* Role badges */
+  .role-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  .role-admin { background: #EDE9FE; color: #6D28D9; }
+  .role-inspector { background: #FEF3C7; color: #B45309; }
+  .role-contratista { background: #DBEAFE; color: #1D4ED8; }
+  .role-residente { background: #D1FAE5; color: #065F46; }
+
+  /* Flow diagram style */
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #fff;
+    border: 1px solid #DFE8F2;
+    border-radius: 8px;
+  }
+
+  .flow-step .flow-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2A9D8F;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .flow-step .flow-text {
+    font-size: 14px;
+    color: #1B2A4A;
+    font-weight: 500;
+  }
+
+  /* Two-column cards */
+  .card-grid {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .card-grid .card {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #DFE8F2;
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .card-grid .card h3 {
+    font-size: 16px;
+    color: #1B2A4A;
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+
+  .card-grid .card p {
+    font-size: 13px;
+    color: #3D5A80;
+    line-height: 1.6;
+  }
+
+  /* Table style */
+  .feature-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+
+  .feature-table th {
+    background: #1B2A4A;
+    color: #fff;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .feature-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #DFE8F2;
+    color: #3D5A80;
+  }
+
+  .feature-table tr:nth-child(even) td {
+    background: #F0F4F8;
+  }
+
+  .feature-table .check { color: #10B981; font-weight: 700; }
+  .feature-table .cross { color: #EF4444; font-weight: 700; }
+
+  /* End page */
+  .end-content {
+    text-align: center;
+    color: #fff;
+  }
+
+  .end-content h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .end-content p {
+    font-size: 18px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* Footer */
+  .footer {
+    position: absolute;
+    bottom: 16px;
+    left: 36px;
+    right: 36px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #6B8AB0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== PAGE 1: COVER ==================== -->
+<div class="page cover-bg">
+  <div class="content">
+    <div class="cover-content">
+      <div class="cover-logos">
+        <img class="logo-vsops" src="VSOPS2.png" alt="VSOPS">
+        <img class="logo-hospital" src="logo_hospital.png" alt="Hospital J.M. de los Ríos">
+      </div>
+      <div class="cover-divider"></div>
+      <h1>Manual de Usuario</h1>
+      <div class="subtitle">Sistema de Seguimiento de Obras</div>
+      <div class="subtitle" style="font-size:16px; margin-top:8px;">Hospital de Niños J.M. de los Ríos</div>
+      <div class="version">Versión 2.0 — Marzo 2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE 2: ROLES ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content" style="flex-direction:column; align-items:flex-start;">
+    <div class="step-title" style="margin-bottom:24px;">Roles del Sistema</div>
+    <div class="card-grid" style="margin-bottom:24px;">
+      <div class="card" style="border-top:3px solid #6D28D9;">
+        <h3>👑 Administrador</h3>
+        <p>Acceso completo: gestionar usuarios, crear/editar/eliminar alcances y avances, aprobar/rechazar.</p>
+        <div style="margin-top:8px;"><span class="role-badge role-admin">Gestión completa</span></div>
+      </div>
+      <div class="card" style="border-top:3px solid #B45309;">
+        <h3>🔍 Inspector</h3>
+        <p>Crear y editar alcances planificados. Crear, editar y aprobar/rechazar avances ejecutados.</p>
+        <div style="margin-top:8px;"><span class="role-badge role-inspector">Alcances + Avances</span></div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card" style="border-top:3px solid #1D4ED8;">
+        <h3>👷 Contratista</h3>
+        <p>Crear y editar avances ejecutados. Subir fotos de evidencia.</p>
+        <div style="margin-top:8px;"><span class="role-badge role-contratista">Reportar avances</span></div>
+      </div>
+      <div class="card" style="border-top:3px solid #065F46;">
+        <h3>📋 Ingeniera Residente</h3>
+        <p>Ver y reportar avances de su unidad ejecutora asignada.</p>
+        <div style="margin-top:8px;"><span class="role-badge role-residente">Avances por unidad</span></div>
+      </div>
+    </div>
+    <div class="annotation info" style="margin-top:20px; width:100%;">
+      También existen los roles <strong>Directivo Hospital</strong> y <strong>Ingeniería Hospital</strong> con acceso de solo lectura al Dashboard.
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 2</span></div>
+</div>
+
+<!-- ==================== PAGE 3: LOGIN ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="step-layout">
+      <div class="left-panel">
+        <div class="step-number">1</div>
+        <div class="step-title">Iniciar Sesión</div>
+        <div class="step-desc">
+          <p>Al acceder a la plataforma verá la página de inicio con dos opciones:</p>
+          <ul class="bullet-list" style="margin-top:12px;">
+            <li><strong>Iniciar Sesión</strong> — Si ya tiene cuenta</li>
+            <li><strong>Registrarse</strong> — Para crear cuenta nueva</li>
+          </ul>
+          <div class="annotation warning" style="margin-top:16px;">
+            ⚠️ Ingrese el correo que se le proporcionó. La contraseña inicial es temporal y deberá cambiarla.
+          </div>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-icon">📧</div>
+            <div class="flow-text">Ingrese su correo electrónico</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">🔑</div>
+            <div class="flow-text">Ingrese la contraseña proporcionada</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">🖱️</div>
+            <div class="flow-text">Haga clic en "Iniciar Sesión"</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">🔄</div>
+            <div class="flow-text">Se le pedirá cambiar la contraseña</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">✅</div>
+            <div class="flow-text">¡Acceso exitoso al Dashboard!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 3</span></div>
+</div>
+
+<!-- ==================== PAGE 4: CHANGE PASSWORD ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="step-layout">
+      <div class="left-panel">
+        <div class="step-number">2</div>
+        <div class="step-title">Cambiar Contraseña</div>
+        <div class="step-desc">
+          <p>Al ingresar por primera vez, el sistema le pedirá cambiar su contraseña temporal.</p>
+          <div class="flow-steps" style="margin-top:16px;">
+            <div class="flow-step">
+              <div class="flow-icon">1</div>
+              <div class="flow-text">Ingrese la contraseña actual (la proporcionada)</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-icon">2</div>
+              <div class="flow-text">Cree su nueva contraseña</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-icon">3</div>
+              <div class="flow-text">Repita la nueva contraseña para confirmar</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-icon">✅</div>
+              <div class="flow-text">Haga clic en "Cambiar Contraseña"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="annotation blue" style="margin-top:40px;">
+          💡 La contraseña debe tener al menos 6 caracteres. Se recomienda usar letras, números y símbolos.
+        </div>
+        <div class="annotation info" style="margin-top:16px;">
+          ✅ Una vez cambiada, puede usar la opción "Cambiar Contraseña" en el menú superior derecho para actualizarla cuando lo necesite.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 4</span></div>
+</div>
+
+<!-- ==================== PAGE 5: DASHBOARD ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="step-layout">
+      <div class="left-panel">
+        <div class="step-number">3</div>
+        <div class="step-title">Dashboard</div>
+        <div class="step-desc">
+          <p>La página principal muestra un <strong>Dashboard dinámico</strong> con información en tiempo real:</p>
+          <ul class="bullet-list" style="margin-top:12px;">
+            <li><strong>Resumen general</strong> — Total de alcances y avances</li>
+            <li><strong>Mapa de calor</strong> — Avances por sector y especialidad</li>
+            <li><strong>Gráficos de progreso</strong> — Porcentaje de avance físico</li>
+            <li><strong>Actividad reciente</strong> — Últimos reportes</li>
+          </ul>
+          <div class="annotation info" style="margin-top:16px;">
+            ✅ El Dashboard se actualiza automáticamente con los nuevos datos reportados.
+          </div>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="step-desc" style="margin-top:20px;">
+          <p style="font-weight:600; color:#1B2A4A; margin-bottom:12px;">En la parte superior encontrará los enlaces de navegación:</p>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="flow-icon">📊</div>
+              <div class="flow-text">Dashboard — Vista general</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-icon">📋</div>
+              <div class="flow-text">Alcance Planificado — Metas</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-icon">📝</div>
+              <div class="flow-text">Avance Ejecutado — Reportes</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-icon">⚙️</div>
+              <div class="flow-text">Administración (solo Admin)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 5</span></div>
+</div>
+
+<!-- ==================== PAGE 6: ALCANCE PLANIFICADO ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="step-layout">
+      <div class="left-panel">
+        <div class="step-number">4</div>
+        <div class="step-title">Alcance Planificado</div>
+        <div class="step-desc">
+          <p>En esta sección se muestran las <strong>metas que se buscan alcanzar</strong> por especialidad y sector.</p>
+          <div style="margin-top:12px;">
+            <span class="role-badge role-admin">Admin</span>
+            <span class="role-badge role-inspector">Inspector</span>
+            <span style="font-size:13px; color:#3D5A80;">pueden crear y editar alcances</span>
+          </div>
+          <ul class="bullet-list" style="margin-top:12px;">
+            <li>Use los <strong>filtros</strong> para buscar por sector, especialidad o status</li>
+            <li>Haga clic en <strong>"Nuevo Alcance"</strong> para crear</li>
+            <li>Use el botón <strong>✏️</strong> para editar un alcance existente</li>
+            <li>El Admin puede <strong>eliminar</strong> alcances con el botón 🗑️</li>
+          </ul>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="annotation" style="margin-top:10px;">
+          📋 Los alcances tienen estos estados: <strong>Activo</strong>, <strong>Completado</strong> o <strong>Suspendido</strong>
+        </div>
+        <table class="feature-table" style="margin-top:16px;">
+          <thead>
+            <tr><th>Acción</th><th>Admin</th><th>Inspector</th><th>Contratista</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ver alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+            <tr><td>Crear alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td></tr>
+            <tr><td>Editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td></tr>
+            <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 6</span></div>
+</div>
+
+<!-- ==================== PAGE 7: CREAR ALCANCE ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="step-layout">
+      <div class="left-panel">
+        <div class="step-number">5</div>
+        <div class="step-title">Crear un Alcance</div>
+        <div class="step-desc">
+          <p>Complete el formulario con la información del alcance:</p>
+          <ul class="bullet-list" style="margin-top:12px;">
+            <li><strong>Especialidad</strong> — Ej: Electricidad-Luminaria</li>
+            <li><strong>Sector</strong> — Ej: Torre Hospitalización</li>
+            <li><strong>Subsector</strong> — Ej: Piso 7</li>
+            <li><strong>Descripción</strong> — Ej: Reemplazo de luminarias</li>
+            <li><strong>Peso Relativo (%)</strong> — Ej: 100</li>
+            <li><strong>Unidad de Medida</strong> — Ej: UDS</li>
+            <li><strong>Cant. Planificada</strong> — Ej: 45</li>
+            <li><strong>Unidad Ejecutora</strong> — Ej: Corpoelec</li>
+          </ul>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="flow-steps" style="margin-top:30px;">
+          <div class="flow-step">
+            <div class="flow-icon">1</div>
+            <div class="flow-text">Seleccione la Especialidad</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">2</div>
+            <div class="flow-text">Seleccione Sector y Subsector</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">3</div>
+            <div class="flow-text">Describa la actividad</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">4</div>
+            <div class="flow-text">Asigne peso, unidad y cantidad</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">5</div>
+            <div class="flow-text">Seleccione la Unidad Ejecutora</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon" style="background:#10B981;">✓</div>
+            <div class="flow-text" style="color:#10B981; font-weight:700;">Haga clic en "Crear Alcance"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 7</span></div>
+</div>
+
+<!-- ==================== PAGE 8: AVANCE EJECUTADO ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="step-layout">
+      <div class="left-panel">
+        <div class="step-number">6</div>
+        <div class="step-title">Avance Ejecutado</div>
+        <div class="step-desc">
+          <p>En esta sección se reportan los <strong>avances realizados</strong> para cada alcance planificado.</p>
+          <div style="margin-top:12px;">
+            <span class="role-badge role-admin">Admin</span>
+            <span class="role-badge role-inspector">Inspector</span>
+            <span class="role-badge role-contratista">Contratista</span>
+            <span style="font-size:13px; color:#3D5A80;">pueden crear avances</span>
+          </div>
+          <ul class="bullet-list" style="margin-top:12px;">
+            <li>Use los <strong>filtros</strong> por status, fecha desde y fecha hasta</li>
+            <li>Haga clic en <strong>"Nuevo Avance"</strong> para reportar</li>
+            <li>Use el botón <strong>✏️</strong> para editar un avance</li>
+            <li>El Inspector/Admin puede <strong>aprobar o rechazar</strong> avances</li>
+          </ul>
+        </div>
+      </div>
+      <div class="right-panel">
+        <table class="feature-table" style="margin-top:20px;">
+          <thead>
+            <tr><th>Acción</th><th>Admin</th><th>Inspector</th><th>Contratista</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ver avances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+            <tr><td>Crear avances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+            <tr><td>Editar avances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+            <tr><td>Aprobar/Rechazar</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td></tr>
+          </tbody>
+        </table>
+        <div class="annotation" style="margin-top:16px;">
+          📋 Los avances tienen estados de aprobación: <strong>Pendiente</strong>, <strong>Aprobado</strong> o <strong>Rechazado</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 8</span></div>
+</div>
+
+<!-- ==================== PAGE 9: REPORTAR AVANCE ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="step-layout">
+      <div class="left-panel">
+        <div class="step-number">7</div>
+        <div class="step-title">Reportar un Avance</div>
+        <div class="step-desc">
+          <p>Complete el formulario para reportar el avance de una actividad:</p>
+          <ul class="bullet-list" style="margin-top:12px;">
+            <li><strong>Alcance Planificado</strong> — Seleccione de la lista</li>
+            <li><strong>Cantidad Reportada</strong> — Cuantificación del avance</li>
+            <li><strong>Tipo de Trabajo</strong> — Planificado o Imprevisto</li>
+            <li><strong>Fecha de Reporte</strong> — Cuándo se realizó</li>
+            <li><strong>Fotos de Evidencia</strong> — Antes, durante y después</li>
+            <li><strong>Notas</strong> — Observaciones adicionales</li>
+          </ul>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="flow-steps" style="margin-top:30px;">
+          <div class="flow-step">
+            <div class="flow-icon">1</div>
+            <div class="flow-text">Seleccione el Alcance Planificado</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">2</div>
+            <div class="flow-text">Indique la cantidad reportada</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">3</div>
+            <div class="flow-text">Seleccione tipo: Planificado o Imprevisto</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">4</div>
+            <div class="flow-text">Seleccione la fecha del avance</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">5</div>
+            <div class="flow-text">Suba las fotos de evidencia</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon" style="background:#10B981;">✓</div>
+            <div class="flow-text" style="color:#10B981; font-weight:700;">Haga clic en "Reportar Avance"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 9</span></div>
+</div>
+
+<!-- ==================== PAGE 10: APROBACIÓN ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="step-layout">
+      <div class="left-panel">
+        <div class="step-number">8</div>
+        <div class="step-title">Aprobar / Rechazar Avances</div>
+        <div class="step-desc">
+          <p>El <strong>Inspector</strong> y el <strong>Administrador</strong> pueden revisar y aprobar o rechazar los avances reportados.</p>
+          <ul class="bullet-list" style="margin-top:12px;">
+            <li>Los avances nuevos quedan en status <strong>Pendiente</strong></li>
+            <li>Haga clic en el botón <strong>✅</strong> para abrir el panel de aprobación</li>
+            <li>Revise los detalles, fotos y notas del avance</li>
+            <li>Haga clic en <strong>"Aprobar"</strong> o <strong>"Rechazar"</strong></li>
+            <li>Si rechaza, puede agregar <strong>notas de rechazo</strong></li>
+          </ul>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="card-grid" style="flex-direction:column; margin-top:20px;">
+          <div class="card" style="border-left:4px solid #F59E0B; background:#FFF8E1;">
+            <h3 style="color:#B45309;">⏳ Pendiente</h3>
+            <p>Avance recién reportado, esperando revisión del inspector o administrador.</p>
+          </div>
+          <div class="card" style="border-left:4px solid #10B981; background:#E8F5E9;">
+            <h3 style="color:#065F46;">✅ Aprobado</h3>
+            <p>El avance fue verificado y aprobado. Se actualiza el Dashboard automáticamente.</p>
+          </div>
+          <div class="card" style="border-left:4px solid #EF4444; background:#FEF2F2;">
+            <h3 style="color:#991B1B;">❌ Rechazado</h3>
+            <p>El avance no cumple con los requisitos. Se incluyen notas del motivo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 10</span></div>
+</div>
+
+<!-- ==================== PAGE 11: EDITAR AVANCE ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="step-layout">
+      <div class="left-panel">
+        <div class="step-number">9</div>
+        <div class="step-title">Editar un Avance</div>
+        <div class="step-desc">
+          <p>Los roles con permiso pueden <strong>editar avances existentes</strong>:</p>
+          <ul class="bullet-list" style="margin-top:12px;">
+            <li>Haga clic en el botón <strong>✏️ (lápiz)</strong> en la fila del avance</li>
+            <li>Se abrirá el formulario de edición con los datos actuales</li>
+            <li>Modifique los campos necesarios</li>
+            <li>Puede agregar o eliminar fotos de evidencia</li>
+            <li>Haga clic en <strong>"Guardar Cambios"</strong></li>
+          </ul>
+          <div class="annotation info" style="margin-top:16px;">
+            ✅ Tanto inspectores como contratistas y administradores pueden editar avances.
+          </div>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="step-desc" style="margin-top:30px;">
+          <p style="font-weight:600; color:#1B2A4A; margin-bottom:12px;">Campos editables:</p>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="flow-icon">📋</div>
+              <div class="flow-text">Alcance Planificado</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-icon">🔢</div>
+              <div class="flow-text">Cantidad Reportada</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-icon">📌</div>
+              <div class="flow-text">Tipo de Trabajo</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-icon">📅</div>
+              <div class="flow-text">Fecha de Reporte</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-icon">📷</div>
+              <div class="flow-text">Fotos de Evidencia</div>
+            </div>
+            <div class="flow-step">
+              <div class="flow-icon">📝</div>
+              <div class="flow-text">Notas / Observaciones</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 11</span></div>
+</div>
+
+<!-- ==================== PAGE 12: FILTROS ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="step-layout">
+      <div class="left-panel">
+        <div class="step-number">10</div>
+        <div class="step-title">Filtros y Búsqueda</div>
+        <div class="step-desc">
+          <p>Use los filtros para encontrar información rápidamente:</p>
+          <div class="card-grid" style="flex-direction:column; margin-top:16px;">
+            <div class="card" style="border-left:4px solid #2A9D8F;">
+              <h3>📋 Filtros en Alcance Planificado</h3>
+              <p>Filtrar por <strong>Sector</strong>, <strong>Especialidad</strong> y <strong>Status</strong> (Activo, Completado, Suspendido).</p>
+            </div>
+            <div class="card" style="border-left:4px solid #1E5F8C;">
+              <h3>📝 Filtros en Avance Ejecutado</h3>
+              <p>Filtrar por <strong>Status de Aprobación</strong> (Pendiente, Aprobado, Rechazado) y <strong>rango de fechas</strong>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="step-desc" style="margin-top:20px;">
+          <p style="font-weight:600; color:#1B2A4A; margin-bottom:12px;">Consejos útiles:</p>
+          <div class="annotation info">
+            ✅ Los filtros se combinan — puede filtrar por sector Y especialidad al mismo tiempo.
+          </div>
+          <div class="annotation blue" style="margin-top:12px;">
+            💡 Use el filtro "Pendiente" en Avances para ver rápidamente qué avances requieren aprobación.
+          </div>
+          <div class="annotation" style="margin-top:12px;">
+            📄 Las tablas con muchos registros muestran paginación automática (10 registros por página).
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 12</span></div>
+</div>
+
+<!-- ==================== PAGE 13: ADMIN PANEL ==================== -->
+<div class="page">
+  <div class="header">
+    <div class="logo-left"><img src="VSOPS2.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario — ObrasJM</div>
+    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="step-layout">
+      <div class="left-panel">
+        <div class="step-number">11</div>
+        <div class="step-title">Panel de Administración</div>
+        <div class="step-desc">
+          <p>Solo el <strong>Administrador</strong> tiene acceso a la sección de Administración:</p>
+          <ul class="bullet-list" style="margin-top:12px;">
+            <li><strong>Gestión de Usuarios</strong> — Crear, editar, eliminar usuarios y resetear contraseñas</li>
+            <li><strong>Especialidades</strong> — Agregar o modificar especialidades</li>
+            <li><strong>Sectores y Subsectores</strong> — Gestionar la estructura del hospital</li>
+            <li><strong>Unidades Ejecutoras</strong> — Administrar contratistas y empresas</li>
+          </ul>
+          <div class="annotation warning" style="margin-top:16px;">
+            ⚠️ Solo el rol Administrador puede acceder a estas funciones.
+          </div>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="flow-steps" style="margin-top:40px;">
+          <div class="flow-step">
+            <div class="flow-icon">👤</div>
+            <div class="flow-text">Crear nuevos usuarios con cualquier rol</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">✏️</div>
+            <div class="flow-text">Editar datos de usuarios existentes</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">🔑</div>
+            <div class="flow-text">Resetear contraseñas de usuarios</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">🗑️</div>
+            <div class="flow-text">Desactivar usuarios del sistema</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Manual de Usuario ObrasJM v2.0</span><span>Página 13</span></div>
+</div>
+
+<!-- ==================== PAGE 14: END ==================== -->
+<div class="page cover-bg">
+  <div class="content">
+    <div class="end-content">
+      <div class="cover-logos" style="margin-bottom:40px;">
+        <img class="logo-vsops" src="VSOPS2.png" alt="VSOPS">
+        <img class="logo-hospital" src="logo_hospital.png" alt="Hospital">
+      </div>
+      <div class="cover-divider" style="margin-bottom:32px;"></div>
+      <h1>¡Listo!</h1>
+      <p>Ahora puede comenzar a usar el sistema ObrasJM</p>
+      <p style="margin-top:16px; font-size:14px; color:rgba(255,255,255,0.5);">Para soporte técnico, contacte al administrador del sistema</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
