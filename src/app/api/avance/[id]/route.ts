@@ -80,8 +80,8 @@ export async function PUT(
 
     const updateData: Record<string, unknown> = {}
 
-    // Contractistas can update cantidad_reportada, tipo_trabajo, fecha_reporte, fotos, notas
-    if (profile.rol === 'contratista' || profile.rol === 'administrador') {
+    // Contratistas, inspectores and admins can update cantidad_reportada, tipo_trabajo, fecha_reporte, fotos, notas
+    if (profile.rol === 'contratista' || profile.rol === 'inspector' || profile.rol === 'administrador') {
       if (body.cantidad_reportada !== undefined) updateData.cantidad_reportada = body.cantidad_reportada
       if (body.tipo_trabajo !== undefined) updateData.tipo_trabajo = body.tipo_trabajo
       if (body.fecha_reporte !== undefined) updateData.fecha_reporte = body.fecha_reporte
@@ -89,7 +89,7 @@ export async function PUT(
       if (body.notas !== undefined) updateData.notas = body.notas
     }
 
-    // Inspectors and admins can update status_aprobacion
+    // Inspectores and admins can also update status_aprobacion
     if (profile.rol === 'inspector' || profile.rol === 'administrador') {
       if (body.status_aprobacion !== undefined) {
         const validStatuses = ['Pendiente', 'Aprobado', 'Rechazado']

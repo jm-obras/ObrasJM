@@ -120,18 +120,21 @@ CREATE POLICY "Authenticated users can read avance ejecutado"
 ON public.avance_ejecutado FOR SELECT
 USING (auth.role() = 'authenticated');
 
-CREATE POLICY "Contratistas can insert avance ejecutado"
+CREATE POLICY "Contratistas and inspectors can insert avance ejecutado"
 ON public.avance_ejecutado FOR INSERT
 WITH CHECK (
   EXISTS (
     SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'contratista'
   )
   OR EXISTS (
+    SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'inspector'
+  )
+  OR EXISTS (
     SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'administrador'
   )
 );
 
-CREATE POLICY "Inspectors can update approval status"
+CREATE POLICY "Inspectors can update avance ejecutado"
 ON public.avance_ejecutado FOR UPDATE
 USING (
   EXISTS (

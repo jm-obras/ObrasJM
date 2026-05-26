@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
   Plus,
+  Pencil,
   CheckCircle,
   XCircle,
   Eye,
@@ -106,8 +107,9 @@ export function AvanceView({ profile }: AvanceViewProps) {
   const isAdmin = profile.rol === 'administrador'
   const isInspector = profile.rol === 'inspector'
   const isContratista = profile.rol === 'contratista'
-  const canCreate = isAdmin || isContratista
+  const canCreate = isAdmin || isContratista || isInspector
   const canApprove = isAdmin || isInspector
+  const canEdit = isAdmin || isInspector
 
   // Data
   const [avances, setAvances] = useState<AvanceEjecutado[]>([])
@@ -131,6 +133,7 @@ export function AvanceView({ profile }: AvanceViewProps) {
 
   // Dialogs
   const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
   const [showApprovalDialog, setShowApprovalDialog] = useState(false)
   const [showPhotoGallery, setShowPhotoGallery] = useState(false)
   const [showPhotoViewer, setShowPhotoViewer] = useState(false)
@@ -139,6 +142,10 @@ export function AvanceView({ profile }: AvanceViewProps) {
   const [viewerPhotoUrl, setViewerPhotoUrl] = useState<string>('')
   const [formData, setFormData] = useState<AvanceFormData>(emptyForm)
   const [rejectionNotes, setRejectionNotes] = useState('')
+
+  // Edit dialog date picker state
+  const [editDatePickerOpen, setEditDatePickerOpen] = useState(false)
+  const [editFechaReporte, setEditFechaReporte] = useState<Date>(new Date())
 
   // File upload
   const [uploadingFiles, setUploadingFiles] = useState(false)
@@ -294,6 +301,21 @@ export function AvanceView({ profile }: AvanceViewProps) {
     setShowAddDialog(true)
   }
 
+  const handleEditOpen = (avance: AvanceEjecutado) => {
+    setSelectedAvance(avance)
+    setFormData({
+      alcance_id: avance.alcance_id,
+      cantidad_reportada: avance.cantidad_reportada,
+      tipo_trabajo: avance.tipo_trabajo,
+      fecha_reporte: avance.fecha_reporte,
+      fotos_evidencia_urls: avance.fotos_evidencia_urls || [],
+      notas: avance.notas || '',
+    })
+    setFilePreviews([])
+    setEditFechaReporte(new Date(avance.fecha_reporte))
+    setShowEditDialog(true)
+  }
+
   const handleApprovalOpen = (avance: AvanceEjecutado) => {
     setSelectedAvance(avance)
     setRejectionNotes('')
@@ -382,6 +404,50 @@ export function AvanceView({ profile }: AvanceViewProps) {
         fetchAvances()
       } else {
         toast.error(data.error || 'Error al procesar')
+      }
+    } catch {
+      toast.error('Error de conexión')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleEditSubmit = async () => {
+    if (!selectedAvance) return
+    if (!formData.alcance_id || formData.cantidad_reportada <= 0 || !formData.fecha_reporte) {
+      toast.error('Complete todos los campos requeridos')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      // Upload new files first
+      const photoUrls = await uploadFiles()
+
+      const body = {
+        alcance_id: formData.alcance_id,
+        cantidad_reportada: formData.cantidad_reportada,
+        tipo_trabajo: formData.tipo_trabajo,
+        fecha_reporte: formData.fecha_reporte,
+        fotos_evidencia_urls: [...formData.fotos_evidencia_urls, ...photoUrls],
+        notas: formData.notas || null,
+      }
+
+      const res = await fetch(`/api/avance/${selectedAvance.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        toast.success('Avance actualizado exitosamente')
+        setShowEditDialog(false)
+        setFilePreviews([])
+        fetchAvances()
+      } else {
+        toast.error(data.error || 'Error al actualizar')
       }
     } catch {
       toast.error('Error de conexión')
@@ -551,19 +617,29 @@ export function AvanceView({ profile }: AvanceViewProps) {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
+                          {canEdit && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleEditOpen(avance)}
+                              title="Editar"
+                            >
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Editar</span>
+                            </Button>
+                          )}
                           {canApprove && avance.status_aprobacion === 'Pendiente' && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                                onClick={() => handleApprovalOpen(avance)}
-                                title="Aprobar/Rechazar"
-                              >
-                                <CheckCircle className="h-4 w-4" />
-                                <span className="sr-only">Aprobar/Rechazar</span>
-                              </Button>
-                            </>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                              onClick={() => handleApprovalOpen(avance)}
+                              title="Aprobar/Rechazar"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                              <span className="sr-only">Aprobar/Rechazar</span>
+                            </Button>
                           )}
                           <Button
                             variant="ghost"
@@ -842,6 +918,247 @@ export function AvanceView({ profile }: AvanceViewProps) {
                 </>
               ) : (
                 'Reportar Avance'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Avance Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Avance Ejecutado</DialogTitle>
+            <DialogDescription>
+              Modifique los campos que desea actualizar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            {/* Alcance select */}
+            <div className="grid gap-2">
+              <Label>Alcance Planificado *</Label>
+              <Select
+                value={formData.alcance_id}
+                onValueChange={(val) =>
+                  setFormData((prev) => ({ ...prev, alcance_id: val }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar alcance" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {alcances
+                    .filter((a) => a.status === 'Activo')
+                    .map((a) => (
+                      <SelectItem key={a.id} value={a.id}>
+                        <span className="text-xs">
+                          {a.especialidad?.nombre} – {a.sector?.nombre}/{a.subsector?.nombre} –{' '}
+                          {a.descripcion.length > 40
+                            ? a.descripcion.substring(0, 40) + '...'
+                            : a.descripcion}
+                        </span>
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Cantidad reportada */}
+              <div className="grid gap-2">
+                <Label htmlFor="edit_cantidad_reportada">Cantidad Reportada *</Label>
+                <Input
+                  id="edit_cantidad_reportada"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.cantidad_reportada}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      cantidad_reportada: parseFloat(e.target.value) || 0,
+                    }))
+                  }
+                />
+              </div>
+
+              {/* Tipo trabajo */}
+              <div className="grid gap-2">
+                <Label>Tipo de Trabajo *</Label>
+                <RadioGroup
+                  value={formData.tipo_trabajo}
+                  onValueChange={(val) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      tipo_trabajo: val as TrabajoTipo,
+                    }))
+                  }
+                  className="flex items-center gap-4 pt-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="Planificado" id="edit_planificado" />
+                    <Label htmlFor="edit_planificado" className="cursor-pointer">
+                      Planificado
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="Imprevisto" id="edit_imprevisto" />
+                    <Label htmlFor="edit_imprevisto" className="cursor-pointer">
+                      Imprevisto
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+
+            {/* Fecha reporte */}
+            <div className="grid gap-2">
+              <Label>Fecha de Reporte *</Label>
+              <Popover open={editDatePickerOpen} onOpenChange={setEditDatePickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {editFechaReporte
+                      ? format(editFechaReporte, "dd/MM/yyyy", { locale: es })
+                      : 'Seleccionar fecha'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={editFechaReporte}
+                    onSelect={(date) => {
+                      if (date) {
+                        setEditFechaReporte(date)
+                        setFormData((prev) => ({
+                          ...prev,
+                          fecha_reporte: format(date, 'yyyy-MM-dd'),
+                        }))
+                        setEditDatePickerOpen(false)
+                      }
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Existing photos */}
+            {formData.fotos_evidencia_urls.length > 0 && (
+              <div className="grid gap-2">
+                <Label>Fotos Actuales</Label>
+                <div className="flex flex-wrap gap-2">
+                  {formData.fotos_evidencia_urls.map((url, idx) => (
+                    <div
+                      key={idx}
+                      className="relative group w-20 h-20 rounded-md overflow-hidden border"
+                    >
+                      <img
+                        src={url}
+                        alt={`Evidencia ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-0.5 right-0.5 bg-destructive text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            fotos_evidencia_urls: prev.fotos_evidencia_urls.filter((_, i) => i !== idx),
+                          }))
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* File upload for new photos */}
+            <div className="grid gap-2">
+              <Label>Agregar Nuevas Fotos</Label>
+              <div className="space-y-3">
+                <div
+                  className="flex items-center justify-center w-full border-2 border-dashed rounded-lg p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                    <Upload className="h-8 w-8" />
+                    <p className="text-sm">Haga clic para subir fotos</p>
+                    <p className="text-xs">JPEG, PNG, WebP, GIF (máx. 10MB c/u)</p>
+                  </div>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+
+                {/* Preview thumbnails for new files */}
+                {filePreviews.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {filePreviews.map((fp, idx) => (
+                      <div
+                        key={idx}
+                        className="relative group w-20 h-20 rounded-md overflow-hidden border"
+                      >
+                        <img
+                          src={fp.preview}
+                          alt={`Preview ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          className="absolute top-0.5 right-0.5 bg-destructive text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeFile(idx)}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Notas */}
+            <div className="grid gap-2">
+              <Label htmlFor="edit_notas">Notas</Label>
+              <Textarea
+                id="edit_notas"
+                value={formData.notas}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, notas: e.target.value }))
+                }
+                placeholder="Observaciones o notas adicionales"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowEditDialog(false)}
+              disabled={submitting || uploadingFiles}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleEditSubmit} disabled={submitting || uploadingFiles}>
+              {submitting || uploadingFiles ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {uploadingFiles ? 'Subiendo fotos...' : 'Guardando...'}
+                </>
+              ) : (
+                'Guardar Cambios'
               )}
             </Button>
           </DialogFooter>
