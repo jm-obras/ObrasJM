@@ -10,11 +10,11 @@ const galleryItems = [
   { type: 'photo' as const, src: '/obras/obra-03.jpeg', alt: 'Avance de obra - Rehabilitación' },
   { type: 'photo' as const, src: '/obras/obra-04.jpeg', alt: 'Avance de obra - Trabajos en progreso' },
   { type: 'photo' as const, src: '/obras/obra-05.jpeg', alt: 'Avance de obra - Instalaciones' },
-  { type: 'logo' as const, src: '/logo_hospital.png', alt: 'Hospital de Niños J.M. de los Ríos', name: 'Hospital de Niños\nJ.M. de los Ríos' },
+  { type: 'logo' as const, src: '/logo_hospital.png', alt: 'Hospital de Niños J.M. de los Ríos', name: 'Hospital de Niños\nJ.M. de los Ríos', wide: false },
   { type: 'photo' as const, src: '/obras/obra-06.jpeg', alt: 'Avance de obra - Obras civiles' },
   { type: 'photo' as const, src: '/obras/obra-07.jpeg', alt: 'Avance de obra - Equipamiento' },
   { type: 'photo' as const, src: '/obras/obra-08.jpeg', alt: 'Avance de obra - Avances eléctricos' },
-  { type: 'logo' as const, src: '/logo_ministerio.png', alt: 'Ministerio del Poder Popular para la Salud', name: 'Ministerio del Poder Popular\npara la Salud' },
+  { type: 'logo' as const, src: '/logo_ministerio.png', alt: 'Ministerio del Poder Popular para la Salud', name: 'Ministerio del Poder Popular\npara la Salud', wide: true },
   { type: 'photo' as const, src: '/obras/obra-09.jpeg', alt: 'Avance de obra - Sistema de aguas' },
 ]
 
@@ -72,7 +72,10 @@ export function GallerySection() {
                   <img
                     src={item.src}
                     alt={item.alt}
-                    className="h-16 w-16 sm:h-20 sm:w-20 object-contain"
+                    className={item.wide 
+                      ? 'h-10 sm:h-14 w-auto max-w-[80%] object-contain' 
+                      : 'h-16 w-16 sm:h-20 sm:w-20 object-contain'
+                    }
                   />
                   <p className="text-xs sm:text-sm text-slate-500 text-center font-medium leading-tight whitespace-pre-line">
                     {item.name}
