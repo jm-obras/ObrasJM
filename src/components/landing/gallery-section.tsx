@@ -3,16 +3,19 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 
-const obras = [
-  { src: '/obras/obra-01.jpeg', alt: 'Avance de obra - Intervención hospitalaria' },
-  { src: '/obras/obra-02.jpeg', alt: 'Avance de obra - Infraestructura' },
-  { src: '/obras/obra-03.jpeg', alt: 'Avance de obra - Rehabilitación' },
-  { src: '/obras/obra-04.jpeg', alt: 'Avance de obra - Trabajos en progreso' },
-  { src: '/obras/obra-05.jpeg', alt: 'Avance de obra - Instalaciones' },
-  { src: '/obras/obra-06.jpeg', alt: 'Avance de obra - Obras civiles' },
-  { src: '/obras/obra-07.jpeg', alt: 'Avance de obra - Equipamiento' },
-  { src: '/obras/obra-08.jpeg', alt: 'Avance de obra - Avances eléctricos' },
-  { src: '/obras/obra-09.jpeg', alt: 'Avance de obra - Sistema de aguas' },
+// Gallery items: photos + institutional logos mixed in
+const galleryItems = [
+  { type: 'photo' as const, src: '/obras/obra-01.jpeg', alt: 'Avance de obra - Intervención hospitalaria' },
+  { type: 'photo' as const, src: '/obras/obra-02.jpeg', alt: 'Avance de obra - Infraestructura' },
+  { type: 'photo' as const, src: '/obras/obra-03.jpeg', alt: 'Avance de obra - Rehabilitación' },
+  { type: 'photo' as const, src: '/obras/obra-04.jpeg', alt: 'Avance de obra - Trabajos en progreso' },
+  { type: 'photo' as const, src: '/obras/obra-05.jpeg', alt: 'Avance de obra - Instalaciones' },
+  { type: 'logo' as const, src: '/logo_hospital.png', alt: 'Hospital de Niños J.M. de los Ríos', name: 'Hospital de Niños\nJ.M. de los Ríos' },
+  { type: 'photo' as const, src: '/obras/obra-06.jpeg', alt: 'Avance de obra - Obras civiles' },
+  { type: 'photo' as const, src: '/obras/obra-07.jpeg', alt: 'Avance de obra - Equipamiento' },
+  { type: 'photo' as const, src: '/obras/obra-08.jpeg', alt: 'Avance de obra - Avances eléctricos' },
+  { type: 'logo' as const, src: '/logo_ministerio.png', alt: 'Ministerio del Poder Popular para la Salud', name: 'Ministerio del Poder Popular\npara la Salud' },
+  { type: 'photo' as const, src: '/obras/obra-09.jpeg', alt: 'Avance de obra - Sistema de aguas' },
 ]
 
 export function GallerySection() {
@@ -40,30 +43,42 @@ export function GallerySection() {
           </p>
         </motion.div>
 
-        {/* Masonry-like Grid */}
-        <div className="columns-1 sm:columns-2 md:columns-3 gap-4 sm:gap-5 space-y-4 sm:space-y-5">
-          {obras.map((obra, index) => (
+        {/* Grid with photos + logos integrated */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
+          {galleryItems.map((item, index) => (
             <motion.div
-              key={obra.src}
+              key={`${item.type}-${item.src}`}
               initial={{ opacity: 0, scale: 0.92 }}
               animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.92 }}
               transition={{
                 duration: 0.5,
-                delay: 0.08 * index,
+                delay: 0.06 * index,
                 ease: [0.25, 0.4, 0.25, 1],
               }}
-              className="break-inside-avoid group"
+              className="group"
             >
-              <div className="relative rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300">
-                <img
-                  src={obra.src}
-                  alt={obra.alt}
-                  className="w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-                  loading="lazy"
-                />
-                {/* Subtle overlay on hover */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
+              {item.type === 'photo' ? (
+                <div className="relative rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 aspect-[4/3]">
+                  <img
+                    src={item.src}
+                    alt={item.alt}
+                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              ) : (
+                <div className="relative rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 aspect-[4/3] bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/60 flex flex-col items-center justify-center gap-3 p-4">
+                  <img
+                    src={item.src}
+                    alt={item.alt}
+                    className="h-16 w-16 sm:h-20 sm:w-20 object-contain"
+                  />
+                  <p className="text-xs sm:text-sm text-slate-500 text-center font-medium leading-tight whitespace-pre-line">
+                    {item.name}
+                  </p>
+                </div>
+              )}
             </motion.div>
           ))}
         </div>

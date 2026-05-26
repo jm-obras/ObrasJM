@@ -1,10 +1,9 @@
-'use client';
+'use client'
 
-import Image from 'next/image';
-import { LogIn } from 'lucide-react';
+import { LogIn } from 'lucide-react'
 
 interface FooterSectionProps {
-  onLoginClick: () => void;
+  onLoginClick: () => void
 }
 
 export function FooterSection({ onLoginClick }: FooterSectionProps) {
@@ -15,16 +14,11 @@ export function FooterSection({ onLoginClick }: FooterSectionProps) {
           {/* Column 1 - Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <Image
-                src="/instituciones/vsops.png"
+              <img
+                src="/VSOPS.png"
                 alt="VSOPS"
-                width={32}
-                height={32}
-                className="h-8 w-auto brightness-0 invert"
+                className="h-8 w-auto object-contain brightness-0 invert"
               />
-              <span className="text-lg font-semibold text-white font-[family-name:var(--font-poppins)]">
-                ObrasJM
-              </span>
             </div>
             <p className="max-w-xs text-sm leading-relaxed text-slate-400">
               Sistema de Control de Avance Físico del Hospital de Niños J.M. de
@@ -75,19 +69,15 @@ export function FooterSection({ onLoginClick }: FooterSectionProps) {
               Iniciar Sesión
             </button>
             <div className="flex items-center gap-3 pt-2">
-              <Image
-                src="/instituciones/hospital.png"
+              <img
+                src="/logo_hospital.png"
                 alt="Hospital de Niños"
-                width={24}
-                height={24}
-                className="h-6 w-auto brightness-0 invert"
+                className="h-8 w-auto object-contain brightness-0 invert"
               />
-              <Image
-                src="/instituciones/mppop.png"
+              <img
+                src="/logo_ministerio.png"
                 alt="MPPOP"
-                width={24}
-                height={24}
-                className="h-6 w-auto brightness-0 invert"
+                className="h-8 w-auto object-contain brightness-0 invert"
               />
             </div>
           </div>
@@ -107,5 +97,5 @@ export function FooterSection({ onLoginClick }: FooterSectionProps) {
         </div>
       </div>
     </footer>
-  );
+  )
 }

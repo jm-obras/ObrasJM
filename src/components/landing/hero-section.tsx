@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion'
 import { ChevronDown, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import Image from 'next/image'
 
 interface HeroSectionProps {
   onLoginClick: () => void
@@ -47,19 +46,12 @@ export function HeroSection({ onLoginClick, onCtaClick }: HeroSectionProps) {
       <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-white/5 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo + Brand */}
-            <div className="flex items-center gap-2.5">
-              <Image
-                src="/VSOPS.png"
-                alt="VSOPS"
-                width={32}
-                height={32}
-                className="h-8 w-auto object-contain"
-              />
-              <span className="text-white font-semibold text-lg tracking-tight font-[family-name:var(--font-poppins)]">
-                ObrasJM
-              </span>
-            </div>
+            {/* Logo VSOPS */}
+            <img
+              src="/VSOPS.png"
+              alt="VSOPS"
+              className="h-8 w-auto object-contain brightness-0 invert"
+            />
 
             {/* Login Button */}
             <Button
