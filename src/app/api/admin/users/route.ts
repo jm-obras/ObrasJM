@@ -2,11 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+const VALID_ROLES = [
+  'administrador',
+  'contratista',
+  'inspector',
+  'ingeniera_residente',
+  'directivo_hospital',
+  'ingenieria_hospital',
+]
+
 export async function GET() {
   try {
     const supabase = await createClient()
 
-    // Verify user is authenticated and is admin
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
@@ -29,7 +37,6 @@ export async function GET() {
       )
     }
 
-    // Use admin client to list all users
     const adminClient = createAdminClient()
     const { data: usersData, error: usersError } = await adminClient.auth.admin.listUsers()
 
@@ -40,7 +47,6 @@ export async function GET() {
       )
     }
 
-    // Fetch all profiles
     const { data: profiles, error: profilesError } = await adminClient
       .from('profiles')
       .select('*')
@@ -52,7 +58,6 @@ export async function GET() {
       )
     }
 
-    // Combine auth users with profiles
     const profileMap: Record<string, Record<string, unknown>> = {}
     for (const p of profiles || []) {
       profileMap[p.id] = p
@@ -79,7 +84,6 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
 
-    // Verify user is authenticated and is admin
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
@@ -103,7 +107,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { email, password, nombre_completo, rol, unidad_ejecutora_id } = body
+    const { email, password, nombre_completo, rol, unidad_ejecutora_id, telefono, ente_pertenece } = body
 
     if (!email || !password || !nombre_completo || !rol) {
       return NextResponse.json(
@@ -112,10 +116,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const validRoles = ['administrador', 'contratista', 'inspector']
-    if (!validRoles.includes(rol)) {
+    if (!VALID_ROLES.includes(rol)) {
       return NextResponse.json(
-        { error: `Rol inválido. Debe ser uno de: ${validRoles.join(', ')}` },
+        { error: `Rol inválido. Debe ser uno de: ${VALID_ROLES.join(', ')}` },
         { status: 400 }
       )
     }
@@ -129,6 +132,9 @@ export async function POST(request: NextRequest) {
       user_metadata: {
         nombre_completo,
         rol,
+        telefono: telefono || null,
+        ente_pertenece: ente_pertenece || null,
+        debe_cambiar_password: true,
       },
     })
 
@@ -139,7 +145,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create profile
+    // Create profile - debe_cambiar_password = true for new users
     const { error: profileInsertError } = await adminClient
       .from('profiles')
       .insert({
@@ -147,6 +153,9 @@ export async function POST(request: NextRequest) {
         nombre_completo,
         rol,
         unidad_ejecutora_id: unidad_ejecutora_id || null,
+        telefono: telefono || null,
+        ente_pertenece: ente_pertenece || null,
+        debe_cambiar_password: true,
         activo: true,
       })
 
@@ -167,6 +176,9 @@ export async function POST(request: NextRequest) {
           nombre_completo,
           rol,
           unidad_ejecutora_id: unidad_ejecutora_id || null,
+          telefono: telefono || null,
+          ente_pertenece: ente_pertenece || null,
+          debe_cambiar_password: true,
           activo: true,
         },
       },

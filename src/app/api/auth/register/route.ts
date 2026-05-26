@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const validRoles = ['administrador', 'contratista', 'inspector']
+    const validRoles = ['administrador', 'contratista', 'inspector', 'ingeniera_residente', 'directivo_hospital', 'ingenieria_hospital']
     if (!validRoles.includes(rol)) {
       return NextResponse.json(
         { error: `Rol inválido. Debe ser uno de: ${validRoles.join(', ')}` },

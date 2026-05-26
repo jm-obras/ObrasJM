@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       user: data.user,
       profile,
+      debe_cambiar_password: profile.debe_cambiar_password || false,
     })
   } catch {
     return NextResponse.json(

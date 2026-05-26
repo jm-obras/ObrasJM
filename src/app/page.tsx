@@ -38,9 +38,9 @@ interface TabConfig {
 }
 
 const TABS: TabConfig[] = [
-  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['administrador', 'contratista', 'inspector'] },
-  { key: 'alcance', label: 'Alcance Planificado', icon: ClipboardList, roles: ['administrador', 'inspector', 'contratista'] },
-  { key: 'avance', label: 'Avance Ejecutado', icon: FileCheck, roles: ['administrador', 'contratista', 'inspector'] },
+  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['administrador', 'contratista', 'inspector', 'ingeniera_residente', 'directivo_hospital', 'ingenieria_hospital'] },
+  { key: 'alcance', label: 'Alcance Planificado', icon: ClipboardList, roles: ['administrador', 'inspector', 'contratista', 'ingeniera_residente', 'ingenieria_hospital'] },
+  { key: 'avance', label: 'Avance Ejecutado', icon: FileCheck, roles: ['administrador', 'contratista', 'inspector', 'ingeniera_residente', 'directivo_hospital', 'ingenieria_hospital'] },
   { key: 'admin', label: 'Administración', icon: Settings, roles: ['administrador'] },
 ]
 
@@ -48,12 +48,18 @@ const ROL_LABELS: Record<string, string> = {
   administrador: 'Administrador',
   contratista: 'Contratista',
   inspector: 'Inspector',
+  ingeniera_residente: 'Ing. Residente',
+  directivo_hospital: 'Directivo Hospital',
+  ingenieria_hospital: 'Ing. Hospital',
 }
 
 const ROL_COLORS: Record<string, string> = {
   administrador: 'bg-purple-100 text-purple-800 border-purple-200',
   contratista: 'bg-sky-100 text-sky-800 border-sky-200',
   inspector: 'bg-amber-100 text-amber-800 border-amber-200',
+  ingeniera_residente: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  directivo_hospital: 'bg-rose-100 text-rose-800 border-rose-200',
+  ingenieria_hospital: 'bg-orange-100 text-orange-800 border-orange-200',
 }
 
 function AppContent() {
@@ -156,6 +162,9 @@ function AppContent() {
                   <div className="px-2 py-1.5">
                     <p className="text-sm font-medium">{profile?.nombre_completo}</p>
                     <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    {profile?.ente_pertenece && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{profile.ente_pertenece}</p>
+                    )}
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="sm:hidden">

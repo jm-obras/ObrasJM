@@ -12,10 +12,13 @@ interface AuthState {
   } | null
   profile: Profile | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>
+  debe_cambiar_password: boolean
+  signIn: (email: string, password: string) => Promise<{ error: string | null; debe_cambiar_password?: boolean }>
   signUp: (email: string, password: string, nombre_completo: string, rol: UserRol) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  changePassword: (currentPassword: string, newPassword: string) => Promise<{ error: string | null }>
+  setPasswordChanged: () => void
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined)
@@ -24,6 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthState['user']>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [debe_cambiar_password, setDebeCambiarPassword] = useState(false)
 
   const refreshProfile = useCallback(async () => {
     try {
@@ -32,17 +36,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = await res.json()
         setUser(data.user)
         setProfile(data.profile)
+        setDebeCambiarPassword(data.profile?.debe_cambiar_password || false)
       } else {
         setUser(null)
         setProfile(null)
+        setDebeCambiarPassword(false)
       }
     } catch {
       setUser(null)
       setProfile(null)
+      setDebeCambiarPassword(false)
     }
   }, [])
 
-  // Check auth state on mount
   useEffect(() => {
     const initAuth = async () => {
       setLoading(true)
@@ -52,7 +58,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth()
   }, [refreshProfile])
 
-  // Listen for Supabase auth state changes
   useEffect(() => {
     const supabase = createClient()
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -62,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else if (event === 'SIGNED_OUT') {
           setUser(null)
           setProfile(null)
+          setDebeCambiarPassword(false)
         } else if (event === 'TOKEN_REFRESHED') {
           await refreshProfile()
         }
@@ -73,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [refreshProfile])
 
-  const signIn = useCallback(async (email: string, password: string): Promise<{ error: string | null }> => {
+  const signIn = useCallback(async (email: string, password: string): Promise<{ error: string | null; debe_cambiar_password?: boolean }> => {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -89,7 +95,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUser(data.user)
       setProfile(data.profile)
-      return { error: null }
+      setDebeCambiarPassword(data.debe_cambiar_password || false)
+      return { error: null, debe_cambiar_password: data.debe_cambiar_password || false }
     } catch {
       return { error: 'Error de conexión. Intente nuevamente.' }
     }
@@ -128,17 +135,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setUser(null)
       setProfile(null)
+      setDebeCambiarPassword(false)
     }
   }, [])
+
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string): Promise<{ error: string | null }> => {
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        return { error: data.error || 'Error al cambiar la contraseña' }
+      }
+
+      setDebeCambiarPassword(false)
+      if (profile) {
+        setProfile({ ...profile, debe_cambiar_password: false })
+      }
+      return { error: null }
+    } catch {
+      return { error: 'Error de conexión. Intente nuevamente.' }
+    }
+  }, [profile])
+
+  const setPasswordChanged = useCallback(() => {
+    setDebeCambiarPassword(false)
+    if (profile) {
+      setProfile({ ...profile, debe_cambiar_password: false })
+    }
+  }, [profile])
 
   const value: AuthState = {
     user,
     profile,
     loading,
+    debe_cambiar_password,
     signIn,
     signUp,
     signOut,
     refreshProfile,
+    changePassword,
+    setPasswordChanged,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

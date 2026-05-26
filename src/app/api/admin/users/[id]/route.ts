@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+const VALID_ROLES = [
+  'administrador',
+  'contratista',
+  'inspector',
+  'ingeniera_residente',
+  'directivo_hospital',
+  'ingenieria_hospital',
+]
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -10,7 +19,6 @@ export async function PUT(
     const { id } = await params
     const supabase = await createClient()
 
-    // Verify user is authenticated and is admin
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
@@ -34,7 +42,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { nombre_completo, rol, unidad_ejecutora_id, activo, email, password } = body
+    const { nombre_completo, rol, unidad_ejecutora_id, activo, email, password, telefono, ente_pertenece } = body
 
     const adminClient = createAdminClient()
 
@@ -61,10 +69,9 @@ export async function PUT(
     const profileUpdate: Record<string, unknown> = {}
     if (nombre_completo !== undefined) profileUpdate.nombre_completo = nombre_completo
     if (rol !== undefined) {
-      const validRoles = ['administrador', 'contratista', 'inspector']
-      if (!validRoles.includes(rol)) {
+      if (!VALID_ROLES.includes(rol)) {
         return NextResponse.json(
-          { error: `Rol inválido. Debe ser uno de: ${validRoles.join(', ')}` },
+          { error: `Rol inválido. Debe ser uno de: ${VALID_ROLES.join(', ')}` },
           { status: 400 }
         )
       }
@@ -72,6 +79,8 @@ export async function PUT(
     }
     if (unidad_ejecutora_id !== undefined) profileUpdate.unidad_ejecutora_id = unidad_ejecutora_id
     if (activo !== undefined) profileUpdate.activo = activo
+    if (telefono !== undefined) profileUpdate.telefono = telefono || null
+    if (ente_pertenece !== undefined) profileUpdate.ente_pertenece = ente_pertenece || null
     profileUpdate.updated_at = new Date().toISOString()
 
     if (Object.keys(profileUpdate).length > 1) {
@@ -116,7 +125,6 @@ export async function DELETE(
     const { id } = await params
     const supabase = await createClient()
 
-    // Verify user is authenticated and is admin
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
@@ -139,7 +147,6 @@ export async function DELETE(
       )
     }
 
-    // Prevent self-deletion
     if (user.id === id) {
       return NextResponse.json(
         { error: 'No puede eliminar su propia cuenta' },
@@ -149,7 +156,6 @@ export async function DELETE(
 
     const adminClient = createAdminClient()
 
-    // Delete profile first
     const { error: profileDeleteError } = await adminClient
       .from('profiles')
       .delete()
@@ -162,7 +168,6 @@ export async function DELETE(
       )
     }
 
-    // Delete auth user
     const { error: authDeleteError } = await adminClient.auth.admin.deleteUser(id)
 
     if (authDeleteError) {

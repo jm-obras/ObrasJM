@@ -68,12 +68,18 @@ const ROL_COLORS: Record<UserRol, string> = {
   administrador: 'bg-purple-100 text-purple-800 border-purple-200',
   contratista: 'bg-sky-100 text-sky-800 border-sky-200',
   inspector: 'bg-amber-100 text-amber-800 border-amber-200',
+  ingeniera_residente: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  directivo_hospital: 'bg-rose-100 text-rose-800 border-rose-200',
+  ingenieria_hospital: 'bg-orange-100 text-orange-800 border-orange-200',
 }
 
 const ROL_LABELS: Record<UserRol, string> = {
   administrador: 'Administrador',
   contratista: 'Contratista',
   inspector: 'Inspector',
+  ingeniera_residente: 'Ing. Residente',
+  directivo_hospital: 'Directivo Hospital',
+  ingenieria_hospital: 'Ing. Hospital',
 }
 
 interface UserWithProfile {
@@ -90,12 +96,16 @@ interface UserFormData {
   nombre_completo: string
   rol: UserRol
   unidad_ejecutora_id: string
+  telefono: string
+  ente_pertenece: string
 }
 
 interface EditUserFormData {
   nombre_completo: string
   rol: UserRol
   unidad_ejecutora_id: string
+  telefono: string
+  ente_pertenece: string
   activo: boolean
 }
 
@@ -126,6 +136,8 @@ const emptyUserForm: UserFormData = {
   nombre_completo: '',
   rol: 'contratista',
   unidad_ejecutora_id: '',
+  telefono: '',
+  ente_pertenece: '',
 }
 
 const emptyUnidadForm: UnidadFormData = {
@@ -185,6 +197,8 @@ export function AdminView({ profile }: AdminViewProps) {
     nombre_completo: '',
     rol: 'contratista',
     unidad_ejecutora_id: '',
+    telefono: '',
+    ente_pertenece: '',
     activo: true,
   })
 
@@ -407,6 +421,8 @@ export function AdminView({ profile }: AdminViewProps) {
       nombre_completo: user.profile?.nombre_completo || '',
       rol: user.profile?.rol || 'contratista',
       unidad_ejecutora_id: user.profile?.unidad_ejecutora_id || '',
+      telefono: user.profile?.telefono || '',
+      ente_pertenece: user.profile?.ente_pertenece || '',
       activo: user.profile?.activo ?? true,
     })
     setShowEditUserDialog(true)
@@ -429,6 +445,8 @@ export function AdminView({ profile }: AdminViewProps) {
           email: userForm.email, password: userForm.password,
           nombre_completo: userForm.nombre_completo, rol: userForm.rol,
           unidad_ejecutora_id: userForm.unidad_ejecutora_id || null,
+          telefono: userForm.telefono || null,
+          ente_pertenece: userForm.ente_pertenece || null,
         }),
       })
       const data = await res.json()
@@ -443,7 +461,10 @@ export function AdminView({ profile }: AdminViewProps) {
     try {
       const body: Record<string, unknown> = {
         nombre_completo: editUserForm.nombre_completo, rol: editUserForm.rol,
-        unidad_ejecutora_id: editUserForm.unidad_ejecutora_id || null, activo: editUserForm.activo,
+        unidad_ejecutora_id: editUserForm.unidad_ejecutora_id || null,
+        telefono: editUserForm.telefono || null,
+        ente_pertenece: editUserForm.ente_pertenece || null,
+        activo: editUserForm.activo,
       }
       const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
@@ -736,13 +757,15 @@ export function AdminView({ profile }: AdminViewProps) {
                     <TableHead>Email</TableHead>
                     <TableHead>Rol</TableHead>
                     <TableHead>Unidad Ejecutora</TableHead>
+                    <TableHead>Teléfono</TableHead>
+                    <TableHead>Ente</TableHead>
                     <TableHead>Activo</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loadingUsers ? (
-                    <TableSkeleton cols={6} />
+                    <TableSkeleton cols={8} />
                   ) : paginatedUsers.length === 0 ? (
                     <EmptyState icon={Users} message="No se encontraron usuarios" />
                   ) : (
@@ -760,6 +783,8 @@ export function AdminView({ profile }: AdminViewProps) {
                           </Badge>
                         </TableCell>
                         <TableCell>{getUnidadNombre(user.profile?.unidad_ejecutora_id || null)}</TableCell>
+                        <TableCell>{user.profile?.telefono || '\u2014'}</TableCell>
+                        <TableCell>{user.profile?.ente_pertenece || '\u2014'}</TableCell>
                         <TableCell>
                           {user.profile?.activo ? (
                             <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-200">Activo</Badge>
@@ -1067,6 +1092,9 @@ export function AdminView({ profile }: AdminViewProps) {
                     <SelectItem value="administrador">Administrador</SelectItem>
                     <SelectItem value="contratista">Contratista</SelectItem>
                     <SelectItem value="inspector">Inspector</SelectItem>
+                    <SelectItem value="ingeniera_residente">Ing. Residente</SelectItem>
+                    <SelectItem value="directivo_hospital">Directivo Hospital</SelectItem>
+                    <SelectItem value="ingenieria_hospital">Ing. Hospital</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1078,6 +1106,16 @@ export function AdminView({ profile }: AdminViewProps) {
                     {unidadesEjecutoras.map((u) => (<SelectItem key={u.id} value={u.id}>{u.nombre}</SelectItem>))}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="user-telefono">Teléfono</Label>
+                <Input id="user-telefono" value={userForm.telefono} onChange={(e) => setUserForm((p) => ({ ...p, telefono: e.target.value }))} placeholder="Teléfono" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="user-ente">Ente al que pertenece</Label>
+                <Input id="user-ente" value={userForm.ente_pertenece} onChange={(e) => setUserForm((p) => ({ ...p, ente_pertenece: e.target.value }))} placeholder="Nombre del ente" />
               </div>
             </div>
           </div>
@@ -1111,6 +1149,9 @@ export function AdminView({ profile }: AdminViewProps) {
                     <SelectItem value="administrador">Administrador</SelectItem>
                     <SelectItem value="contratista">Contratista</SelectItem>
                     <SelectItem value="inspector">Inspector</SelectItem>
+                    <SelectItem value="ingeniera_residente">Ing. Residente</SelectItem>
+                    <SelectItem value="directivo_hospital">Directivo Hospital</SelectItem>
+                    <SelectItem value="ingenieria_hospital">Ing. Hospital</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1122,6 +1163,16 @@ export function AdminView({ profile }: AdminViewProps) {
                     {unidadesEjecutoras.map((u) => (<SelectItem key={u.id} value={u.id}>{u.nombre}</SelectItem>))}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-telefono">Teléfono</Label>
+                <Input id="edit-telefono" value={editUserForm.telefono} onChange={(e) => setEditUserForm((p) => ({ ...p, telefono: e.target.value }))} placeholder="Teléfono" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-ente">Ente al que pertenece</Label>
+                <Input id="edit-ente" value={editUserForm.ente_pertenece} onChange={(e) => setEditUserForm((p) => ({ ...p, ente_pertenece: e.target.value }))} placeholder="Nombre del ente" />
               </div>
             </div>
             <div className="flex items-center gap-3">

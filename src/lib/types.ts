@@ -1,4 +1,4 @@
-export type UserRol = 'administrador' | 'contratista' | 'inspector'
+export type UserRol = 'administrador' | 'contratista' | 'inspector' | 'ingeniera_residente' | 'directivo_hospital' | 'ingenieria_hospital'
 export type TrabajoTipo = 'Planificado' | 'Imprevisto'
 export type AprobacionStatus = 'Pendiente' | 'Aprobado' | 'Rechazado'
 export type AlcanceStatus = 'Activo' | 'Completado' | 'Suspendido'
@@ -8,6 +8,9 @@ export interface Profile {
   nombre_completo: string
   rol: UserRol
   unidad_ejecutora_id: string | null
+  telefono: string | null
+  ente_pertenece: string | null
+  debe_cambiar_password: boolean
   activo: boolean
   created_at: string
   updated_at: string
