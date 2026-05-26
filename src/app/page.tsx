@@ -95,16 +95,16 @@ function AppContent() {
           <div className="flex items-center justify-between h-16">
             {/* Logo + Title */}
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                <img
+                  src="/VSOPS.png"
+                  alt="VSOPS"
+                  className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
+                />
                 <img
                   src="/logo_hospital.png"
                   alt="Hospital J.M. de los Ríos"
-                  className="h-10 w-10 object-contain"
-                />
-                <img
-                  src="/logo_ministerio.png"
-                  alt="Ministerio"
-                  className="h-10 w-10 object-contain hidden sm:block"
+                  className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
                 />
               </div>
               <Separator orientation="vertical" className="h-8 hidden sm:block" />
