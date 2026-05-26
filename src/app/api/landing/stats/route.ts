@@ -66,9 +66,10 @@ export async function GET() {
         pafGlobal,
       },
     })
-  } catch {
+  } catch (err) {
+    console.error('[Landing Stats API Error]', err)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error interno del servidor', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 }
     )
   }

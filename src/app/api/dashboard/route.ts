@@ -156,9 +156,10 @@ export async function GET() {
         },
       },
     })
-  } catch {
+  } catch (err) {
+    console.error('[Dashboard API Error]', err)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error interno del servidor', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 }
     )
   }
