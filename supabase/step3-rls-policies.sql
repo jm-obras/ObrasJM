@@ -99,6 +99,22 @@ USING (EXISTS (
   SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'administrador'
 ));
 
+CREATE POLICY "Inspectors can insert alcance planificado"
+ON public.alcance_planificado FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'inspector'
+  )
+);
+
+CREATE POLICY "Inspectors can update alcance planificado"
+ON public.alcance_planificado FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'inspector'
+  )
+);
+
 -- ========== AVANCE_EJECUTADO ==========
 CREATE POLICY "Authenticated users can read avance ejecutado"
 ON public.avance_ejecutado FOR SELECT
