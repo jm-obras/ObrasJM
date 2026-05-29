@@ -1,6 +1,6 @@
 'use client'
 
-import { LogIn } from 'lucide-react'
+import { LogIn, BookOpen } from 'lucide-react'
 
 interface FooterSectionProps {
   onLoginClick: () => void
@@ -50,6 +50,17 @@ export function FooterSection({ onLoginClick }: FooterSectionProps) {
                   </a>
                 </li>
               ))}
+              <li>
+                <a
+                  href="/Manual_Usuario_ObrasJM_v2.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm text-slate-400 transition-colors hover:text-white"
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  Manual de Usuario
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -91,9 +102,13 @@ export function FooterSection({ onLoginClick }: FooterSectionProps) {
             Plan de Recuperación de Infraestructura Hospitalaria «Dr. José
             Gregorio Hernández»
           </p>
-          <p className="mt-1 text-center text-xs text-slate-600">
-            IT Development by @libnimaster
-          </p>
+          <div className="mt-2 flex flex-col items-center gap-1 sm:flex-row sm:justify-center sm:gap-3">
+            <p className="text-xs text-slate-400 font-semibold">Z.ai</p>
+            <span className="hidden sm:inline text-slate-700">—</span>
+            <p className="text-xs text-slate-500">
+              IT Development by <span className="text-slate-400 font-medium">@libnimaster</span>
+            </p>
+          </div>
         </div>
       </div>
     </footer>

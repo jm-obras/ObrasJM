@@ -994,6 +994,65 @@ def build_content():
         'contacte al equipo de gestion.',
         style_body
     ))
+    story.append(Spacer(1, 12))
+
+    # ──────────────────────────────────────────────
+    # 7. INSTITUCIONES PARTICIPANTES
+    # ──────────────────────────────────────────────
+    story.extend(add_major_section('7. Instituciones Participantes'))
+
+    story.append(Paragraph(
+        'Las siguientes instituciones participan como Unidades Ejecutoras en las obras de '
+        'recuperacion del Hospital de Ninos J.M. de los Rios:',
+        style_body
+    ))
+    story.append(Spacer(1, 12))
+
+    inst_data = [
+        [Paragraph('<b>Institucion</b>', style_th), Paragraph('<b>Siglas</b>', style_th), Paragraph('<b>Area</b>', style_th)],
+        [Paragraph('Vicepresidencia de Obras y Servicios Publicos', style_td_left), Paragraph('VSOPS', style_td), Paragraph('Coordinacion general del proyecto', style_td_left)],
+        [Paragraph('Hospital de Ninos J.M. de los Rios', style_td_left), Paragraph('HJM', style_td), Paragraph('Institucion beneficiaria', style_td_left)],
+        [Paragraph('Alcaldia del Municipio Libertador de Caracas', style_td_left), Paragraph('Alcaldia CCS', style_td), Paragraph('Infraestructura civil y apoyo municipal', style_td_left)],
+        [Paragraph('Corporacion Electrica Nacional', style_td_left), Paragraph('Corpoelec', style_td), Paragraph('Sistema electrico y generacion', style_td_left)],
+        [Paragraph('Hidrologia de Venezuela', style_td_left), Paragraph('Hidroven', style_td), Paragraph('Sistema hidrico y sanitario', style_td_left)],
+        [Paragraph('Compania Anonima Nacional Telefonos de Venezuela', style_td_left), Paragraph('CANTv', style_td), Paragraph('Telecomunicaciones', style_td_left)],
+        [Paragraph('Ministerio del Poder Popular para el Agua', style_td_left), Paragraph('Minaguas', style_td), Paragraph('Suministro y gestion del agua', style_td_left)],
+        [Paragraph('Ministerio del Poder Popular para Obras Publicas', style_td_left), Paragraph('MPPOP', style_td), Paragraph('Obras publicas e infraestructura', style_td_left)],
+    ]
+    story.append(make_table(inst_data, [CONTENT_W*0.45, CONTENT_W*0.15, CONTENT_W*0.40]))
+    story.append(Spacer(1, 16))
+
+    # ──────────────────────────────────────────────
+    # CREDITOS
+    # ──────────────────────────────────────────────
+    story.append(HRFlowable(width='60%', thickness=1, color=TEXT_MUTED, spaceAfter=16, spaceBefore=24))
+
+    style_credits_title = ParagraphStyle(
+        'CreditsTitle', fontName=HEADING_FONT, fontSize=14, leading=20,
+        textColor=ACCENT, alignment=TA_CENTER, spaceBefore=8, spaceAfter=6
+    )
+    style_credits_body = ParagraphStyle(
+        'CreditsBody', fontName=BODY_FONT, fontSize=11, leading=16,
+        textColor=TEXT_PRIMARY, alignment=TA_CENTER, spaceAfter=4
+    )
+    style_credits_small = ParagraphStyle(
+        'CreditsSmall', fontName=BODY_FONT, fontSize=9, leading=14,
+        textColor=TEXT_MUTED, alignment=TA_CENTER, spaceAfter=4
+    )
+
+    story.append(Paragraph('Desarrollo y Soporte Tecnologico', style_credits_title))
+    story.append(Spacer(1, 8))
+    story.append(Paragraph('<b>Z.ai</b>', ParagraphStyle(
+        'CreditsBrand', fontName=HEADING_FONT, fontSize=20, leading=28,
+        textColor=ACCENT, alignment=TA_CENTER, spaceAfter=6
+    )))
+    story.append(Paragraph('IT Development by <b>@libnimaster</b>', style_credits_body))
+    story.append(Spacer(1, 8))
+    story.append(Paragraph(
+        'Plataforma de seguimiento de obras desarrollada para el '
+        'Hospital de Ninos J.M. de los Rios — Marzo 2026',
+        style_credits_small
+    ))
 
     return story
 
