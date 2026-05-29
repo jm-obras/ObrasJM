@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { nombre, rif, contacto } = body
+    const { nombre, rif, contacto, logo_url } = body
 
     if (!nombre) {
       return NextResponse.json(
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     const { data, error } = await supabase
       .from('unidades_ejecutoras')
-      .insert({ nombre, rif, contacto, activa: true })
+      .insert({ nombre, rif, contacto, logo_url: logo_url || null, activa: true })
       .select()
       .single()
 

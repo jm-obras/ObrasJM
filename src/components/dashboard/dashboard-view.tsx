@@ -1,15 +1,26 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { RefreshCw, AlertCircle } from 'lucide-react'
+import { RefreshCw, AlertCircle, LayoutDashboard, Building2, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { KPICards } from '@/components/dashboard/kpi-cards'
 import { HospitalHeatmap } from '@/components/dashboard/hospital-heatmap'
 import { PAFChart } from '@/components/dashboard/paf-chart'
+import { EjecutorasView } from '@/components/dashboard/ejecutoras-view'
+import { EspecialidadesView } from '@/components/dashboard/especialidades-view'
 import type { KPIData } from '@/lib/types'
 
+type DashboardTab = 'general' | 'ejecutoras' | 'especialidades'
+
+const DASHBOARD_TABS: { key: DashboardTab; label: string; icon: React.ElementType }[] = [
+  { key: 'general', label: 'Vista General', icon: LayoutDashboard },
+  { key: 'ejecutoras', label: 'Ejecutoras', icon: Building2 },
+  { key: 'especialidades', label: 'Macro Especialidades', icon: Wrench },
+]
+
 export function DashboardView() {
+  const [activeTab, setActiveTab] = useState<DashboardTab>('general')
   const [data, setData] = useState<KPIData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -77,47 +88,79 @@ export function DashboardView() {
 
   return (
     <div className="space-y-6">
-      {/* Dashboard header with refresh */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight">Dashboard PAF</h2>
-          <p className="text-sm text-muted-foreground">
-            Seguimiento de Avance Físico — Hospital J.M. de los Ríos
-          </p>
+      {/* Dashboard header with refresh + sub-tabs */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">Dashboard PAF</h2>
+            <p className="text-sm text-muted-foreground">
+              Seguimiento de Avance Físico — Hospital J.M. de los Ríos
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {lastRefresh && (
+              <span className="text-xs text-muted-foreground hidden sm:inline">
+                Actualizado: {lastRefresh.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchData(true)}
+              disabled={isRefreshing}
+              className="gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Actualizar</span>
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          {lastRefresh && (
-            <span className="text-xs text-muted-foreground hidden sm:inline">
-              Actualizado: {lastRefresh.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fetchData(true)}
-            disabled={isRefreshing}
-            className="gap-2"
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Actualizar</span>
-          </Button>
+
+        {/* Sub-tab navigation */}
+        <div className="flex gap-1 border-b pb-px">
+          {DASHBOARD_TABS.map((tab) => {
+            const Icon = tab.icon
+            const isActive = activeTab === tab.key
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  isActive
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="hidden sm:inline">{tab.label}</span>
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <section>
-        <KPICards data={data} loading={loading} />
-      </section>
+      {/* Tab content */}
+      {activeTab === 'general' && (
+        <div className="space-y-6">
+          <section>
+            <KPICards data={data} loading={loading} />
+          </section>
+          <section>
+            <HospitalHeatmap data={data} loading={loading} />
+          </section>
+          <section>
+            <PAFChart data={data?.pafBySector ?? null} loading={loading} />
+          </section>
+        </div>
+      )}
 
-      {/* Heatmap */}
-      <section>
-        <HospitalHeatmap data={data} loading={loading} />
-      </section>
+      {activeTab === 'ejecutoras' && (
+        <EjecutorasView />
+      )}
 
-      {/* PAF Chart */}
-      <section>
-        <PAFChart data={data?.pafBySector ?? null} loading={loading} />
-      </section>
+      {activeTab === 'especialidades' && (
+        <EspecialidadesView />
+      )}
     </div>
   )
 }

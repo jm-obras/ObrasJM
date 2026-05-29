@@ -33,12 +33,13 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { nombre, rif, contacto, activa } = body
+    const { nombre, rif, contacto, logo_url, activa } = body
 
     const updateData: Record<string, unknown> = {}
     if (nombre !== undefined) updateData.nombre = nombre
     if (rif !== undefined) updateData.rif = rif
     if (contacto !== undefined) updateData.contacto = contacto
+    if (logo_url !== undefined) updateData.logo_url = logo_url
     if (activa !== undefined) updateData.activa = activa
 
     if (Object.keys(updateData).length === 0) {

@@ -87,7 +87,7 @@ export function UnidadesTab() {
   const handleAddUnidadOpen = () => { setUnidadForm(emptyUnidadForm); setShowAddUnidadDialog(true) }
   const handleEditUnidadOpen = (unidad: UnidadEjecutora) => {
     setSelectedUnidad(unidad)
-    setUnidadForm({ nombre: unidad.nombre, rif: unidad.rif || '', contacto: unidad.contacto || '' })
+    setUnidadForm({ nombre: unidad.nombre, rif: unidad.rif || '', contacto: unidad.contacto || '', logo_url: unidad.logo_url || '' })
     setShowEditUnidadDialog(true)
   }
   const handleDeleteUnidadOpen = (unidad: UnidadEjecutora) => { setSelectedUnidad(unidad); setShowDeleteUnidadDialog(true) }
@@ -98,7 +98,7 @@ export function UnidadesTab() {
     try {
       const res = await fetch('/api/unidades-ejecutoras', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: unidadForm.nombre, rif: unidadForm.rif || null, contacto: unidadForm.contacto || null }),
+        body: JSON.stringify({ nombre: unidadForm.nombre, rif: unidadForm.rif || null, contacto: unidadForm.contacto || null, logo_url: unidadForm.logo_url || null }),
       })
       const data = await res.json()
       if (res.ok) { toast.success('Unidad ejecutora creada exitosamente'); setShowAddUnidadDialog(false); fetchUnidades() }
@@ -112,7 +112,7 @@ export function UnidadesTab() {
     try {
       const res = await fetch(`/api/unidades-ejecutoras/${selectedUnidad.id}`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: unidadForm.nombre, rif: unidadForm.rif || null, contacto: unidadForm.contacto || null }),
+        body: JSON.stringify({ nombre: unidadForm.nombre, rif: unidadForm.rif || null, contacto: unidadForm.contacto || null, logo_url: unidadForm.logo_url || null }),
       })
       const data = await res.json()
       if (res.ok) { toast.success('Unidad ejecutora actualizada exitosamente'); setShowEditUnidadDialog(false); fetchUnidades() }
@@ -167,7 +167,20 @@ export function UnidadesTab() {
                 ) : (
                   unidadesEjecutoras.map((unidad) => (
                     <TableRow key={unidad.id}>
-                      <TableCell className="font-medium">{unidad.nombre}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {unidad.logo_url ? (
+                            <div className="h-8 w-8 rounded-md overflow-hidden bg-muted/30 border flex items-center justify-center flex-shrink-0 p-0.5">
+                              <img src={unidad.logo_url} alt="" className="h-full w-full object-contain" />
+                            </div>
+                          ) : (
+                            <div className="h-8 w-8 rounded-md bg-muted/50 border flex items-center justify-center flex-shrink-0">
+                              <Building2 className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          )}
+                          <span className="font-medium">{unidad.nombre}</span>
+                        </div>
+                      </TableCell>
                       <TableCell>{unidad.rif || '—'}</TableCell>
                       <TableCell>{unidad.contacto || '—'}</TableCell>
                       <TableCell>
@@ -218,6 +231,11 @@ export function UnidadesTab() {
                 <Input id="unidad-contacto" value={unidadForm.contacto} onChange={(e) => setUnidadForm((p) => ({ ...p, contacto: e.target.value }))} placeholder="Nombre o teléfono" />
               </div>
             </div>
+            <div className="grid gap-2">
+              <Label htmlFor="unidad-logo">URL del Logo</Label>
+              <Input id="unidad-logo" value={unidadForm.logo_url} onChange={(e) => setUnidadForm((p) => ({ ...p, logo_url: e.target.value }))} placeholder="/images/logos-ue/mi-empresa.png" />
+              <p className="text-[11px] text-muted-foreground">Ruta de la imagen del logotipo (ej: /images/logos-ue/empresa.png)</p>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddUnidadDialog(false)} disabled={submitting}>Cancelar</Button>
@@ -249,6 +267,11 @@ export function UnidadesTab() {
                 <Label htmlFor="edit-unidad-contacto">Contacto</Label>
                 <Input id="edit-unidad-contacto" value={unidadForm.contacto} onChange={(e) => setUnidadForm((p) => ({ ...p, contacto: e.target.value }))} />
               </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-unidad-logo">URL del Logo</Label>
+              <Input id="edit-unidad-logo" value={unidadForm.logo_url} onChange={(e) => setUnidadForm((p) => ({ ...p, logo_url: e.target.value }))} placeholder="/images/logos-ue/mi-empresa.png" />
+              <p className="text-[11px] text-muted-foreground">Ruta de la imagen del logotipo (ej: /images/logos-ue/empresa.png)</p>
             </div>
           </div>
           <DialogFooter>

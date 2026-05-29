@@ -53,6 +53,7 @@ export interface UnidadFormData {
   nombre: string
   rif: string
   contacto: string
+  logo_url: string
 }
 
 export interface EspecialidadFormData {
@@ -85,6 +86,7 @@ export const emptyUnidadForm: UnidadFormData = {
   nombre: '',
   rif: '',
   contacto: '',
+  logo_url: '',
 }
 
 export const emptyEspecialidadForm: EspecialidadFormData = {

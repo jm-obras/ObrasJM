@@ -21,6 +21,7 @@ export interface UnidadEjecutora {
   nombre: string
   rif: string | null
   contacto: string | null
+  logo_url: string | null
   activa: boolean
   created_at: string
 }
@@ -118,4 +119,43 @@ export interface KPIData {
   alertas: number
   pafBySector: PAFSector[]
   pafBySubsector: PAFSubsector[]
+}
+
+export interface EjecutoraEspecialidad {
+  id: string
+  nombre: string
+  paf: number
+  frentes: number
+}
+
+export interface EjecutoraData {
+  id: string
+  nombre: string
+  logo_url: string | null
+  paf: number
+  frentesActivos: number
+  alertas: number
+  totalItems: number
+  itemsConAvance: number
+  especialidades: EjecutoraEspecialidad[]
+}
+
+export interface SubEspecialidadData {
+  id: string
+  nombre: string
+  paf: number
+  totalItems: number
+  itemsConAvance: number
+}
+
+export interface MacroEspecialidadData {
+  id: string
+  nombre: string
+  slug: string
+  imagen_url: string | null
+  orden: number
+  paf: number
+  totalItems: number
+  itemsConAvance: number
+  subEspecialidades: SubEspecialidadData[]
 }

@@ -293,3 +293,31 @@ Stage Summary:
 - Cross-tab dependency handled: SectoresTab → onSectorChange callback → AdminView refreshes shared sectores + triggers SubsectoresTab re-fetch
 - Users tab needs shared unidadesEjecutoras for form select; Subsectores tab needs shared sectores for form select
 - All sub-components are 'use client' as required
+
+---
+Task ID: 1
+Agent: Main
+Task: Implement 3-tab Dashboard (Vista General / Ejecutoras / Macro Especialidades)
+
+Work Log:
+- Read current project state: dashboard-view.tsx, API routes, types, admin components
+- Created SQL migration 012: adds logo_url to unidades_ejecutoras, creates macro_especialidades table, junction table, seeds 6 macro areas, maps existing especialidades via LIKE, creates v_paf_ejecutora and v_paf_macro_especialidad views, enables RLS
+- Created API endpoint /api/dashboard/ejecutoras (GET) - PAF by unidad ejecutora with especialidades breakdown
+- Created API endpoint /api/dashboard/especialidades (GET) - PAF by macro especialidad with sub-especialidades breakdown
+- Copied 6 macro-especialidad images to /public/images/macro-especialidades/
+- Created /public/images/logos-ue/ directory for UE logos
+- Refactored dashboard-view.tsx: now contains 3 sub-tabs (Vista General / Ejecutoras / Macro Especialidades)
+- Created ejecutoras-view.tsx: Grid cards with logo + circular progress + PAF + expandable especialidades
+- Created especialidades-view.tsx: Grid cards with macro images + circular progress overlay + sub-especialidades
+- Updated types.ts: added EjecutoraData, EjecutoraEspecialidad, SubEspecialidadData, MacroEspecialidadData
+- Updated UnidadEjecutora type: added logo_url field
+- Updated admin-types.ts: added logo_url to UnidadFormData
+- Updated unidades-tab.tsx: logo preview in table, logo_url field in Add/Edit dialogs
+- Updated API routes: unidades-ejecutoras POST and PUT now handle logo_url
+- Lint passes cleanly
+
+Stage Summary:
+- All frontend components created and working
+- All API endpoints created
+- SQL migration ready to apply (user needs to run it in Supabase dashboard)
+- Pending: User must apply migration 012 in Supabase SQL Editor for the new tables/views to exist
