@@ -9,6 +9,7 @@ const VALID_ROLES = [
   'ingeniera_residente',
   'directivo_hospital',
   'ingenieria_hospital',
+  'visitante',
 ]
 
 export async function PUT(
