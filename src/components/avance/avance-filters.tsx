@@ -46,7 +46,7 @@ export function AvanceFilters({
       <CardContent>
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[160px] space-y-1">
-            <Label className="text-xs text-muted-foreground">Status Aprobación</Label>
+            <Label className="text-xs text-muted-foreground">Status General</Label>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="h-9">
                 <SelectValue placeholder="Todos" />
@@ -54,7 +54,7 @@ export function AvanceFilters({
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="Pendiente">Pendiente</SelectItem>
-                <SelectItem value="Aprobado">Aprobado</SelectItem>
+                <SelectItem value="Aprobado">Aprobado (3 niveles)</SelectItem>
                 <SelectItem value="Rechazado">Rechazado</SelectItem>
               </SelectContent>
             </Select>

@@ -7,6 +7,7 @@ import type {
   AvanceEjecutado,
   AlcancePlanificado,
   AprobacionStatus,
+  UserRol,
   Especialidad,
   Sector,
   Subsector,
@@ -24,6 +25,16 @@ import {
   PhotoViewerDialog,
 } from './avance-dialogs'
 
+/** Which approval level each role can approve (admin can approve all) */
+const APPROVAL_LEVEL_BY_ROLE: Record<UserRol, 'residente' | 'inspector' | 'directivo' | null> = {
+  administrador: null, // null = can approve any level
+  ingeniera_residente: 'residente',
+  inspector: 'inspector',
+  directivo_hospital: 'directivo',
+  contratista: null,
+  ingenieria_hospital: null,
+}
+
 interface AvanceViewProps {
   profile: Profile
 }
@@ -32,9 +43,12 @@ export function AvanceView({ profile }: AvanceViewProps) {
   const isAdmin = profile.rol === 'administrador'
   const isInspector = profile.rol === 'inspector'
   const isContratista = profile.rol === 'contratista'
-  const canCreate = isAdmin || isContratista || isInspector
-  const canApprove = isAdmin || isInspector
-  const canEdit = isAdmin || isInspector
+  const isResidente = profile.rol === 'ingeniera_residente'
+  const isDirectivo = profile.rol === 'directivo_hospital'
+
+  const canCreate = isAdmin || isContratista || isInspector || isResidente
+  const canEdit = isAdmin || isInspector || isContratista || isResidente
+  const canApprove = isAdmin || isResidente || isInspector || isDirectivo
 
   // Data
   const [avances, setAvances] = useState<AvanceEjecutado[]>([])
@@ -294,13 +308,46 @@ export function AvanceView({ profile }: AvanceViewProps) {
     }
   }
 
-  const handleApproval = async (status: AprobacionStatus) => {
+  /**
+   * 3-level approval handler.
+   * Determines which approval field to set based on the user's role.
+   */
+  const handleApproval = async (status: AprobacionStatus, level?: 'residente' | 'inspector' | 'directivo') => {
     if (!selectedAvance) return
+
+    // Determine the approval level
+    let approvalLevel = level
+    if (!approvalLevel) {
+      const roleLevel = APPROVAL_LEVEL_BY_ROLE[profile.rol]
+      if (roleLevel) {
+        approvalLevel = roleLevel
+      } else if (isAdmin) {
+        // Admin approving without specifying level - find the next pending level
+        if (selectedAvance.aprobacion_residente === 'Pendiente') {
+          approvalLevel = 'residente'
+        } else if (selectedAvance.aprobacion_inspector === 'Pendiente') {
+          approvalLevel = 'inspector'
+        } else if (selectedAvance.aprobacion_directivo === 'Pendiente') {
+          approvalLevel = 'directivo'
+        }
+      }
+    }
+
+    if (!approvalLevel) {
+      toast.error('No tiene permisos para aprobar este avance')
+      return
+    }
 
     setSubmitting(true)
     try {
-      const body: Record<string, unknown> = {
-        status_aprobacion: status,
+      const body: Record<string, unknown> = {}
+
+      if (approvalLevel === 'residente') {
+        body.aprobacion_residente = status
+      } else if (approvalLevel === 'inspector') {
+        body.aprobacion_inspector = status
+      } else if (approvalLevel === 'directivo') {
+        body.aprobacion_directivo = status
       }
 
       if (status === 'Rechazado' && rejectionNotes) {
@@ -316,8 +363,12 @@ export function AvanceView({ profile }: AvanceViewProps) {
       const data = await res.json()
 
       if (res.ok) {
+        const levelNames = { residente: 'Ing. Residente', inspector: 'Inspector MPPOP', directivo: 'Directivo Hospital' }
+        const levelName = levelNames[approvalLevel]
         toast.success(
-          status === 'Aprobado' ? 'Avance aprobado exitosamente' : 'Avance rechazado'
+          status === 'Aprobado'
+            ? `Aprobado por ${levelName} exitosamente`
+            : `Rechazado por ${levelName}`
         )
         setShowApprovalDialog(false)
         fetchAvances()
@@ -396,6 +447,7 @@ export function AvanceView({ profile }: AvanceViewProps) {
         canEdit={canEdit}
         canApprove={canApprove}
         canCreate={canCreate}
+        userRole={profile.rol}
         onEdit={handleEditOpen}
         onApproval={handleApprovalOpen}
         onPhotoGallery={handlePhotoGallery}
@@ -445,6 +497,7 @@ export function AvanceView({ profile }: AvanceViewProps) {
         onOpenChange={setShowApprovalDialog}
         selectedAvance={selectedAvance}
         canApprove={canApprove}
+        userRole={profile.rol}
         rejectionNotes={rejectionNotes}
         setRejectionNotes={setRejectionNotes}
         submitting={submitting}

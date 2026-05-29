@@ -7,9 +7,13 @@ import {
   XCircle,
   Loader2,
   Image as ImageIcon,
+  Circle,
+  ShieldCheck,
+  UserCheck,
+  Building2,
 } from 'lucide-react'
 
-import type { AvanceEjecutado, AprobacionStatus, AlcancePlanificado } from '@/lib/types'
+import type { AvanceEjecutado, AprobacionStatus, AlcancePlanificado, UserRol } from '@/lib/types'
 import type { AvanceFormData, FilePreview } from './avance-types'
 import { APROBACION_COLORS, TRABAJO_COLORS } from './avance-types'
 import { AvanceFormFields } from './avance-form-fields'
@@ -26,6 +30,91 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
+/* -------------------------------------------------------------------------- */
+/*  Step Indicator for 3-level approval                                       */
+/* -------------------------------------------------------------------------- */
+
+interface ApprovalStep {
+  level: 'residente' | 'inspector' | 'directivo'
+  label: string
+  status: AprobacionStatus
+  approvedBy: string | null
+  canApproveThisLevel: boolean
+}
+
+function ApprovalStepIndicator({ steps }: { steps: ApprovalStep[] }) {
+  const statusIcon = (status: AprobacionStatus) => {
+    switch (status) {
+      case 'Aprobado':
+        return <CheckCircle className="h-5 w-5 text-emerald-600" />
+      case 'Rechazado':
+        return <XCircle className="h-5 w-5 text-red-500" />
+      default:
+        return <Circle className="h-5 w-5 text-muted-foreground" />
+    }
+  }
+
+  const levelIcon = (level: 'residente' | 'inspector' | 'directivo') => {
+    switch (level) {
+      case 'residente':
+        return <UserCheck className="h-4 w-4" />
+      case 'inspector':
+        return <ShieldCheck className="h-4 w-4" />
+      case 'directivo':
+        return <Building2 className="h-4 w-4" />
+    }
+  }
+
+  const statusColor = (status: AprobacionStatus) => {
+    switch (status) {
+      case 'Aprobado':
+        return 'text-emerald-700 bg-emerald-50 border-emerald-200'
+      case 'Rechazado':
+        return 'text-red-700 bg-red-50 border-red-200'
+      default:
+        return 'text-muted-foreground bg-muted/50 border-muted'
+    }
+  }
+
+  return (
+    <div className="space-y-0">
+      {steps.map((step, idx) => (
+        <div key={step.level} className="relative">
+          {/* Connector line */}
+          {idx > 0 && (
+            <div className="absolute left-[11px] -top-3 w-0.5 h-3 bg-muted-foreground/20" />
+          )}
+          <div className={`flex items-start gap-3 p-3 rounded-lg border ${statusColor(step.status)} ${step.canApproveThisLevel && step.status === 'Pendiente' ? 'ring-2 ring-primary/30' : ''}`}>
+            <div className="mt-0.5">
+              {statusIcon(step.status)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                {levelIcon(step.level)}
+                <span className="font-medium text-sm">{step.label}</span>
+              </div>
+              {step.approvedBy && (
+                <p className="text-xs mt-0.5 opacity-80">
+                  {step.status === 'Rechazado' ? 'Rechazado' : 'Aprobado'} por: {step.approvedBy}
+                </p>
+              )}
+              {step.canApproveThisLevel && step.status === 'Pendiente' && (
+                <p className="text-xs mt-0.5 font-medium text-primary">
+                  Pendiente su aprobación
+                </p>
+              )}
+            </div>
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+              {step.status}
+            </Badge>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 /* -------------------------------------------------------------------------- */
 /*  AddAvanceDialog                                                           */
@@ -204,7 +293,7 @@ export function EditAvanceDialog({
 }
 
 /* -------------------------------------------------------------------------- */
-/*  ApprovalDialog                                                            */
+/*  ApprovalDialog - 3-level approval with step indicator                     */
 /* -------------------------------------------------------------------------- */
 
 interface ApprovalDialogProps {
@@ -212,10 +301,11 @@ interface ApprovalDialogProps {
   onOpenChange: (open: boolean) => void
   selectedAvance: AvanceEjecutado | null
   canApprove: boolean
+  userRole: UserRol
   rejectionNotes: string
   setRejectionNotes: (notes: string) => void
   submitting: boolean
-  onApproval: (status: AprobacionStatus) => void
+  onApproval: (status: AprobacionStatus, level?: 'residente' | 'inspector' | 'directivo') => void
   onPhotoViewer: (url: string) => void
 }
 
@@ -224,26 +314,94 @@ export function ApprovalDialog({
   onOpenChange,
   selectedAvance,
   canApprove,
+  userRole,
   rejectionNotes,
   setRejectionNotes,
   submitting,
   onApproval,
   onPhotoViewer,
 }: ApprovalDialogProps) {
+  const isAdmin = userRole === 'administrador'
+
+  // Determine which level this user can approve
+  const getUserApprovalLevel = (): 'residente' | 'inspector' | 'directivo' | null => {
+    switch (userRole) {
+      case 'ingeniera_residente': return 'residente'
+      case 'inspector': return 'inspector'
+      case 'directivo_hospital': return 'directivo'
+      case 'administrador': return null // admin can approve any
+      default: return null
+    }
+  }
+
+  const userLevel = getUserApprovalLevel()
+
+  // Build the 3-step data
+  const getApprovalSteps = (): ApprovalStep[] => {
+    if (!selectedAvance) return []
+    return [
+      {
+        level: 'residente',
+        label: 'Ing. Residente',
+        status: selectedAvance.aprobacion_residente,
+        approvedBy: selectedAvance.residente?.nombre_completo || null,
+        canApproveThisLevel: canApprove && (userLevel === 'residente' || isAdmin) && selectedAvance.aprobacion_residente === 'Pendiente',
+      },
+      {
+        level: 'inspector',
+        label: 'Inspector MPPOP',
+        status: selectedAvance.aprobacion_inspector,
+        approvedBy: selectedAvance.inspector?.nombre_completo || null,
+        canApproveThisLevel: canApprove && (userLevel === 'inspector' || isAdmin) && selectedAvance.aprobacion_inspector === 'Pendiente' && selectedAvance.aprobacion_residente === 'Aprobado',
+      },
+      {
+        level: 'directivo',
+        label: 'Directivo Hospital',
+        status: selectedAvance.aprobacion_directivo,
+        approvedBy: selectedAvance.directivo?.nombre_completo || null,
+        canApproveThisLevel: canApprove && (userLevel === 'directivo' || isAdmin) && selectedAvance.aprobacion_directivo === 'Pendiente' && selectedAvance.aprobacion_inspector === 'Aprobado',
+      },
+    ]
+  }
+
+  const steps = getApprovalSteps()
+
+  // Can the current user approve at any level?
+  const canApproveAnyLevel = steps.some(s => s.canApproveThisLevel)
+
+  // Determine the approval level for the current user
+  const getActiveApprovalLevel = (): 'residente' | 'inspector' | 'directivo' | null => {
+    // For non-admin, their assigned level
+    if (userLevel) return userLevel
+    // For admin, find the first pending level
+    const pendingStep = steps.find(s => s.status === 'Pendiente')
+    return pendingStep?.level || null
+  }
+
+  const activeLevel = getActiveApprovalLevel()
+
+  // Level names for display
+  const levelNames: Record<string, string> = {
+    residente: 'Ing. Residente',
+    inspector: 'Inspector MPPOP',
+    directivo: 'Directivo Hospital',
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Detalle del Avance</DialogTitle>
           <DialogDescription>
-            {selectedAvance?.status_aprobacion === 'Pendiente' && canApprove
+            {canApproveAnyLevel
               ? 'Revise y apruebe o rechace este avance.'
               : 'Detalle del avance ejecutado.'}
           </DialogDescription>
         </DialogHeader>
 
         {selectedAvance && (
-          <div className="space-y-4">
+          <div className="space-y-5">
+            {/* Detail info */}
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <span className="text-muted-foreground">Alcance:</span>
@@ -289,7 +447,7 @@ export function ApprovalDialog({
                 </p>
               </div>
               <div>
-                <span className="text-muted-foreground">Status:</span>
+                <span className="text-muted-foreground">Status General:</span>
                 <p>
                   <Badge
                     variant="outline"
@@ -299,12 +457,6 @@ export function ApprovalDialog({
                   </Badge>
                 </p>
               </div>
-              {selectedAvance.inspector && (
-                <div>
-                  <span className="text-muted-foreground">Inspector:</span>
-                  <p className="font-medium">{selectedAvance.inspector.nombre_completo}</p>
-                </div>
-              )}
             </div>
 
             {selectedAvance.notas && (
@@ -313,6 +465,15 @@ export function ApprovalDialog({
                 <p className="mt-1 p-2 bg-muted rounded-md">{selectedAvance.notas}</p>
               </div>
             )}
+
+            {/* 3-Level Approval Step Indicator */}
+            <div>
+              <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                Cadena de Aprobación
+              </h4>
+              <ApprovalStepIndicator steps={steps} />
+            </div>
 
             {/* Evidence photos */}
             {selectedAvance.fotos_evidencia_urls?.length > 0 && (
@@ -339,11 +500,18 @@ export function ApprovalDialog({
               </div>
             )}
 
-            {/* Approval actions */}
-            {canApprove && selectedAvance.status_aprobacion === 'Pendiente' && (
+            {/* Approval actions - only show if user can approve at some level */}
+            {canApproveAnyLevel && (
               <div className="space-y-3 border-t pt-4">
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm font-semibold">
+                    Su aprobación como {activeLevel ? levelNames[activeLevel] : 'Administrador'}
+                  </Label>
+                </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="rejection_notes">Notas de Rechazo (opcional)</Label>
+                  <Label htmlFor="rejection_notes" className="text-xs text-muted-foreground">
+                    Notas de Rechazo (opcional)
+                  </Label>
                   <Textarea
                     id="rejection_notes"
                     value={rejectionNotes}
@@ -352,32 +520,88 @@ export function ApprovalDialog({
                     rows={2}
                   />
                 </div>
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    variant="destructive"
-                    onClick={() => onApproval('Rechazado')}
-                    disabled={submitting}
-                  >
-                    {submitting ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <XCircle className="mr-2 h-4 w-4" />
-                    )}
-                    Rechazar
-                  </Button>
-                  <Button
-                    className="bg-emerald-600 hover:bg-emerald-700"
-                    onClick={() => onApproval('Aprobado')}
-                    disabled={submitting}
-                  >
-                    {submitting ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <CheckCircle className="mr-2 h-4 w-4" />
-                    )}
-                    Aprobar
-                  </Button>
-                </div>
+
+                {/* Admin multi-level approval buttons */}
+                {isAdmin && selectedAvance.status_aprobacion !== 'Aprobado' && selectedAvance.status_aprobacion !== 'Rechazado' && (
+                  <div className="space-y-2">
+                    {/* If admin, show approval buttons for each pending level */}
+                    {steps.filter(s => s.status === 'Pendiente').map((step) => (
+                      <div key={step.level} className="flex items-center gap-2 justify-end">
+                        <span className="text-xs text-muted-foreground">{step.label}:</span>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => onApproval('Rechazado', step.level)}
+                                disabled={submitting}
+                              >
+                                {submitting ? (
+                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                                ) : (
+                                  <XCircle className="mr-1 h-3 w-3" />
+                                )}
+                                Rechazar
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Rechazar a nivel {step.label}</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                className="bg-emerald-600 hover:bg-emerald-700"
+                                onClick={() => onApproval('Aprobado', step.level)}
+                                disabled={submitting}
+                              >
+                                {submitting ? (
+                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                                ) : (
+                                  <CheckCircle className="mr-1 h-3 w-3" />
+                                )}
+                                Aprobar
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Aprobar a nivel {step.label}</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Non-admin: single level approval */}
+                {!isAdmin && activeLevel && (
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="destructive"
+                      onClick={() => onApproval('Rechazado', activeLevel)}
+                      disabled={submitting}
+                    >
+                      {submitting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <XCircle className="mr-2 h-4 w-4" />
+                      )}
+                      Rechazar
+                    </Button>
+                    <Button
+                      className="bg-emerald-600 hover:bg-emerald-700"
+                      onClick={() => onApproval('Aprobado', activeLevel)}
+                      disabled={submitting}
+                    >
+                      {submitting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                      )}
+                      Aprobar
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>

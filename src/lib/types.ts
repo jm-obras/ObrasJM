@@ -75,12 +75,19 @@ export interface AvanceEjecutado {
   fotos_evidencia_urls: string[]
   notas: string | null
   inspector_id: string | null
+  residente_id: string | null
+  directivo_id: string | null
   status_aprobacion: AprobacionStatus
+  aprobacion_residente: AprobacionStatus
+  aprobacion_inspector: AprobacionStatus
+  aprobacion_directivo: AprobacionStatus
   created_at: string
   updated_at: string
   // Joined fields
   alcance?: AlcancePlanificado
   inspector?: Profile
+  residente?: Profile
+  directivo?: Profile
 }
 
 export interface PAFSubsector {

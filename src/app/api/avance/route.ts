@@ -21,7 +21,9 @@ export async function GET(request: NextRequest) {
           subsector:subsectores(*, sector:sectores(*)),
           unidad_ejecutora:unidades_ejecutoras(*)
         ),
-        inspector:profiles!avance_ejecutado_inspector_id_fkey(*)
+        inspector:profiles!avance_ejecutado_inspector_id_fkey(*),
+        residente:profiles!avance_ejecutado_residente_id_fkey(*),
+        directivo:profiles!avance_ejecutado_directivo_id_fkey(*)
       `)
       .order('fecha_reporte', { ascending: false })
 
@@ -89,8 +91,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    // Only contratistas, inspectores and administradores can create avances
-    if (profile.rol !== 'contratista' && profile.rol !== 'inspector' && profile.rol !== 'administrador') {
+    // Contratistas, ingenieras residentes, inspectores and administradores can create avances
+    const allowedRoles = ['contratista', 'ingeniera_residente', 'inspector', 'administrador']
+    if (!allowedRoles.includes(profile.rol)) {
       return NextResponse.json(
         { error: 'No tiene permisos para reportar avances' },
         { status: 403 }
@@ -132,7 +135,12 @@ export async function POST(request: NextRequest) {
         fotos_evidencia_urls: fotos_evidencia_urls || [],
         notas: notas || null,
         inspector_id: null,
+        residente_id: null,
+        directivo_id: null,
         status_aprobacion: 'Pendiente',
+        aprobacion_residente: 'Pendiente',
+        aprobacion_inspector: 'Pendiente',
+        aprobacion_directivo: 'Pendiente',
       })
       .select(`
         *,
@@ -142,7 +150,9 @@ export async function POST(request: NextRequest) {
           subsector:subsectores(*, sector:sectores(*)),
           unidad_ejecutora:unidades_ejecutoras(*)
         ),
-        inspector:profiles!avance_ejecutado_inspector_id_fkey(*)
+        inspector:profiles!avance_ejecutado_inspector_id_fkey(*),
+        residente:profiles!avance_ejecutado_residente_id_fkey(*),
+        directivo:profiles!avance_ejecutado_directivo_id_fkey(*)
       `)
       .single()
 
