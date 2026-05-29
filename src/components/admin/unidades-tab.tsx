@@ -1,12 +1,15 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Plus,
   Pencil,
   Trash2,
   Loader2,
   Building2,
+  Upload,
+  X,
+  ImagePlus,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -61,6 +64,12 @@ export function UnidadesTab() {
   const [selectedUnidad, setSelectedUnidad] = useState<UnidadEjecutora | null>(null)
   const [unidadForm, setUnidadForm] = useState<UnidadFormData>(emptyUnidadForm)
 
+  // ===== Logo Upload State =====
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const logoInputRef = useRef<HTMLInputElement>(null)
+
   // ===== FETCH =====
   const fetchUnidades = useCallback(async () => {
     setLoadingUnidades(true)
@@ -83,25 +92,96 @@ export function UnidadesTab() {
     fetchUnidades()
   }, [fetchUnidades])
 
+  // ===== LOGO UPLOAD HANDLERS =====
+  const handleLogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Solo se permiten imágenes')
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('El logo no debe exceder 2MB')
+      return
+    }
+
+    setLogoFile(file)
+    const preview = URL.createObjectURL(file)
+    setLogoPreview(preview)
+  }
+
+  const handleRemoveLogo = () => {
+    if (logoPreview) URL.revokeObjectURL(logoPreview)
+    setLogoFile(null)
+    setLogoPreview(null)
+    setUnidadForm((p) => ({ ...p, logo_url: '' }))
+    if (logoInputRef.current) logoInputRef.current.value = ''
+  }
+
+  const uploadLogo = async (): Promise<string | null> => {
+    if (!logoFile) return unidadForm.logo_url || null
+
+    setUploadingLogo(true)
+    try {
+      const formDataObj = new FormData()
+      formDataObj.append('file', logoFile)
+      const res = await fetch('/api/upload-logo', {
+        method: 'POST',
+        body: formDataObj,
+      })
+      const data = await res.json()
+      if (res.ok && data.url) {
+        return data.url
+      } else {
+        toast.error(data.error || 'Error subiendo logo')
+        return null
+      }
+    } catch {
+      toast.error('Error subiendo logo')
+      return null
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
+  const resetLogoState = () => {
+    if (logoPreview) URL.revokeObjectURL(logoPreview)
+    setLogoFile(null)
+    setLogoPreview(null)
+    if (logoInputRef.current) logoInputRef.current.value = ''
+  }
+
   // ===== HANDLERS =====
-  const handleAddUnidadOpen = () => { setUnidadForm(emptyUnidadForm); setShowAddUnidadDialog(true) }
+  const handleAddUnidadOpen = () => {
+    setUnidadForm(emptyUnidadForm)
+    resetLogoState()
+    setShowAddUnidadDialog(true)
+  }
+
   const handleEditUnidadOpen = (unidad: UnidadEjecutora) => {
     setSelectedUnidad(unidad)
     setUnidadForm({ nombre: unidad.nombre, rif: unidad.rif || '', contacto: unidad.contacto || '', logo_url: unidad.logo_url || '' })
+    setLogoPreview(unidad.logo_url || null)
+    setLogoFile(null)
     setShowEditUnidadDialog(true)
   }
+
   const handleDeleteUnidadOpen = (unidad: UnidadEjecutora) => { setSelectedUnidad(unidad); setShowDeleteUnidadDialog(true) }
 
   const handleCreateUnidad = async () => {
     if (!unidadForm.nombre) { toast.error('El nombre es requerido'); return }
     setSubmitting(true)
     try {
+      // Upload logo first if there's a new file
+      const uploadedLogoUrl = await uploadLogo()
+
       const res = await fetch('/api/unidades-ejecutoras', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: unidadForm.nombre, rif: unidadForm.rif || null, contacto: unidadForm.contacto || null, logo_url: unidadForm.logo_url || null }),
+        body: JSON.stringify({ nombre: unidadForm.nombre, rif: unidadForm.rif || null, contacto: unidadForm.contacto || null, logo_url: uploadedLogoUrl }),
       })
       const data = await res.json()
-      if (res.ok) { toast.success('Unidad ejecutora creada exitosamente'); setShowAddUnidadDialog(false); fetchUnidades() }
+      if (res.ok) { toast.success('Unidad ejecutora creada exitosamente'); setShowAddUnidadDialog(false); resetLogoState(); fetchUnidades() }
       else { toast.error(data.error || 'Error al crear unidad ejecutora') }
     } catch { toast.error('Error de conexión') } finally { setSubmitting(false) }
   }
@@ -110,12 +190,15 @@ export function UnidadesTab() {
     if (!selectedUnidad) return
     setSubmitting(true)
     try {
+      // Upload logo first if there's a new file
+      const uploadedLogoUrl = await uploadLogo()
+
       const res = await fetch(`/api/unidades-ejecutoras/${selectedUnidad.id}`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: unidadForm.nombre, rif: unidadForm.rif || null, contacto: unidadForm.contacto || null, logo_url: unidadForm.logo_url || null }),
+        body: JSON.stringify({ nombre: unidadForm.nombre, rif: unidadForm.rif || null, contacto: unidadForm.contacto || null, logo_url: uploadedLogoUrl }),
       })
       const data = await res.json()
-      if (res.ok) { toast.success('Unidad ejecutora actualizada exitosamente'); setShowEditUnidadDialog(false); fetchUnidades() }
+      if (res.ok) { toast.success('Unidad ejecutora actualizada exitosamente'); setShowEditUnidadDialog(false); resetLogoState(); fetchUnidades() }
       else { toast.error(data.error || 'Error al actualizar') }
     } catch { toast.error('Error de conexión') } finally { setSubmitting(false) }
   }
@@ -130,6 +213,69 @@ export function UnidadesTab() {
       else { toast.error(data.error || 'Error al eliminar') }
     } catch { toast.error('Error de conexión') } finally { setSubmitting(false) }
   }
+
+  // ===== LOGO UPLOAD UI (shared between Add & Edit dialogs) =====
+  const renderLogoUpload = () => (
+    <div className="grid gap-2">
+      <Label>Logo de la Empresa</Label>
+      <div className="space-y-3">
+        {/* Preview or upload area */}
+        {logoPreview ? (
+          <div className="flex items-center gap-3">
+            <div className="relative h-16 w-16 rounded-lg overflow-hidden border bg-muted/30 flex items-center justify-center p-1 group">
+              <img src={logoPreview} alt="Logo preview" className="h-full w-full object-contain" />
+              <button
+                type="button"
+                className="absolute top-0.5 right-0.5 bg-destructive text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={handleRemoveLogo}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground truncate">
+                {logoFile ? logoFile.name : 'Logo actual'}
+              </p>
+              {logoFile && (
+                <p className="text-[10px] text-muted-foreground">
+                  {(logoFile.size / 1024).toFixed(1)} KB
+                </p>
+              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 text-[11px] gap-1 mt-1"
+                onClick={() => logoInputRef.current?.click()}
+              >
+                <ImagePlus className="h-3 w-3" />
+                Cambiar logo
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="flex items-center justify-center w-full border-2 border-dashed rounded-lg p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+            onClick={() => logoInputRef.current?.click()}
+          >
+            <div className="flex flex-col items-center gap-1 text-muted-foreground">
+              <Upload className="h-6 w-6" />
+              <p className="text-sm">Haga clic para subir logo</p>
+              <p className="text-xs">PNG, JPG, SVG (máx. 2MB)</p>
+            </div>
+          </div>
+        )}
+        {/* Hidden file input */}
+        <input
+          ref={logoInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleLogoSelect}
+        />
+      </div>
+    </div>
+  )
 
   return (
     <>
@@ -231,16 +377,12 @@ export function UnidadesTab() {
                 <Input id="unidad-contacto" value={unidadForm.contacto} onChange={(e) => setUnidadForm((p) => ({ ...p, contacto: e.target.value }))} placeholder="Nombre o teléfono" />
               </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="unidad-logo">URL del Logo</Label>
-              <Input id="unidad-logo" value={unidadForm.logo_url} onChange={(e) => setUnidadForm((p) => ({ ...p, logo_url: e.target.value }))} placeholder="/images/logos-ue/mi-empresa.png" />
-              <p className="text-[11px] text-muted-foreground">Ruta de la imagen del logotipo (ej: /images/logos-ue/empresa.png)</p>
-            </div>
+            {renderLogoUpload()}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddUnidadDialog(false)} disabled={submitting}>Cancelar</Button>
-            <Button onClick={handleCreateUnidad} disabled={submitting}>
-              {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creando...</> : 'Crear Unidad'}
+            <Button variant="outline" onClick={() => setShowAddUnidadDialog(false)} disabled={submitting || uploadingLogo}>Cancelar</Button>
+            <Button onClick={handleCreateUnidad} disabled={submitting || uploadingLogo}>
+              {submitting || uploadingLogo ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{uploadingLogo ? 'Subiendo logo...' : 'Creando...'}</> : 'Crear Unidad'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -268,16 +410,12 @@ export function UnidadesTab() {
                 <Input id="edit-unidad-contacto" value={unidadForm.contacto} onChange={(e) => setUnidadForm((p) => ({ ...p, contacto: e.target.value }))} />
               </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="edit-unidad-logo">URL del Logo</Label>
-              <Input id="edit-unidad-logo" value={unidadForm.logo_url} onChange={(e) => setUnidadForm((p) => ({ ...p, logo_url: e.target.value }))} placeholder="/images/logos-ue/mi-empresa.png" />
-              <p className="text-[11px] text-muted-foreground">Ruta de la imagen del logotipo (ej: /images/logos-ue/empresa.png)</p>
-            </div>
+            {renderLogoUpload()}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditUnidadDialog(false)} disabled={submitting}>Cancelar</Button>
-            <Button onClick={handleUpdateUnidad} disabled={submitting}>
-              {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Guardando...</> : 'Guardar Cambios'}
+            <Button variant="outline" onClick={() => setShowEditUnidadDialog(false)} disabled={submitting || uploadingLogo}>Cancelar</Button>
+            <Button onClick={handleUpdateUnidad} disabled={submitting || uploadingLogo}>
+              {submitting || uploadingLogo ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{uploadingLogo ? 'Subiendo logo...' : 'Guardando...'}</> : 'Guardar Cambios'}
             </Button>
           </DialogFooter>
         </DialogContent>

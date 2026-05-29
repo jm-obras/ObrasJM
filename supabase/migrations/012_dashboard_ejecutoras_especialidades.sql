@@ -384,3 +384,48 @@ $$;
 -- ============================================================
 -- END MIGRATION 012
 -- ============================================================
+
+-- ============================================================
+-- 9. ENSURE STORAGE BUCKET 'evidencias' EXISTS
+--    (Used by both /api/upload and /api/upload-logo)
+-- ============================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('evidencias', 'evidencias', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage policies for evidencias bucket (if not already exist)
+DO $$
+BEGIN
+  -- Allow authenticated users to upload
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'storage' AND policyname = 'Authenticated users can upload to evidencias'
+  ) THEN
+    CREATE POLICY "Authenticated users can upload to evidencias"
+    ON storage.objects FOR INSERT
+    WITH CHECK (bucket_id = 'evidencias' AND auth.role() = 'authenticated');
+  END IF;
+
+  -- Allow anyone to view (public bucket)
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'storage' AND policyname = 'Anyone can view evidencias'
+  ) THEN
+    CREATE POLICY "Anyone can view evidencias"
+    ON storage.objects FOR SELECT
+    USING (bucket_id = 'evidencias');
+  END IF;
+
+  -- Allow admin to delete
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'storage' AND policyname = 'Admin can delete evidencias'
+  ) THEN
+    CREATE POLICY "Admin can delete evidencias"
+    ON storage.objects FOR DELETE
+    USING (bucket_id = 'evidencias' AND EXISTS (
+      SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'administrador'
+    ));
+  END IF;
+END
+$$;
