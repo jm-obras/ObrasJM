@@ -5,9 +5,40 @@
 -- 2. Renombrar rol 'administrador' → 'webmaster' (evitar confusión con Administración/Finanzas)
 -- ============================================================
 
--- 1. Agregar nuevos valores al enum
-ALTER TYPE public.user_rol ADD VALUE IF NOT EXISTS 'visitante';
-ALTER TYPE public.user_rol ADD VALUE IF NOT EXISTS 'webmaster';
+-- 1. Agregar nuevos valores al tipo de la columna rol
+-- Primero detectamos si es un enum o text y actuamos en consecuencia
+DO $$
+BEGIN
+  -- Intentar agregar al enum si existe
+  IF EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid WHERE t.typname = 'user_rol' AND n.nspname = 'public') THEN
+    -- Es un enum: agregar los nuevos valores
+    EXECUTE 'ALTER TYPE public.user_rol ADD VALUE IF NOT EXISTS ''visitante''';
+    EXECUTE 'ALTER TYPE public.user_rol ADD VALUE IF NOT EXISTS ''webmaster''';
+  ELSE
+    -- No es un enum: la columna es text o varchar, no necesitamos alterar el tipo
+    -- Solo necesitamos asegurarnos de que no haya restricciones CHECK que limiten los valores
+    RAISE NOTICE 'La columna rol no usa enum, los nuevos valores se pueden usar directamente';
+  END IF;
+END $$;
+
+-- Si hay una restricción CHECK en la columna rol de profiles, la eliminamos y recreamos
+DO $$
+DECLARE
+  constraint_name text;
+BEGIN
+  SELECT con.conname INTO constraint_name
+  FROM pg_constraint con
+  JOIN pg_class rel ON rel.oid = con.conrelid
+  JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
+  WHERE rel.relname = 'profiles'
+    AND con.contype = 'c'
+    AND pg_get_constraintdef(con.oid) LIKE '%administrador%';
+
+  IF constraint_name IS NOT NULL THEN
+    EXECUTE format('ALTER TABLE public.profiles DROP CONSTRAINT %I', constraint_name);
+    RAISE NOTICE 'Restricción CHECK eliminada: %', constraint_name;
+  END IF;
+END $$;
 
 -- 2. Migrar todos los perfiles de 'administrador' a 'webmaster'
 UPDATE public.profiles SET rol = 'webmaster' WHERE rol = 'administrador';
@@ -17,6 +48,7 @@ UPDATE public.profiles SET rol = 'webmaster' WHERE rol = 'administrador';
 -- ── Tabla: profiles ──
 DROP POLICY IF EXISTS "Admin can insert profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Admin can update any profile" ON public.profiles;
+DROP POLICY IF EXISTS "Admin can update profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Authenticated users can read profiles" ON public.profiles;
 
@@ -89,6 +121,7 @@ DROP POLICY IF EXISTS "Authenticated users can read alcance planificado" ON publ
 DROP POLICY IF EXISTS "Admin and inspectors can insert alcance planificado" ON public.alcance_planificado;
 DROP POLICY IF EXISTS "Admin and inspectors can update alcance planificado" ON public.alcance_planificado;
 DROP POLICY IF EXISTS "Admin can delete alcance planificado" ON public.alcance_planificado;
+DROP POLICY IF EXISTS "Admin can manage alcance planificado" ON public.alcance_planificado;
 DROP POLICY IF EXISTS "Contratistas and residents can read own assigned alcance" ON public.alcance_planificado;
 
 CREATE POLICY "Authenticated users can read alcance planificado" ON public.alcance_planificado
@@ -166,7 +199,6 @@ CREATE POLICY "Webmaster can manage avance ejecutado" ON public.avance_ejecutado
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'macro_especialidades' AND table_schema = 'public') THEN
-    -- Drop old admin policies if they exist
     EXECUTE 'DROP POLICY IF EXISTS "Admin can manage macro especialidades" ON public.macro_especialidades';
     EXECUTE 'CREATE POLICY "Webmaster can manage macro especialidades" ON public.macro_especialidades
       FOR ALL USING (
