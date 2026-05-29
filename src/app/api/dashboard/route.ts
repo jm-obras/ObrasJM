@@ -6,51 +6,45 @@ export async function GET() {
   try {
     const adminClient = createAdminClient()
 
-    // Fetch all active alcance with joins
-    const { data: alcances, error: alcanceError } = await adminClient
-      .from('alcance_planificado')
-      .select(`
-        id,
-        especialidad_id,
-        peso_relativo,
-        cantidad_planificada,
-        unidad_medida,
-        status,
-        especialidad:especialidades(id, nombre),
-        subsector:subsectores(id, nombre, sector:sectores(id, nombre, codigo))
-      `)
-      .eq('status', 'Activo')
+    // Query v_paf_subsector view for subsector-level PAF data (active only)
+    const { data: subsectorData, error: subsectorError } = await adminClient
+      .from('v_paf_subsector')
+      .select('*')
+      .eq('alcance_status', 'Activo')
 
-    if (alcanceError) {
+    if (subsectorError) {
       return NextResponse.json(
-        { error: alcanceError.message },
+        { error: subsectorError.message },
         { status: 500 }
       )
     }
 
-    // Fetch all avance records with aprobado status
-    const { data: avances, error: avanceError } = await adminClient
-      .from('avance_ejecutado')
-      .select('alcance_id, cantidad_reportada, status_aprobacion')
-      .eq('status_aprobacion', 'Aprobado')
+    // Query v_paf_sector view for sector-level PAF data
+    const { data: sectorData, error: sectorError } = await adminClient
+      .from('v_paf_sector')
+      .select('*')
 
-    if (avanceError) {
+    if (sectorError) {
       return NextResponse.json(
-        { error: avanceError.message },
+        { error: sectorError.message },
         { status: 500 }
       )
     }
 
-    // Build a map of total ejecutado per alcance_id
-    const ejecutadoMap: Record<string, number> = {}
-    for (const avance of avances || []) {
-      if (!ejecutadoMap[avance.alcance_id]) {
-        ejecutadoMap[avance.alcance_id] = 0
-      }
-      ejecutadoMap[avance.alcance_id] += avance.cantidad_reportada
+    // Query v_paf_global view for global PAF
+    const { data: globalData, error: globalError } = await adminClient
+      .from('v_paf_global')
+      .select('*')
+      .single()
+
+    if (globalError) {
+      return NextResponse.json(
+        { error: globalError.message },
+        { status: 500 }
+      )
     }
 
-    // Count alertas (avances with Pendiente status)
+    // Count alertas (avances with Pendiente status) — not in views
     const { count: alertas, error: alertasError } = await adminClient
       .from('avance_ejecutado')
       .select('*', { count: 'exact', head: true })
@@ -63,7 +57,7 @@ export async function GET() {
       )
     }
 
-    // Count frentes activos
+    // Count frentes activos (Active alcances) — not in views
     const { count: frentesActivos, error: frentesError } = await adminClient
       .from('alcance_planificado')
       .select('*', { count: 'exact', head: true })
@@ -76,72 +70,40 @@ export async function GET() {
       )
     }
 
-    // Calculate PAF by subsector
-    const pafBySubsector: PAFSubsector[] = (alcances || []).map((alcance: Record<string, unknown>) => {
-      const especialidad = alcance.especialidad as Record<string, unknown> | null
-      const subsector = alcance.subsector as Record<string, unknown> | null
-      const sector = subsector?.sector as Record<string, unknown> | null
-
-      const cantidadEjecutada = ejecutadoMap[alcance.id as string] || 0
-      const cantidadPlanificada = alcance.cantidad_planificada as number
-      const porcentajeAvance = cantidadPlanificada > 0
-        ? Math.min((cantidadEjecutada / cantidadPlanificada) * 100, 100)
-        : 0
-
-      return {
-        alcance_id: alcance.id as string,
-        especialidad_id: alcance.especialidad_id as string,
-        especialidad_nombre: (especialidad?.nombre as string) || '',
-        subsector_id: (subsector?.id as string) || '',
-        subsector_nombre: (subsector?.nombre as string) || '',
-        sector_id: (sector?.id as string) || '',
-        sector_nombre: (sector?.nombre as string) || '',
-        sector_codigo: (sector?.codigo as string) || '',
-        peso_relativo: alcance.peso_relativo as number,
-        cantidad_planificada: cantidadPlanificada,
-        unidad_medida: (alcance.unidad_medida as string) || '',
-        cantidad_ejecutada: cantidadEjecutada,
-        porcentaje_avance: Math.round(porcentajeAvance * 100) / 100,
-        alcance_status: alcance.status as string,
-      }
-    })
-
-    // Calculate PAF by sector
-    const sectorMap: Record<string, { nombre: string; codigo: string; totalPeso: number; totalAvance: number }> = {}
-    for (const item of pafBySubsector) {
-      if (!sectorMap[item.sector_id]) {
-        sectorMap[item.sector_id] = {
-          nombre: item.sector_nombre,
-          codigo: item.sector_codigo,
-          totalPeso: 0,
-          totalAvance: 0,
-        }
-      }
-      sectorMap[item.sector_id].totalPeso += item.peso_relativo
-      sectorMap[item.sector_id].totalAvance += item.peso_relativo * (item.porcentaje_avance / 100)
-    }
-
-    const pafBySector: PAFSector[] = Object.entries(sectorMap).map(([sectorId, info]) => ({
-      sector_id: sectorId,
-      sector_nombre: info.nombre,
-      sector_codigo: info.codigo,
-      paf_sector: info.totalPeso > 0
-        ? Math.round((info.totalAvance / info.totalPeso) * 100 * 100) / 100
-        : 0,
+    // Map subsector view rows to PAFSubsector type
+    const pafBySubsector: PAFSubsector[] = (subsectorData || []).map((row) => ({
+      alcance_id: row.alcance_id,
+      especialidad_id: row.especialidad_id,
+      especialidad_nombre: row.especialidad_nombre,
+      subsector_id: row.subsector_id,
+      subsector_nombre: row.subsector_nombre,
+      sector_id: row.sector_id,
+      sector_nombre: row.sector_nombre,
+      sector_codigo: row.sector_codigo,
+      peso_relativo: row.peso_relativo,
+      cantidad_planificada: row.cantidad_planificada,
+      unidad_medida: row.unidad_medida,
+      cantidad_ejecutada: row.cantidad_ejecutada,
+      porcentaje_avance: Math.round(row.porcentaje_avance * 100) / 100,
+      alcance_status: row.alcance_status,
     }))
 
-    // Calculate PAF global (weighted average)
-    let totalPesoGlobal = 0
-    let totalAvanceGlobal = 0
-    for (const item of pafBySubsector) {
-      totalPesoGlobal += item.peso_relativo
-      totalAvanceGlobal += item.peso_relativo * (item.porcentaje_avance / 100)
-    }
-    const pafGlobal = totalPesoGlobal > 0
-      ? Math.round((totalAvanceGlobal / totalPesoGlobal) * 100 * 100) / 100
+    // Map sector view rows to PAFSector type
+    const pafBySector: PAFSector[] = (sectorData || []).map((row) => ({
+      sector_id: row.sector_id,
+      sector_nombre: row.sector_nombre,
+      sector_codigo: row.sector_codigo,
+      paf_sector: Math.round(row.paf_sector * 100) / 100,
+    }))
+
+    // Global PAF from view
+    const pafGlobal = globalData
+      ? Math.round(globalData.paf_global * 100) / 100
       : 0
 
-    const itemsConAvance = pafBySubsector.filter(i => i.cantidad_ejecutada > 0).length
+    // Summary from global view
+    const totalItems = globalData?.total_items || 0
+    const itemsConAvance = globalData?.items_con_avance || 0
 
     return NextResponse.json({
       data: {
@@ -151,7 +113,7 @@ export async function GET() {
         pafBySector,
         pafBySubsector,
         summary: {
-          totalItems: pafBySubsector.length,
+          totalItems,
           itemsConAvance,
         },
       },

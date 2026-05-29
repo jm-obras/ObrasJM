@@ -28,9 +28,9 @@
 | **Estilos** | Tailwind CSS | 4.x | + tailwindcss-animate |
 | **Componentes UI** | shadcn/ui (Radix) | New York style | 48 componentes instalados |
 | **Backend/BD** | Supabase (PostgreSQL) | — | RLS habilitado en TODAS las tablas |
-| **Auth** | Supabase Auth | — | NO usa next-auth (aunque está en deps) |
+| **Auth** | Supabase Auth | — | Registro requiere rol administrador |
 | **Gráficos** | Recharts | 2.x | Dashboard KPIs |
-| **Tablas Datos** | TanStack Table | 8.x | En dependencias (uso parcial) |
+| **Tablas Datos** | TanStack Table | 8.x | Disponible si se necesita |
 | **Formularios** | react-hook-form + zod | 7.x / 4.x | Validación cliente |
 | **Animaciones** | Framer Motion | — | Transiciones UI |
 | **Fechas** | date-fns | 4.x | Formateo de fechas |
@@ -91,27 +91,56 @@
 
 ## B. Mapa de Componentes Críticos (Monolitos Actuales)
 
-### B.1 Tamaños de Archivos — Alerta de Complejidad
+### B.1 Tamaños de Archivos — Post-Refractorización v2.0
 
+#### Admin (8 archivos, antes 1 monolito de 1625 líneas)
 | Archivo | Líneas | Riesgo | Descripción |
 |---------|--------|--------|-------------|
-| `src/components/admin/admin-view.tsx` | **~1,625** | 🔴 CRÍTICO | Panel admin: CRUD usuarios, unidades ejecutoras, especialidades, sectores, subsectores |
-| `src/components/avance/avance-view.tsx` | **~1,373** | 🔴 CRÍTICO | Registro y visualización de avances, aprobación, filtros, evidencias |
-| `src/components/alcance/alcance-view.tsx` | **~804** | 🟡 ALTO | Gestión de alcance planificado, creación, edición, filtrado |
+| `src/components/admin/admin-view.tsx` | **133** | 🟢 OK | Orchestrador principal + Tabs |
+| `src/components/admin/users-tab.tsx` | **532** | 🟡 ALTO | CRUD usuarios + 4 diálogos |
+| `src/components/admin/subsectores-tab.tsx` | **330** | 🟡 ALTO | CRUD subsectores |
+| `src/components/admin/sectores-tab.tsx` | **284** | 🟢 MEDIO | CRUD sectores |
+| `src/components/admin/unidades-tab.tsx` | **280** | 🟢 MEDIO | CRUD unidades ejecutoras |
+| `src/components/admin/especialidades-tab.tsx` | **270** | 🟢 MEDIO | CRUD especialidades |
+| `src/components/admin/shared-ui.tsx` | **109** | 🟢 OK | TableSkeleton, EmptyState, Pagination |
+| `src/components/admin/admin-types.ts` | **103** | 🟢 OK | Tipos, constantes, defaults |
+
+#### Avance (6 archivos, antes 1 monolito de 1373 líneas)
+| Archivo | Líneas | Riesgo | Descripción |
+|---------|--------|--------|-------------|
+| `src/components/avance/avance-view.tsx` | **469** | 🟡 ALTO | Orchestrador + lógica CRUD |
+| `src/components/avance/avance-dialogs.tsx` | **473** | 🟡 ALTO | 5 diálogos (Add, Edit, Approval, Gallery, Viewer) |
+| `src/components/avance/avance-table.tsx` | **269** | 🟢 MEDIO | Tabla de datos + paginación |
+| `src/components/avance/avance-form-fields.tsx` | **268** | 🟢 MEDIO | Campos de formulario compartidos |
+| `src/components/avance/avance-filters.tsx` | **94** | 🟢 OK | Barra de filtros |
+| `src/components/avance/avance-types.ts` | **38** | 🟢 OK | Tipos, constantes, defaults |
+
+#### Alcance (6 archivos, antes 1 monolito de 804 líneas)
+| Archivo | Líneas | Riesgo | Descripción |
+|---------|--------|--------|-------------|
+| `src/components/alcance/alcance-view.tsx` | **298** | 🟢 MEDIO | Orchestrador + lógica CRUD |
+| `src/components/alcance/alcance-dialogs.tsx` | **225** | 🟢 MEDIO | 3 diálogos (Add, Edit, Delete) |
+| `src/components/alcance/alcance-table.tsx` | **227** | 🟢 MEDIO | Tabla de datos + paginación |
+| `src/components/alcance/alcance-form.tsx` | **203** | 🟢 MEDIO | Campos de formulario compartidos |
+| `src/components/alcance/alcance-filters.tsx` | **113** | 🟢 OK | Barra de filtros |
+| `src/components/alcance/alcance-types.ts` | **31** | 🟢 OK | Tipos, constantes, defaults |
+
+#### Otros archivos principales
+| Archivo | Líneas | Riesgo | Descripción |
+|---------|--------|--------|-------------|
 | `src/app/page.tsx` | **~411** | 🟡 ALTO | Shell SPA, Tabs, AuthProvider, enrutamiento interno |
 | `src/lib/auth-context.tsx` | **~195** | 🟢 MEDIO | Contexto de autenticación React |
 | `src/components/dashboard/hospital-heatmap.tsx` | **~238** | 🟢 MEDIO | Mapa de calor del hospital |
 | `src/components/dashboard/kpi-cards.tsx` | **~196** | 🟢 MEDIO | Tarjetas KPI del dashboard |
-| `src/components/landing/stats-section.tsx` | **~206** | 🟢 MEDIO | Estadísticas landing pública |
-| **Total componentes app** | **~6,434** | — | Sin contar shadcn/ui |
 
-### B.2 Monolitos — Guía de Refactorización Futura
+### B.2 Monolitos — Estado de Refactorización
 
-> ⚠️ Los archivos marcados como 🔴 CRÍTICO son candidatos prioritarios para refactorización. Sin embargo, **NO se debe refactorizar sin autorización explícita** del usuario. Cualquier refactorización DEBE:
-> 1. Preservar toda la funcionalidad existente
-> 2. Ser incremental (un componente a la vez)
-> 3. Incluir pruebas de regresión visual
-> 4. Actualizar este MEMORY.md tras completarse
+> ✅ Los 3 monolitos principales han sido refactorizados en la v2.0:
+> - `admin-view.tsx`: 1625 → 133 líneas (92% reducción, 8 archivos)
+> - `avance-view.tsx`: 1373 → 469 líneas (66% reducción, 6 archivos)
+> - `alcance-view.tsx`: 804 → 298 líneas (63% reducción, 6 archivos)
+>
+> El archivo más grande ahora es `users-tab.tsx` (532 líneas). Si crece más, puede dividirse separando los diálogos de reseteo de contraseña y creación/edición.
 
 ### B.3 Componentes shadcn/ui Instalados (48)
 
@@ -451,7 +480,7 @@ El admin client se usa EXCLUSIVAMENTE en estos endpoints:
 
 | ID | Severidad | Descripción | Estado |
 |----|-----------|-------------|--------|
-| VULN-001 | 🔴 CRÍTICA | `/api/auth/register` sin autenticación — cualquiera puede crear cuentas con cualquier rol | Pendiente |
+| VULN-001 | 🔴 CRÍTICA | ~~`/api/auth/register` sin autenticación~~ | ✅ CORREGIDO v2.0 |
 | VULN-002 | 🟡 ALTA | `/api/dashboard` sin autenticación — expone datos agregados del proyecto | Pendiente |
 | VULN-003 | 🟡 ALTA | `/api/init` sin autenticación — permite verificar y modificar la estructura de la BD | Pendiente |
 | VULN-004 | 🟡 ALTA | GET endpoints de negocio (`/api/alcance`, `/api/avance`) sin verificación de autenticación | Pendiente |
@@ -465,16 +494,17 @@ El admin client se usa EXCLUSIVAMENTE en estos endpoints:
 |----|------|-------------|--------|
 | DEBT-001 | Config | `ignoreBuildErrors: true` en next.config.ts — errores TypeScript ignorados | Pendiente |
 | DEBT-002 | Config | `reactStrictMode: false` — modo estricto deshabilitado | Pendiente |
-| DEBT-003 | Deps | `next-auth` instalado pero NO usado (auth es 100% Supabase) | Pendiente |
-| DEBT-004 | Deps | `zustand` instalado pero NO usado (estado con React Context) | Pendiente |
-| DEBT-005 | Deps | `@tanstack/react-query` instalado pero NO usado (fetch con useEffect) | Pendiente |
-| DEBT-006 | Deps | `next-intl` instalado pero NO usado (sin i18n) | Pendiente |
-| DEBT-007 | Deps | `@mdxeditor/editor` instalado pero NO usado | Pendiente |
+| DEBT-003 | Deps | ~~`next-auth` instalado pero NO usado~~ | ✅ ELIMINADO v2.0 |
+| DEBT-004 | Deps | ~~`zustand` instalado pero NO usado~~ | ✅ ELIMINADO v2.0 |
+| DEBT-005 | Deps | ~~`@tanstack/react-query` instalado pero NO usado~~ | ✅ ELIMINADO v2.0 |
+| DEBT-006 | Deps | ~~`next-intl` instalado pero NO usado~~ | ✅ ELIMINADO v2.0 |
+| DEBT-007 | Deps | ~~`@mdxeditor/editor` instalado pero NO usado~~ | ✅ ELIMINADO v2.0 |
 | DEBT-008 | Deps | `prisma`/SQLite configurado pero NO usado en producción (solo Supabase) | Pendiente |
-| DEBT-009 | BD | Vistas SQL `v_paf_*` existen pero `/api/dashboard` reimplementa el cálculo en TypeScript | Pendiente |
+| DEBT-009 | BD | ~~Vistas SQL `v_paf_*` desincronizadas con TypeScript~~ | ✅ CORREGIDO v2.0 |
 | DEBT-010 | Código | `updated_at` se establece manualmente en PUT de alcance/avance — redundante con trigger | Pendiente |
 | DEBT-011 | SQL | `schema.sql` desincronizado con `setup-complete.sql` — drift entre archivos SQL | Pendiente |
-| DEBT-012 | Refactor | Archivos monolíticos: admin-view (1625), avance-view (1373), alcance-view (804) | Pendiente |
+| DEBT-012 | Refactor | ~~Archivos monolíticos: admin-view (1625), avance-view (1373), alcance-view (804)~~ | ✅ CORREGIDO v2.0 |
+| DEBT-013 | Deps | ~~`react-markdown`, `react-syntax-highlighter`, `@reactuses/core` instalados pero NO usados~~ | ✅ ELIMINADO v2.0 |
 
 ---
 
@@ -621,6 +651,7 @@ directivo_hospital/ingenieria_hospital → También pueden aprobar/rechazar
 | v1.2.0 | 29-May-2026 | Agregar permisos de inspector para avance_ejecutado (RLS + API + UI) | Push a GitHub para deploy | ✅ Operativo |
 | v1.3.0 | 29-May-2026 | Fix: upsert profiles con onConflict para handle_new_user trigger | `fix: change profile insert to upsert` | ✅ Operativo |
 | v1.4.0 | 29-May-2026 | Fix: reset password admin + Dialog accessibility warnings | `fix: add detailed error logging and fix Dialog accessibility` | ✅ Operativo |
+| **v2.0.0** | **29-May-2026** | **Auditoría técnica + corrección hallazgos críticos:** VULN-001 corregido (register requiere admin), 8 deps eliminadas, SQL views sincronizadas, 3 monolitos refactorizados (20 archivos nuevos) | **Audit+Fix+Refactor** | ✅ Operativo |
 
 ### L.3 Próximo Snapshot (Plantilla)
 
@@ -655,21 +686,21 @@ src/
 │   ├── layout.tsx            # Root layout
 │   ├── globals.css           # Estilos globales
 │   └── api/                  # 24 route handlers
-│       ├── auth/             # login, register, logout, me, change-password
+│       ├── auth/             # login, register (admin-only), logout, me, change-password
 │       ├── alcance/          # CRUD alcance planificado
 │       ├── avance/           # CRUD avance ejecutado
-│       ├── dashboard/        # Dashboard aggregation
+│       ├── dashboard/        # Dashboard aggregation (usa SQL views)
 │       ├── admin/users/      # User management
 │       ├── especialidades/   # CRUD especialidades
 │       ├── sectores/         # CRUD sectores
 │       ├── subsectores/      # CRUD subsectores
 │       ├── unidades-ejecutoras/ # CRUD UEs
-│       ├── landing/stats/    # Public landing stats
+│       ├── landing/stats/    # Public landing stats (usa SQL views)
 │       └── init/             # DB initialization
 ├── components/
-│   ├── admin/                # AdminView (~1625 líneas)
-│   ├── alcance/              # AlcanceView (~804 líneas)
-│   ├── avance/               # AvanceView (~1373 líneas)
+│   ├── admin/                # 8 archivos (admin-view + 5 tabs + types + shared-ui)
+│   ├── alcance/              # 6 archivos (alcance-view + filters + table + form + dialogs + types)
+│   ├── avance/               # 6 archivos (avance-view + filters + table + form-fields + dialogs + types)
 │   ├── dashboard/            # Dashboard + KPIs + Heatmap + Chart
 │   ├── landing/              # LandingPage + 5 secciones
 │   ├── auth-guard.tsx        # Route protection
@@ -764,5 +795,6 @@ interface AvanceEjecutado {
 
 ---
 
-*Documento generado: Mayo 2026 — Versión v1.4.0*
+*Documento generado: Mayo 2026 — Versión v2.0.0*
+*Última actualización: Auditoría técnica + corrección de hallazgos críticos + refactorización de monolitos*
 *Próxima revisión programada: Antes de cualquier cambio significativo al sistema*

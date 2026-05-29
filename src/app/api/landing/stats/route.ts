@@ -5,6 +5,23 @@ export async function GET() {
   try {
     const adminClient = createAdminClient()
 
+    // Use v_paf_global view for PAF calculation
+    const { data: globalData, error: globalError } = await adminClient
+      .from('v_paf_global')
+      .select('*')
+      .single()
+
+    if (globalError) {
+      return NextResponse.json(
+        { error: globalError.message },
+        { status: 500 }
+      )
+    }
+
+    const pafGlobal = globalData?.paf_global
+      ? Math.round(globalData.paf_global * 100) / 100
+      : 0
+
     // Count frentes de obra activos
     const { count: frentesActivos } = await adminClient
       .from('alcance_planificado')
@@ -20,42 +37,6 @@ export async function GET() {
     const { count: subsectores } = await adminClient
       .from('subsectores')
       .select('*', { count: 'exact', head: true })
-
-    // Calculate PAF global (weighted average)
-    const { data: alcances } = await adminClient
-      .from('alcance_planificado')
-      .select('id, peso_relativo, cantidad_planificada, status')
-      .eq('status', 'Activo')
-
-    const { data: avances } = await adminClient
-      .from('avance_ejecutado')
-      .select('alcance_id, cantidad_reportada')
-      .eq('status_aprobacion', 'Aprobado')
-
-    // Build ejecutado map
-    const ejecutadoMap: Record<string, number> = {}
-    for (const avance of avances || []) {
-      if (!ejecutadoMap[avance.alcance_id]) {
-        ejecutadoMap[avance.alcance_id] = 0
-      }
-      ejecutadoMap[avance.alcance_id] += avance.cantidad_reportada
-    }
-
-    // Calculate weighted PAF
-    let totalPeso = 0
-    let totalAvance = 0
-    for (const alcance of alcances || []) {
-      const ejecutado = ejecutadoMap[alcance.id] || 0
-      const porcentaje = alcance.cantidad_planificada > 0
-        ? Math.min((ejecutado / alcance.cantidad_planificada) * 100, 100)
-        : 0
-      totalPeso += alcance.peso_relativo
-      totalAvance += alcance.peso_relativo * (porcentaje / 100)
-    }
-
-    const pafGlobal = totalPeso > 0
-      ? Math.round((totalAvance / totalPeso) * 100 * 100) / 100
-      : 0
 
     return NextResponse.json({
       data: {

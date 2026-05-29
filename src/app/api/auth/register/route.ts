@@ -4,6 +4,34 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(request: NextRequest) {
   try {
+    // ── Authentication & Authorization ──────────────────────────────
+    // Only authenticated users with the 'administrador' role may register
+    // new accounts. This prevents unauthenticated users from creating
+    // accounts with arbitrary roles (VULN-001).
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('rol')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile) {
+      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
+    }
+
+    if (profile.rol !== 'administrador') {
+      return NextResponse.json(
+        { error: 'Solo los administradores pueden registrar usuarios' },
+        { status: 403 }
+      )
+    }
+    // ────────────────────────────────────────────────────────────────
+
     const { email, password, nombre_completo, rol } = await request.json()
 
     if (!email || !password || !nombre_completo || !rol) {
@@ -43,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     // Upsert profile - use upsert because the handle_new_user trigger
     // may have already created a basic profile when the auth user was created
-    const { error: profileError } = await adminClient
+    const { error: upsertProfileError } = await adminClient
       .from('profiles')
       .upsert({
         id: data.user.id,
@@ -52,11 +80,11 @@ export async function POST(request: NextRequest) {
         activo: true,
       }, { onConflict: 'id' })
 
-    if (profileError) {
+    if (upsertProfileError) {
       // Try to clean up the created auth user
       await adminClient.auth.admin.deleteUser(data.user.id)
       return NextResponse.json(
-        { error: 'Error creando perfil: ' + profileError.message },
+        { error: 'Error creando perfil: ' + upsertProfileError.message },
         { status: 500 }
       )
     }
