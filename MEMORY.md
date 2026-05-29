@@ -53,6 +53,8 @@
 │  │      │   contratista, ingeniera_residente,             │   │
 │  │      │   ingenieria_hospital)                          │   │
 │  │      ├─ Tab: Avance Ejecutado (TODOS los roles)       │   │
+│  │      │   → Aprobación 3 niveles: Residente → Inspector│   │
+│  │      │     → Directivo Hospital (admin: cualquier lvl)│   │
 │  │      └─ Tab: Administración (SOLO admin)              │   │
 │  └──────────────────────────────────────────────────────┘   │
 │                          │ fetch()                           │
@@ -254,15 +256,24 @@
 | `fotos_evidencia_urls` | TEXT[] | DEFAULT | `'{}'` |
 | `notas` | TEXT | nullable | — |
 | `inspector_id` | UUID | FK → profiles(id) SET NULL | — |
+| `residente_id` | UUID | FK → profiles(id) SET NULL | — |
+| `directivo_id` | UUID | FK → profiles(id) SET NULL | — |
 | `status_aprobacion` | aprobacion_status | NOT NULL | `'Pendiente'` |
+| `aprobacion_residente` | aprobacion_status | NOT NULL | `'Pendiente'` |
+| `aprobacion_inspector` | aprobacion_status | NOT NULL | `'Pendiente'` |
+| `aprobacion_directivo` | aprobacion_status | NOT NULL | `'Pendiente'` |
 | `created_at` | TIMESTAMPTZ | NOT NULL | `now()` |
 | `updated_at` | TIMESTAMPTZ | NOT NULL | `now()` |
+
+> **Aprobación en 3 niveles:** `status_aprobacion` se calcula automáticamente: `Aprobado` solo si los 3 niveles aprueban, `Rechazado` si alguno rechaza, `Pendiente` en caso contrario.
 
 ### C.3 Mapa de Relaciones (Foreign Keys)
 
 ```
 auth.users ◄─────── profiles.id (1:1, CASCADE)
 profiles ◄───────── avance_ejecutado.inspector_id (SET NULL)
+profiles ◄───────── avance_ejecutado.residente_id (SET NULL)
+profiles ◄───────── avance_ejecutado.directivo_id (SET NULL)
 unidades_ejecutoras ◄── alcance_planificado.unidad_ejecutora_id (SET NULL)
 especialidades ◄─── alcance_planificado.especialidad_id (CASCADE)
 sectores ◄───────── subsectores.sector_id (CASCADE)
@@ -319,8 +330,13 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 |-----------|-------|
 | SELECT | authenticated |
 | INSERT | contratista + ingeniera_residente + inspector + administrador |
-| UPDATE | inspector + directivo_hospital + ingenieria_hospital + administrador |
-| DELETE | administrador |
+| UPDATE (datos) | contratista + ingeniera_residente + inspector + administrador |
+| UPDATE (aprobación residente) | ingeniera_residente + administrador |
+| UPDATE (aprobación inspector) | inspector + administrador |
+| UPDATE (aprobación directivo) | directivo_hospital + administrador |
+| ALL | administrador |
+
+> **Aprobación secuencial:** Cada nivel requiere que el anterior esté aprobado. Inspector no puede aprobar si Residente no aprobó. Directivo no puede aprobar si Inspector no aprobó.
 
 #### Storage (`evidencias`)
 | Operación | Quién |
@@ -380,9 +396,9 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 | `/api/alcance/[id]` | PUT | Sí | admin, inspector | No | `updated_at` manual (redundante con trigger) |
 | `/api/alcance/[id]` | DELETE | Sí | admin | No | — |
 | `/api/avance` | GET | No | — | No | Filtros: alcance_id, status_aprobacion, fecha_desde, fecha_hasta |
-| `/api/avance` | POST | Sí | contratista, inspector, admin | No | `inspector_id=null`, `status_aprobacion='Pendiente'` |
-| `/api/avance/[id]` | GET | No | — | No | — |
-| `/api/avance/[id]` | PUT | Sí | Por campos (ver nota) | No | Contratista/inspector/admin: datos. Inspector/admin: aprobación. Al aprobar: `inspector_id=user.id` |
+| `/api/avance` | POST | Sí | contratista, ingeniera_residente, inspector, admin | No | Todos los niveles Pendiente, status_aprobacion=Pendiente |
+| `/api/avance/[id]` | GET | No | — | No | Incluye residente + directivo profiles |
+| `/api/avance/[id]` | PUT | Sí | Por campos y nivel (ver nota) | No | Datos: contratista/residente/inspector/admin. Aprobación por nivel: residente/inspector/directivo/admin. Aprobación secuencial. status_aprobacion auto-computado |
 | `/api/dashboard` | GET | ⚠️ No | ⚠️ Ninguno | **Sí** | Calcula PAF en TypeScript, bypass RLS |
 | `/api/landing/stats` | GET | ⚠️ No | ⚠️ Ninguno | **Sí** | Stats públicas, `metrosCuadrados: 12500` hardcoded |
 
@@ -434,9 +450,14 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 | Acción | admin | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital |
 |--------|:-----:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|
 | Crear avance | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Editar datos | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Aprobar/Rechazar | ✅ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| Editar datos | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Aprobar Nivel 1 (Residente) | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Aprobar Nivel 2 (Inspector) | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Aprobar Nivel 3 (Directivo) | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| Rechazar (su nivel) | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
 | Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+> **Cadena de aprobación secuencial:** Nivel 1 (Ing. Residente declara concluida) → Nivel 2 (Inspector aprueba por MPPOP) → Nivel 3 (Directivo Hospital conformidad). El Administrador puede aprobar cualquier nivel.
 
 ### E.3 Capacidades por Rol en Alcance Planificado
 
@@ -541,15 +562,37 @@ El admin client se usa EXCLUSIVAMENTE en estos endpoints:
                          Tab-based navigation según rol
 ```
 
-### H.2 Flujo de Aprobación de Avances
+### H.2 Flujo de Aprobación de Avances — 3 Niveles Secuenciales
 
 ```
-contratista/inspector → Crea Avance (status: Pendiente)
+contratista/inspector/residente/admin → Crea Avance
+    (aprobacion_residente: Pendiente, aprobacion_inspector: Pendiente,
+     aprobacion_directivo: Pendiente, status_aprobacion: Pendiente)
                                ↓
-inspector/admin → Revisa → Aprueba (status: Aprobado, inspector_id = user.id)
-                      └─→ Rechaza (status: Rechazado)
+┌──────────────────────────────────────────────────────────────┐
+│ NIVEL 1: Ingeniera Residente (declara concluida la obra)     │
+│   Aprueba → aprobacion_residente: Aprobado, residente_id: user.id │
+│   Rechaza → aprobacion_residente: Rechazado                  │
+└──────────────────────────────────────────────────────────────┘
+                               ↓ (requiere Nivel 1 Aprobado)
+┌──────────────────────────────────────────────────────────────┐
+│ NIVEL 2: Inspector MPPOP (aprueba por el ministerio)         │
+│   Aprueba → aprobacion_inspector: Aprobado, inspector_id: user.id │
+│   Rechaza → aprobacion_inspector: Rechazado                  │
+└──────────────────────────────────────────────────────────────┘
+                               ↓ (requiere Nivel 2 Aprobado)
+┌──────────────────────────────────────────────────────────────┐
+│ NIVEL 3: Directivo Hospital (conformidad del trabajo)        │
+│   Aprueba → aprobacion_directivo: Aprobado, directivo_id: user.id │
+│   Rechaza → aprobacion_directivo: Rechazado                  │
+└──────────────────────────────────────────────────────────────┘
                                ↓
-directivo_hospital/ingenieria_hospital → También pueden aprobar/rechazar
+    status_aprobacion = Auto-computado:
+      • Aprobado → si los 3 niveles son Aprobado
+      • Rechazado → si algún nivel es Rechazado
+      • Pendiente → en cualquier otro caso
+
+    👑 Administrador: puede aprobar CUALQUIER nivel (no necesita secuencia)
 ```
 
 ---
@@ -582,6 +625,8 @@ directivo_hospital/ingenieria_hospital → También pueden aprobar/rechazar
 | `supabase/migration-new-roles.sql` | Agrega 3 roles + 3 columnas a profiles | 62 |
 | `supabase/migration-inspector-alcance-policies.sql` | Inspector INSERT/UPDATE en alcance | 28 |
 | `supabase/migration-inspector-avance-policies.sql` | Inspector INSERT en avance | 17 |
+| `supabase/migrations/012_dashboard_ejecutoras_especialidades.sql` | Dashboard por Ejecutoras + Macro Especialidades + logo_url + tabla macro_especialidades | ~209 |
+| `supabase/migrations/013_three_level_approval.sql` | Aprobación en 3 niveles (residente/inspector/directivo) + nuevas columnas + RLS por rol | ~75 |
 
 ---
 
@@ -652,6 +697,8 @@ directivo_hospital/ingenieria_hospital → También pueden aprobar/rechazar
 | v1.3.0 | 29-May-2026 | Fix: upsert profiles con onConflict para handle_new_user trigger | `fix: change profile insert to upsert` | ✅ Operativo |
 | v1.4.0 | 29-May-2026 | Fix: reset password admin + Dialog accessibility warnings | `fix: add detailed error logging and fix Dialog accessibility` | ✅ Operativo |
 | **v2.0.0** | **29-May-2026** | **Auditoría técnica + corrección hallazgos críticos:** VULN-001 corregido (register requiere admin), 8 deps eliminadas, SQL views sincronizadas, 3 monolitos refactorizados (20 archivos nuevos) | **Audit+Fix+Refactor** | ✅ Operativo |
+| v2.1.0 | 04-Jun-2026 | Dashboard con 3 sub-tabs (Vista General, Ejecutoras, Macro Especialidades) + logo_url en unidades_ejecutoras + tabla macro_especialidades | Migración 012 + push | ✅ Operativo |
+| **v3.0.0** | **04-Jun-2026** | **Aprobación en 3 niveles:** Nivel 1=Ing. Residente (declara concluida), Nivel 2=Inspector MPPOP (aprueba por ministerio), Nivel 3=Directivo Hospital (conformidad). Admin aprueba cualquier nivel. Aprobación secuencial obligatoria. status_aprobacion auto-computado. UI con indicador visual de cadena de aprobación. | **Migración 013 + push** | ✅ Operativo |
 
 ### L.3 Próximo Snapshot (Plantilla)
 
@@ -760,7 +807,17 @@ interface AvanceEjecutado {
   fotos_evidencia_urls: string[];
   notas: string | null;
   inspector_id: string | null;
+  residente_id: string | null;
+  directivo_id: string | null;
   status_aprobacion: 'Pendiente' | 'Aprobado' | 'Rechazado';
+  aprobacion_residente: 'Pendiente' | 'Aprobado' | 'Rechazado';
+  aprobacion_inspector: 'Pendiente' | 'Aprobado' | 'Rechazado';
+  aprobacion_directivo: 'Pendiente' | 'Aprobado' | 'Rechazado';
+  // Joined fields
+  alcance?: AlcancePlanificado;
+  inspector?: Profile;
+  residente?: Profile;
+  directivo?: Profile;
 }
 ```
 
@@ -796,5 +853,5 @@ interface AvanceEjecutado {
 ---
 
 *Documento generado: Mayo 2026 — Versión v2.0.0*
-*Última actualización: Auditoría técnica + corrección de hallazgos críticos + refactorización de monolitos*
+*Última actualización: 04-Jun-2026 — v3.0.0 — Aprobación en 3 niveles + Dashboard con Ejecutoras/Macro Especialidades*
 *Próxima revisión programada: Antes de cualquier cambio significativo al sistema*
