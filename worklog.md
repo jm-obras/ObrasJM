@@ -321,3 +321,29 @@ Stage Summary:
 - All API endpoints created
 - SQL migration ready to apply (user needs to run it in Supabase dashboard)
 - Pending: User must apply migration 012 in Supabase SQL Editor for the new tables/views to exist
+
+---
+Task ID: 9
+Agent: Main
+Task: Update user manual with logotypes, institutions page, and Z.ai credits
+
+Work Log:
+- Explored project to find both user manuals (HTML tutorial + ReportLab Python)
+- Copied 8 institution logos from public/instituciones/ to upload/tutorial-build/
+- Added new page 6 to HTML tutorial: "Dashboard: Ejecutoras y Macro Especialidades" (3-tab dashboard explanation)
+- Added new page 15 to HTML tutorial: "Instituciones Participantes" with 8 logo cards in grid
+- Updated HTML tutorial end page with "Z.ai — IT Development by @libnimaster" credits
+- Updated all footer page numbers (shifted pages 6-13 → 7-14, total now 16 pages)
+- Regenerated HTML/Playwright PDF (Manual_Usuario_ObrasJM_v2.pdf) and copied to public/
+- Added section 7 "Instituciones Participantes" to ReportLab Python manual with table of 8 institutions
+- Added credits section to Python manual: Z.ai brand + @libnimaster + date
+- Regenerated ReportLab PDF (Manual_Usuario_Sistema_PAF.pdf) and copied to public/
+- Updated landing page footer: added "Z.ai — IT Development by @libnimaster" branding
+- Added manual download link (BookOpen icon + "Manual de Usuario") to footer Enlaces column
+- Pushed all changes to GitHub (commit 4c52460)
+
+Stage Summary:
+- Both PDF manuals now include institution logos and Z.ai credits
+- Landing page footer shows Z.ai branding with @libnimaster
+- Manual is downloadable from landing page footer
+- HTML tutorial expanded from 14 to 16 pages
