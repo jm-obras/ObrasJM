@@ -1,27 +1,12 @@
 -- ============================================================
--- OBRASJM - MIGRACIÓN 014: Nuevo rol Visitante + Renombrar Administrador → Webmaster
+-- OBRASJM - MIGRACIÓN 014B: Migrar datos + Actualizar políticas RLS
 --
--- 1. Agregar rol 'visitante': solo lectura para autoridades
--- 2. Renombrar rol 'administrador' → 'webmaster' (evitar confusión con Administración/Finanzas)
+-- EJECUTAR DESPUÉS de 014A (los nuevos valores enum ya deben estar committed)
+-- 1. Migrar perfiles de 'administrador' → 'webmaster'
+-- 2. Actualizar TODAS las políticas RLS
 -- ============================================================
 
--- 1. Agregar nuevos valores al tipo de la columna rol
--- Primero detectamos si es un enum o text y actuamos en consecuencia
-DO $$
-BEGIN
-  -- Intentar agregar al enum si existe
-  IF EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid WHERE t.typname = 'user_rol' AND n.nspname = 'public') THEN
-    -- Es un enum: agregar los nuevos valores
-    EXECUTE 'ALTER TYPE public.user_rol ADD VALUE IF NOT EXISTS ''visitante''';
-    EXECUTE 'ALTER TYPE public.user_rol ADD VALUE IF NOT EXISTS ''webmaster''';
-  ELSE
-    -- No es un enum: la columna es text o varchar, no necesitamos alterar el tipo
-    -- Solo necesitamos asegurarnos de que no haya restricciones CHECK que limiten los valores
-    RAISE NOTICE 'La columna rol no usa enum, los nuevos valores se pueden usar directamente';
-  END IF;
-END $$;
-
--- Si hay una restricción CHECK en la columna rol de profiles, la eliminamos y recreamos
+-- Si hay una restricción CHECK en la columna rol de profiles, la eliminamos
 DO $$
 DECLARE
   constraint_name text;
@@ -40,10 +25,10 @@ BEGIN
   END IF;
 END $$;
 
--- 2. Migrar todos los perfiles de 'administrador' a 'webmaster'
+-- 1. Migrar todos los perfiles de 'administrador' a 'webmaster'
 UPDATE public.profiles SET rol = 'webmaster' WHERE rol = 'administrador';
 
--- 3. Actualizar TODAS las políticas RLS que referencian 'administrador'
+-- 2. Actualizar TODAS las políticas RLS que referencian 'administrador'
 
 -- ── Tabla: profiles ──
 DROP POLICY IF EXISTS "Admin can insert profiles" ON public.profiles;
@@ -207,6 +192,8 @@ BEGIN
   END IF;
 END $$;
 
--- 4. Actualizar el trigger handle_new_user si referencia 'administrador'
--- (El trigger usa el rol del user_metadata, así que las nuevas cuentas usarán 'webmaster')
--- No se necesita cambio en el trigger porque lee de auth.users.user_metadata.rol
+-- 3. (Opcional) Renombrar el valor antiguo 'administrador' del enum
+-- NOTA: PostgreSQL no soporta ALTER TYPE ... RENAME VALUE hasta la versión 13+
+-- Si tu Supabase usa PG 13+, puedes ejecutar:
+-- ALTER TYPE public.user_rol RENAME VALUE 'administrador' TO 'webmaster_old';
+-- Por ahora dejamos 'administrador' como valor huérfano en el enum (no afecta funcionalidad)
