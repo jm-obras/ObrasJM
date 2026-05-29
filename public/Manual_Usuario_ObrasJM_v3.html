@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Manual de Usuario - Sistema ObrasJM v3.0</title>
+<title>Manual de Usuario - Sistema ObrasJM v3.1</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Inter+Variable:wght@300..900&display=swap');
 
@@ -287,6 +287,8 @@
     margin-bottom: 3px;
   }
   .role-admin { background: #EDE9FE; color: #6D28D9; }
+  .role-webmaster { background: #EDE9FE; color: #6D28D9; }
+  .role-visitante { background: #F1F5F9; color: #64748B; }
   .role-inspector { background: #FEF3C7; color: #B45309; }
   .role-contratista { background: #DBEAFE; color: #1D4ED8; }
   .role-residente { background: #D1FAE5; color: #065F46; }
@@ -645,7 +647,7 @@
   <div class="cover-plan">
     <p>Plan de Recuperación de Infraestructura Hospitalaria<br><strong>Dr. José Gregorio Hernández</strong></p>
   </div>
-  <div class="cover-version">VERSIÓN 3.0 &mdash; MARZO 2026</div>
+  <div class="cover-version">VERSIÓN 3.1 &mdash; MAYO 2026</div>
 </div>
 
 <!-- ===================== PAGE 2: INTRODUCCIÓN ===================== -->
@@ -677,10 +679,10 @@
       </div>
       <div class="col">
         <h3>¿Quiénes lo utilizan?</h3>
-        <p>El sistema define <strong>6 roles</strong> con permisos diferenciados:</p>
+        <p>El sistema define <strong>7 roles</strong> con permisos diferenciados:</p>
 
         <div class="card" style="border-top:3px solid #6D28D9; margin-top:10px;">
-          <h3>👑 Administrador</h3>
+          <h3>👑 Webmaster</h3>
           <p>Acceso completo: gestión de usuarios, crear/editar/eliminar alcances y avances, aprobar cualquier nivel del flujo.</p>
         </div>
         <div class="card" style="border-top:3px solid #B45309;">
@@ -703,10 +705,14 @@
           <h3>🏗️ Ingeniería Hospital</h3>
           <p>Acceso de solo lectura al Dashboard y reportes.</p>
         </div>
+        <div class="card" style="border-top:3px solid #64748B;">
+          <h3>👁️ Visitante</h3>
+          <p>Acceso de solo lectura para autoridades. Visualiza Dashboard, Alcance y Avance sin capacidad de edición.</p>
+        </div>
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>2 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>2 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 3: ACCESO AL SISTEMA ===================== -->
@@ -725,7 +731,7 @@
       <div class="col">
         <h3>🌐 URL de Acceso</h3>
         <div class="annotation blue">
-          <strong>https://obras-jm.vercel.app</strong><br>
+          <strong>https://obras.hospitaljmdelosrios.org.ve</strong><br>
           Acceda desde cualquier navegador web (Chrome, Firefox, Edge, Safari).
         </div>
 
@@ -784,7 +790,7 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>3 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>3 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 4: DASHBOARD - VISTA GENERAL ===================== -->
@@ -835,7 +841,7 @@
     <h3 style="margin-top:14px;">🔧 Pestaña 3: Vista por Macro Especialidades</h3>
     <p>Presenta 6 áreas de especialidad con anillos de avance individuales y desglose operativo.</p>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>4 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>4 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 5: DASHBOARD - MACRO ESPECIALIDADES ===================== -->
@@ -902,7 +908,7 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>5 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>5 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 6: ALCANCE PLANIFICADO ===================== -->
@@ -924,7 +930,7 @@
 
         <h3 style="margin-top:14px;">Roles que pueden crear alcances</h3>
         <div style="margin-top:6px;">
-          <span class="role-badge role-admin">👑 Administrador</span>
+          <span class="role-badge role-webmaster">👑 Webmaster</span>
           <span class="role-badge role-inspector">🔍 Inspector</span>
         </div>
 
@@ -970,7 +976,7 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>6 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>6 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 7: ALCANCE - PERMISOS ===================== -->
@@ -989,20 +995,21 @@
       <thead>
         <tr>
           <th style="width:28%;">Acción</th>
-          <th style="text-align:center;">👑 Admin</th>
+          <th style="text-align:center;">👑 Webmaster</th>
           <th style="text-align:center;">🔍 Inspector</th>
           <th style="text-align:center;">👷 Contratista</th>
           <th style="text-align:center;">📋 Ing. Residente</th>
           <th style="text-align:center;">🏥 Directivo</th>
           <th style="text-align:center;">🏗️ Ing. Hospital</th>
+          <th style="text-align:center;">👁️ Visitante</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>Ver alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Crear alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Filtrar por sector/especialidad</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Ver alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Crear alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Filtrar por sector/especialidad</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
       </tbody>
     </table>
 
@@ -1019,7 +1026,7 @@
       <div class="col">
         <h3>Eliminar un Alcance</h3>
         <div class="annotation warning">
-          ⚠️ Solo el <strong>Administrador</strong> puede eliminar alcances. Esta acción es irreversible y eliminará todos los avances asociados.
+          ⚠️ Solo el <strong>Webmaster</strong> puede eliminar alcances. Esta acción es irreversible y eliminará todos los avances asociados.
         </div>
       </div>
     </div>
@@ -1040,7 +1047,7 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>7 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>7 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 8: AVANCE EJECUTADO ===================== -->
@@ -1062,7 +1069,7 @@
 
         <h3 style="margin-top:14px;">Roles que pueden reportar avances</h3>
         <div style="margin-top:6px;">
-          <span class="role-badge role-admin">👑 Administrador</span>
+          <span class="role-badge role-webmaster">👑 Webmaster</span>
           <span class="role-badge role-inspector">🔍 Inspector</span>
           <span class="role-badge role-contratista">👷 Contratista</span>
           <span class="role-badge role-residente">📋 Ing. Residente</span>
@@ -1117,7 +1124,7 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>8 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>8 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 9: FLUJO DE APROBACIÓN EN 3 NIVELES ===================== -->
@@ -1184,10 +1191,10 @@
     </div>
 
     <div class="annotation warning" style="margin-top:10px;">
-      ⚠️ <strong>Administrador:</strong> Puede aprobar cualquier nivel del flujo, incluso si los niveles anteriores no han sido aprobados. Esta es una capacidad especial para casos excepcionales.
+      ⚠️ <strong>Webmaster:</strong> Puede aprobar cualquier nivel del flujo, incluso si los niveles anteriores no han sido aprobados. Esta es una capacidad especial para casos excepcionales.
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>9 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>9 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 10: FLUJO - DETALLES ===================== -->
@@ -1207,7 +1214,7 @@
         <h3>📋 Reglas del Flujo Secuencial</h3>
         <ul class="bullet-list">
           <li>El flujo es <strong>estrictamente secuencial</strong>: cada nivel requiere la aprobación del nivel anterior</li>
-          <li>No se puede saltar niveles (excepto el Administrador)</li>
+          <li>No se puede saltar niveles (excepto el Webmaster)</li>
           <li>Si un nivel <strong>rechaza</strong> el avance, se debe corregir y volver a iniciar el flujo</li>
           <li>El <strong>status_aprobacion</strong> se calcula automáticamente según el progreso de los 3 niveles</li>
         </ul>
@@ -1245,7 +1252,7 @@
           </thead>
           <tbody>
             <tr>
-              <td><span class="role-badge role-admin">👑 Admin</span></td>
+              <td><span class="role-badge role-webmaster">👑 Webmaster</span></td>
               <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
             </tr>
             <tr>
@@ -1268,10 +1275,12 @@
               <td><span class="role-badge role-ing-hospital">🏗️ Ing. Hospital</span></td>
               <td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td>
             </tr>
+            <tr>
+              <td><span class="role-badge role-visitante">👁️ Visitante</span></td>
+              <td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td>
+            </tr>
           </tbody>
         </table>
-
-        <h3 style="margin-top:18px;">🔄 Estados del Avance</h3>
         <div class="status-cards">
           <div class="status-card pending">
             <div class="status-icon">⏳</div>
@@ -1292,7 +1301,7 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>10 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>10 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 11: ROLES Y PERMISOS ===================== -->
@@ -1311,29 +1320,30 @@
       <thead>
         <tr>
           <th style="width:26%;">Funcionalidad</th>
-          <th style="text-align:center;">👑 Admin</th>
+          <th style="text-align:center;">👑 Webmaster</th>
           <th style="text-align:center;">🔍 Inspector</th>
           <th style="text-align:center;">👷 Contratista</th>
           <th style="text-align:center;">📋 Ing. Residente</th>
           <th style="text-align:center;">🏥 Directivo</th>
           <th style="text-align:center;">🏗️ Ing. Hosp.</th>
+          <th style="text-align:center;">👁️ Visitante</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td><strong>Dashboard</strong></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Ver alcances planificados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Crear / editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Ver avances ejecutados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Crear / editar avances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar Nivel 1 (Ing. Residente)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar Nivel 2 (Inspector MPPOP)</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar Nivel 3 (Directivo Hospital)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar cualquier nivel</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Subir fotos de evidencia</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td><strong>Administración</strong></td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Gestión de usuarios</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Gestión de catálogos</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td><strong>Dashboard</strong></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Ver alcances planificados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Crear / editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Ver avances ejecutados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Crear / editar avances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar Nivel 1 (Ing. Residente)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar Nivel 2 (Inspector MPPOP)</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar Nivel 3 (Directivo Hospital)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar cualquier nivel</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Subir fotos de evidencia</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td><strong>Administración</strong></td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Gestión de usuarios</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Gestión de catálogos</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
       </tbody>
     </table>
 
@@ -1341,7 +1351,7 @@
       ✅ Todos los roles pueden ver el Dashboard y las secciones de Alcance Planificado y Avance Ejecutado. Las diferencias están en las acciones de creación, edición y aprobación.
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>11 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>11 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 12: ADMINISTRACIÓN ===================== -->
@@ -1354,10 +1364,10 @@
   <div class="content">
     <div class="section-number">8</div>
     <div class="section-title">Administración</div>
-    <div class="section-subtitle">Panel exclusivo para el rol Administrador</div>
+    <div class="section-subtitle">Panel exclusivo para el rol Webmaster</div>
 
     <div class="annotation warning" style="margin-bottom:18px;">
-      ⚠️ Solo el rol <strong>Administrador</strong> tiene acceso a la sección de Administración. Si no ve esta opción en el menú, su usuario no tiene este rol asignado.
+      ⚠️ Solo el rol <strong>Webmaster</strong> tiene acceso a la sección de Administración. Si no ve esta opción en el menú, su usuario no tiene este rol asignado.
     </div>
 
     <div class="two-col">
@@ -1386,17 +1396,18 @@
         <h3 style="margin-top:16px;">Asignación de Roles</h3>
         <p>Al crear un usuario, seleccione el rol apropiado de la lista:</p>
         <div style="margin-top:6px;">
-          <span class="role-badge role-admin">Administrador</span>
+          <span class="role-badge role-webmaster">Webmaster</span>
           <span class="role-badge role-inspector">Inspector</span>
           <span class="role-badge role-contratista">Contratista</span>
           <span class="role-badge role-residente">Ing. Residente</span>
           <span class="role-badge role-directivo">Directivo Hospital</span>
           <span class="role-badge role-ing-hospital">Ing. Hospital</span>
+          <span class="role-badge role-visitante">Visitante</span>
         </div>
       </div>
       <div class="col">
         <h3>📚 Catálogos del Sistema</h3>
-        <p>El administrador gestiona los catálogos que alimentan los formularios:</p>
+        <p>El Webmaster gestiona los catálogos que alimentan los formularios:</p>
 
         <div class="card" style="border-left:4px solid var(--accent); margin-top:10px;">
           <h3>🔧 Especialidades</h3>
@@ -1417,7 +1428,7 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>12 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>12 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 13: PREGUNTAS FRECUENTES ===================== -->
@@ -1434,7 +1445,7 @@
 
     <div class="faq-item">
       <div class="faq-q">🔑 ¿Qué hago si olvidé mi contraseña?</div>
-      <div class="faq-a">Comuníquese con el <strong>Administrador del sistema</strong> para que restablezca su contraseña. El administrador puede generar una nueva contraseña temporal desde el panel de Gestión de Usuarios. Al ingresar con la nueva contraseña, el sistema le pedirá cambiarla nuevamente.</div>
+      <div class="faq-a">Comuníquese con el <strong>Webmaster del sistema</strong> para que restablezca su contraseña. El Webmaster puede generar una nueva contraseña temporal desde el panel de Gestión de Usuarios. Al ingresar con la nueva contraseña, el sistema le pedirá cambiarla nuevamente.</div>
     </div>
 
     <div class="faq-item">
@@ -1444,7 +1455,7 @@
 
     <div class="faq-item">
       <div class="faq-q">👁️ ¿Quién puede ver mis avances?</div>
-      <div class="faq-a"><strong>Todos los roles</strong> pueden ver los avances reportados. Sin embargo, solo el <strong>Inspector</strong>, <strong>Ing. Residente</strong>, <strong>Directivo</strong> y <strong>Administrador</strong> pueden aprobar o rechazar avances según su nivel. Los contratistas pueden ver sus propios reportes pero no pueden aprobarlos.</div>
+      <div class="faq-a"><strong>Todos los roles</strong> pueden ver los avances reportados. Sin embargo, solo el <strong>Inspector</strong>, <strong>Ing. Residente</strong>, <strong>Directivo</strong> y <strong>Webmaster</strong> pueden aprobar o rechazar avances según su nivel. Los contratistas pueden ver sus propios reportes pero no pueden aprobarlos.</div>
     </div>
 
     <div class="faq-item">
@@ -1453,8 +1464,8 @@
     </div>
 
     <div class="faq-item">
-      <div class="faq-q">👑 ¿Puede el Administrador aprobar cualquier nivel?</div>
-      <div class="faq-a"><strong>Sí.</strong> El Administrador tiene la capacidad especial de aprobar cualquier nivel del flujo, incluso si los niveles anteriores no han sido completados. Esto permite resolver situaciones excepcionales o urgencias sin esperar el flujo completo.</div>
+      <div class="faq-q">👑 ¿Puede el Webmaster aprobar cualquier nivel?</div>
+      <div class="faq-a"><strong>Sí.</strong> El Webmaster tiene la capacidad especial de aprobar cualquier nivel del flujo, incluso si los niveles anteriores no han sido completados. Esto permite resolver situaciones excepcionales o urgencias sin esperar el flujo completo.</div>
     </div>
 
     <div class="faq-item">
@@ -1464,7 +1475,7 @@
 
     <div class="faq-item">
       <div class="faq-q">📱 ¿Puedo acceder desde mi teléfono?</div>
-      <div class="faq-a"><strong>Sí.</strong> El sistema es responsivo y se adapta a dispositivos móviles. Puede acceder desde cualquier navegador web en su teléfono o tablet usando la misma URL: <strong>https://obras-jm.vercel.app</strong></div>
+      <div class="faq-a"><strong>Sí.</strong> El sistema es responsivo y se adapta a dispositivos móviles. Puede acceder desde cualquier navegador web en su teléfono o tablet usando la misma URL: <strong>https://obras.hospitaljmdelosrios.org.ve</strong></div>
     </div>
 
     <div class="faq-item">
@@ -1472,7 +1483,7 @@
       <div class="faq-a">El sistema utiliza <strong>autenticación con credenciales</strong> y cada acción queda registrada con trazabilidad completa. Solo los usuarios autorizados con los roles correspondientes pueden acceder a las funciones de creación, edición y aprobación.</div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>13 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>13 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 14: INSTITUCIONES ===================== -->
@@ -1528,7 +1539,7 @@
       ✅ Cada unidad ejecutora tiene asignados alcances específicos dentro del sistema. Los contratistas de cada unidad reportan los avances correspondientes a su área de responsabilidad.
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>14 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>14 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 15: RESUMEN DE NAVEGACIÓN ===================== -->
@@ -1550,7 +1561,7 @@
       </div>
       <div class="card" style="border-top:4px solid var(--blue);">
         <h3>📋 Alcance Planificado</h3>
-        <p>Lista de metas y actividades por especialidad, sector y subsector. Crear y editar alcances (Admin, Inspector).</p>
+        <p>Lista de metas y actividades por especialidad, sector y subsector. Crear y editar alcances (Webmaster, Inspector).</p>
       </div>
       <div class="card" style="border-top:4px solid var(--success);">
         <h3>📝 Avance Ejecutado</h3>
@@ -1558,7 +1569,7 @@
       </div>
       <div class="card" style="border-top:4px solid var(--purple);">
         <h3>⚙️ Administración</h3>
-        <p>Panel exclusivo del Administrador. Gestión de usuarios, especialidades, sectores, subsectores, unidades ejecutoras y medidas.</p>
+        <p>Panel exclusivo del Webmaster. Gestión de usuarios, especialidades, sectores, subsectores, unidades ejecutoras y medidas.</p>
       </div>
     </div>
 
@@ -1567,7 +1578,7 @@
       <div style="flex:1; background:var(--bg-alt); border-radius:10px; padding:14px; text-align:center; border-top:3px solid var(--accent);">
         <div style="font-size:22px; margin-bottom:4px;">📋</div>
         <div style="font-size:11px; font-weight:700; color:var(--primary);">1. Planificar</div>
-        <div style="font-size:10px; color:var(--text-secondary); margin-top:4px;">Admin/Inspector crea alcances planificados</div>
+        <div style="font-size:10px; color:var(--text-secondary); margin-top:4px;">Webmaster/Inspector crea alcances planificados</div>
       </div>
       <div style="display:flex; align-items:center; font-size:18px; color:var(--text-light);">→</div>
       <div style="flex:1; background:var(--bg-alt); border-radius:10px; padding:14px; text-align:center; border-top:3px solid var(--blue);">
@@ -1607,7 +1618,7 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>15 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>15 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 16: GLOSARIO ===================== -->
@@ -1645,7 +1656,7 @@
       </tbody>
     </table>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>16 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>16 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 17: NOTAS ===================== -->
@@ -1665,22 +1676,22 @@
         <h3>💻 Información Técnica</h3>
         <div class="card" style="background:var(--bg-alt); border:none;">
           <table style="width:100%; font-size:12px;">
-            <tr><td style="padding:6px 0; color:var(--text-light); width:40%;">Sistema</td><td style="padding:6px 0; font-weight:600;">ObrasJM v3.0</td></tr>
+            <tr><td style="padding:6px 0; color:var(--text-light); width:40%;">Sistema</td><td style="padding:6px 0; font-weight:600;">ObrasJM v3.1</td></tr>
             <tr><td style="padding:6px 0; color:var(--text-light);">Plataforma</td><td style="padding:6px 0; font-weight:600;">Web (Next.js)</td></tr>
-            <tr><td style="padding:6px 0; color:var(--text-light);">URL</td><td style="padding:6px 0; font-weight:600;">https://obras-jm.vercel.app</td></tr>
+            <tr><td style="padding:6px 0; color:var(--text-light);">URL</td><td style="padding:6px 0; font-weight:600;">https://obras.hospitaljmdelosrios.org.ve</td></tr>
             <tr><td style="padding:6px 0; color:var(--text-light);">Navegadores</td><td style="padding:6px 0; font-weight:600;">Chrome, Firefox, Edge, Safari</td></tr>
             <tr><td style="padding:6px 0; color:var(--text-light);">Responsive</td><td style="padding:6px 0; font-weight:600;">Sí (móvil, tablet, escritorio)</td></tr>
             <tr><td style="padding:6px 0; color:var(--text-light);">Autenticación</td><td style="padding:6px 0; font-weight:600;">Credenciales + cambio obligatorio</td></tr>
           </table>
         </div>
 
-        <h3 style="margin-top:18px;">📝 Novedades de la Versión 3.0</h3>
+        <h3 style="margin-top:18px;">📝 Novedades de la Versión 3.1</h3>
         <ul class="bullet-list">
           <li><strong>Flujo de Aprobación en 3 Niveles</strong> — Sistema secuencial de validación</li>
           <li><strong>status_aprobacion automático</strong> — Se calcula según el progreso de los 3 niveles</li>
           <li><strong>Vista por Ejecutoras</strong> — Tarjetas con logo y anillo de progreso</li>
           <li><strong>Vista por Macro Especialidades</strong> — Reporte operativo por área</li>
-          <li><strong>6 roles diferenciados</strong> — Permisos granulares por funcionalidad</li>
+          <li><strong>7 roles diferenciados</strong> — Permisos granulares por funcionalidad</li>
         </ul>
       </div>
       <div class="col">
@@ -1702,7 +1713,7 @@
           </ul>
         </div>
         <div class="card" style="border-left:4px solid var(--purple);">
-          <h3>Para Administradores</h3>
+          <h3>Para Webmasters</h3>
           <ul class="bullet-list">
             <li>Mantenga los <strong>catálogos actualizados</strong></li>
             <li>Desactive usuarios que ya no laboran</li>
@@ -1715,7 +1726,7 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.0</span><span>17 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>17 / 18</span></div>
 </div>
 
 <!-- ===================== PAGE 18: CRÉDITOS ===================== -->
@@ -1735,10 +1746,10 @@
   <div class="credits-sub">Plan de Recuperación de Infraestructura Hospitalaria Dr. José Gregorio Hernández</div>
   <div class="credits-divider" style="margin-top:24px;"></div>
   <div class="credits-dev">
-    <strong>Sistema de Control de Avance Físico (PAF) — ObrasJM v3.0</strong><br><br>
+    <strong>Sistema de Control de Avance Físico (PAF) — ObrasJM v3.1</strong><br><br>
     Desarrollado por <strong>Z.ai</strong><br>
     IT Development by <strong>@libnimaster</strong><br><br>
-    <span style="font-size:11px; color:rgba(255,255,255,0.45);">Caracas, Venezuela — Marzo 2026</span>
+    <span style="font-size:11px; color:rgba(255,255,255,0.45);">Caracas, Venezuela — Mayo 2026</span>
   </div>
 </div>
 
