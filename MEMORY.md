@@ -15,7 +15,7 @@
 | **Nombre** | ObrasJM — Control de Porcentaje de Avance Físico (PAF) |
 | **Ubicación** | Hospital de Niños J.M. de los Ríos, Caracas, Venezuela |
 | **Organización** | Plan de Recuperación de Infraestructura Hospitalaria "Dr. José Gregorio Hernández" |
-| **URL Producción** | `https://obras.hospitaljmdelosrios.org.ve/` (Vercel + dominio personalizado) |
+| **URL Producción** | `https://obrasjm.space-z.ai/` (Vercel) |
 | **Repositorio** | `github.com/jm-obras/ObrasJM` |
 | **Supabase Project ID** | `pmueicotcnsfildkpggp` |
 
@@ -28,7 +28,7 @@
 | **Estilos** | Tailwind CSS | 4.x | + tailwindcss-animate |
 | **Componentes UI** | shadcn/ui (Radix) | New York style | 48 componentes instalados |
 | **Backend/BD** | Supabase (PostgreSQL) | — | RLS habilitado en TODAS las tablas |
-| **Auth** | Supabase Auth | — | Registro requiere rol webmaster |
+| **Auth** | Supabase Auth | — | Registro requiere rol administrador |
 | **Gráficos** | Recharts | 2.x | Dashboard KPIs |
 | **Tablas Datos** | TanStack Table | 8.x | Disponible si se necesita |
 | **Formularios** | react-hook-form + zod | 7.x / 4.x | Validación cliente |
@@ -173,7 +173,7 @@
 
 | Enum | Valores |
 |------|---------|
-| `user_rol` | `administrador` *(obsoleto, migrado a webmaster)*, `webmaster`, `contratista`, `inspector`, `ingeniera_residente`, `directivo_hospital`, `ingenieria_hospital`, `visitante` |
+| `user_rol` | `administrador`, `contratista`, `inspector`, `ingeniera_residente`, `directivo_hospital`, `ingenieria_hospital` |
 | `trabajo_tipo` | `Planificado`, `Imprevisto` |
 | `aprobacion_status` | `Pendiente`, `Aprobado`, `Rechazado` |
 | `alcance_status` | `Activo`, `Completado`, `Suspendido` |
@@ -289,63 +289,61 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 | Operación | Quién |
 |-----------|-------|
 | SELECT | authenticated |
-| INSERT | webmaster |
-| UPDATE | webmaster + propio usuario |
+| INSERT | administrador |
+| UPDATE | administrador + propio usuario |
 | DELETE | — (no hay política) |
 
 #### `unidades_ejecutoras`
 | Operación | Quién |
 |-----------|-------|
-| ALL | webmaster |
+| ALL | administrador |
 | SELECT | authenticated |
 
 #### `especialidades`
 | Operación | Quién |
 |-----------|-------|
-| ALL | webmaster |
+| ALL | administrador |
 | SELECT | público (true) |
 
 #### `sectores`
 | Operación | Quién |
 |-----------|-------|
-| ALL | webmaster |
+| ALL | administrador |
 | SELECT | público (true) |
 
 #### `subsectores`
 | Operación | Quién |
 |-----------|-------|
-| ALL | webmaster |
+| ALL | administrador |
 | SELECT | público (true) |
 
 #### `alcance_planificado`
 | Operación | Quién |
 |-----------|-------|
 | SELECT | authenticated + contratista/ingeniera_residente (su UE) |
-| INSERT | webmaster + inspector |
-| UPDATE | webmaster + inspector |
-| DELETE | webmaster |
+| INSERT | administrador + inspector |
+| UPDATE | administrador + inspector |
+| DELETE | administrador |
 
 #### `avance_ejecutado`
 | Operación | Quién |
 |-----------|-------|
 | SELECT | authenticated |
-| INSERT | contratista + ingeniera_residente + inspector + webmaster |
-| UPDATE (datos) | contratista + ingeniera_residente + inspector + webmaster |
-| UPDATE (aprobación residente) | ingeniera_residente + webmaster |
-| UPDATE (aprobación inspector) | inspector + webmaster |
-| UPDATE (aprobación directivo) | directivo_hospital + webmaster |
-| ALL | webmaster |
+| INSERT | contratista + ingeniera_residente + inspector + administrador |
+| UPDATE (datos) | contratista + ingeniera_residente + inspector + administrador |
+| UPDATE (aprobación residente) | ingeniera_residente + administrador |
+| UPDATE (aprobación inspector) | inspector + administrador |
+| UPDATE (aprobación directivo) | directivo_hospital + administrador |
+| ALL | administrador |
 
 > **Aprobación secuencial:** Cada nivel requiere que el anterior esté aprobado. Inspector no puede aprobar si Residente no aprobó. Directivo no puede aprobar si Inspector no aprobó.
->
-> **Visitante:** Solo tiene políticas SELECT → acceso de solo lectura automático (sin INSERT/UPDATE/DELETE en ninguna tabla).
 
 #### Storage (`evidencias`)
 | Operación | Quién |
 |-----------|-------|
 | SELECT | público (true) |
 | INSERT | authenticated |
-| DELETE | webmaster |
+| DELETE | administrador |
 
 ### C.5 Vistas SQL (PAF Calculation)
 
@@ -383,7 +381,7 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 | Endpoint | Método | Auth | Rol | Admin Client | Notas |
 |----------|--------|------|-----|--------------|-------|
 | `/api/auth/login` | POST | No | — | No | Verifica `activo=true` en profile |
-| `/api/auth/register` | POST | Sí | webmaster | **Sí** | Crear usuarios con roles válidos (incluido visitante). VULN-001 CORREGIDO |
+| `/api/auth/register` | POST | No | ⚠️ NINGUNO | **Sí** | **VULNERABILIDAD**: Cualquiera puede registrar con cualquier rol |
 | `/api/auth/logout` | POST | No | — | No | — |
 | `/api/auth/me` | GET | Sí | — | No | Retorna user + profile |
 | `/api/auth/change-password` | POST | Sí | — | No | Establece `debe_cambiar_password = false` |
@@ -440,35 +438,35 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 
 ### E.1 Visibilidad de Tabs por Rol
 
-| Tab | webmaster | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital | visitante |
-|-----|:---------:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|:--------:|
-| Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Alcance Planificado | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
-| Avance Ejecutado | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Administración | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Tab | admin | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital |
+|-----|:-----:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|
+| Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Alcance Planificado | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Avance Ejecutado | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Administración | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ### E.2 Capacidades por Rol en Avance Ejecutado
 
-| Acción | webmaster | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital | visitante |
-|--------|:---------:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|:--------:|
-| Crear avance | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Editar datos | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Aprobar Nivel 1 (Residente) | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Aprobar Nivel 2 (Inspector) | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Aprobar Nivel 3 (Directivo) | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Rechazar (su nivel) | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Acción | admin | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital |
+|--------|:-----:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|
+| Crear avance | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Editar datos | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Aprobar Nivel 1 (Residente) | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Aprobar Nivel 2 (Inspector) | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Aprobar Nivel 3 (Directivo) | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| Rechazar (su nivel) | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-> **Cadena de aprobación secuencial:** Nivel 1 (Ing. Residente declara concluida) → Nivel 2 (Inspector aprueba por MPPOP) → Nivel 3 (Directivo Hospital conformidad). El Webmaster puede aprobar cualquier nivel. Visitante: solo lectura, sin acciones.
+> **Cadena de aprobación secuencial:** Nivel 1 (Ing. Residente declara concluida) → Nivel 2 (Inspector aprueba por MPPOP) → Nivel 3 (Directivo Hospital conformidad). El Administrador puede aprobar cualquier nivel.
 
 ### E.3 Capacidades por Rol en Alcance Planificado
 
-| Acción | webmaster | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital | visitante |
-|--------|:---------:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|:--------:|
-| Ver | ✅ | ✅ (su UE) | ✅ | ✅ (su UE) | ❌ | ✅ | ✅ |
-| Crear | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Editar | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Acción | admin | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital |
+|--------|:-----:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|
+| Ver | ✅ | ✅ (su UE) | ✅ | ✅ (su UE) | ❌ | ✅ |
+| Crear | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Editar | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ---
 
@@ -567,7 +565,7 @@ El admin client se usa EXCLUSIVAMENTE en estos endpoints:
 ### H.2 Flujo de Aprobación de Avances — 3 Niveles Secuenciales
 
 ```
-contratista/inspector/residente/webmaster → Crea Avance
+contratista/inspector/residente/admin → Crea Avance
     (aprobacion_residente: Pendiente, aprobacion_inspector: Pendiente,
      aprobacion_directivo: Pendiente, status_aprobacion: Pendiente)
                                ↓
@@ -594,8 +592,7 @@ contratista/inspector/residente/webmaster → Crea Avance
       • Rechazado → si algún nivel es Rechazado
       • Pendiente → en cualquier otro caso
 
-    👑 Webmaster: puede aprobar CUALQUIER nivel (no necesita secuencia)
-    👁️ Visitante: SOLO LECTURA — sin capacidad de crear, editar, aprobar o eliminar
+    👑 Administrador: puede aprobar CUALQUIER nivel (no necesita secuencia)
 ```
 
 ---
@@ -630,8 +627,6 @@ contratista/inspector/residente/webmaster → Crea Avance
 | `supabase/migration-inspector-avance-policies.sql` | Inspector INSERT en avance | 17 |
 | `supabase/migrations/012_dashboard_ejecutoras_especialidades.sql` | Dashboard por Ejecutoras + Macro Especialidades + logo_url + tabla macro_especialidades | ~209 |
 | `supabase/migrations/013_three_level_approval.sql` | Aprobación en 3 niveles (residente/inspector/directivo) + nuevas columnas + RLS por rol | ~75 |
-| `supabase/migrations/014a_add_enum_values.sql` | Agrega `webmaster` y `visitante` al enum user_rol (DEBE ejecutarse primero, en transacción separada) | ~8 |
-| `supabase/migrations/014b_migrate_data_and_policies.sql` | Migra perfiles administrador→webmaster + actualiza TODAS las políticas RLS con nuevos nombres de rol | ~210 |
 
 ---
 
@@ -643,7 +638,7 @@ contratista/inspector/residente/webmaster → Crea Avance
 >
 > - Las llamadas CRUD de usuarios normales **DEBEN** ir por el **cliente estándar** (server client), que está sujeto a RLS.
 > - Solo las métricas globales agregadas del dashboard y las operaciones administrativas usan el **cliente admin** (service role).
-> - Toda operación que use el admin client DEBE tener verificación de rol `webmaster` en la API route.
+> - Toda operación que use el admin client DEBE tener verificación de rol `administrador` en la API route.
 > - Al crear nuevas API routes, siempre verificar que el rol del usuario tenga permisos tanto en la API **como** en las políticas RLS.
 
 ### K.2 No Borrar Código Implícito
@@ -704,7 +699,6 @@ contratista/inspector/residente/webmaster → Crea Avance
 | **v2.0.0** | **29-May-2026** | **Auditoría técnica + corrección hallazgos críticos:** VULN-001 corregido (register requiere admin), 8 deps eliminadas, SQL views sincronizadas, 3 monolitos refactorizados (20 archivos nuevos) | **Audit+Fix+Refactor** | ✅ Operativo |
 | v2.1.0 | 04-Jun-2026 | Dashboard con 3 sub-tabs (Vista General, Ejecutoras, Macro Especialidades) + logo_url en unidades_ejecutoras + tabla macro_especialidades | Migración 012 + push | ✅ Operativo |
 | **v3.0.0** | **04-Jun-2026** | **Aprobación en 3 niveles:** Nivel 1=Ing. Residente (declara concluida), Nivel 2=Inspector MPPOP (aprueba por ministerio), Nivel 3=Directivo Hospital (conformidad). Admin aprueba cualquier nivel. Aprobación secuencial obligatoria. status_aprobacion auto-computado. UI con indicador visual de cadena de aprobación. | **Migración 013 + push** | ✅ Operativo |
-| **v3.1.0** | **04-Jun-2026** | **Rol Visitante + Renombrar Administrador→Webmaster + Dominio personalizado:** (1) Nuevo rol `visitante` solo lectura para autoridades, (2) `administrador` renombrado a `webmaster` (evitar confusión con pestaña Administración/Finanzas), (3) Dominio propio `obras.hospitaljmdelosrios.org.ve` vía CNAME→Vercel, (4) Migración 014 dividida en 014a (enum) + 014b (datos+RLS) por restricción PostgreSQL de enum values en transacción, (5) Fix: `visitante` agregado a VALID_ROLES en API `/api/admin/users` y `/api/admin/users/[id]`, (6) Manual de usuario actualizado a v3.1 con nuevo dominio, rol webmaster, rol visitante, fecha mayo 2026 | **Migraciones 014a+014b + fixes + push** | ✅ Operativo |
 
 ### L.3 Próximo Snapshot (Plantilla)
 
@@ -782,7 +776,7 @@ src/
 interface Profile {
   id: string;
   nombre_completo: string;
-  rol: 'webmaster' | 'contratista' | 'inspector' | 'ingeniera_residente' | 'directivo_hospital' | 'ingenieria_hospital' | 'visitante';
+  rol: 'administrador' | 'contratista' | 'inspector' | 'ingeniera_residente' | 'directivo_hospital' | 'ingenieria_hospital';
   unidad_ejecutora_id: string | null;
   telefono: string | null;
   ente_pertenece: string | null;
@@ -838,9 +832,7 @@ interface AvanceEjecutado {
 | `/instituciones/*.png` | 9 logos de instituciones asociadas |
 | `/obras/*.jpeg` | 9 fotos de obras |
 | `/Informe_Tecnico_Auditoria_ObrasJM.pdf` | Informe de auditoría técnica |
-| `/Manual_Usuario_ObrasJM_v3.1.pdf` | Manual de usuario v3.1 (webmaster, visitante, dominio propio) |
-| `/Manual_Usuario_ObrasJM_v3.html` | Fuente HTML del manual v3.1 |
-| `/Manual_Usuario_ObrasJM_v2.pdf` | Manual de usuario v2 (obsoleto) |
+| `/Manual_Usuario_ObrasJM_v2.pdf` | Manual de usuario |
 
 ---
 
@@ -861,5 +853,5 @@ interface AvanceEjecutado {
 ---
 
 *Documento generado: Mayo 2026 — Versión v2.0.0*
-*Última actualización: 04-Jun-2026 — v3.1.0 — Rol Visitante + Webmaster rename + Dominio personalizado obras.hospitaljmdelosrios.org.ve*
+*Última actualización: 04-Jun-2026 — v3.0.0 — Aprobación en 3 niveles + Dashboard con Ejecutoras/Macro Especialidades*
 *Próxima revisión programada: Antes de cualquier cambio significativo al sistema*
