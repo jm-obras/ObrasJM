@@ -1,4 +1,4 @@
-export type UserRol = 'administrador' | 'contratista' | 'inspector' | 'ingeniera_residente' | 'directivo_hospital' | 'ingenieria_hospital'
+export type UserRol = 'webmaster' | 'contratista' | 'inspector' | 'ingeniera_residente' | 'directivo_hospital' | 'ingenieria_hospital' | 'visitante'
 export type TrabajoTipo = 'Planificado' | 'Imprevisto'
 export type AprobacionStatus = 'Pendiente' | 'Aprobado' | 'Rechazado'
 export type AlcanceStatus = 'Activo' | 'Completado' | 'Suspendido'

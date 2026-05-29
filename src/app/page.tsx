@@ -51,28 +51,30 @@ interface TabConfig {
 }
 
 const TABS: TabConfig[] = [
-  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['administrador', 'contratista', 'inspector', 'ingeniera_residente', 'directivo_hospital', 'ingenieria_hospital'] },
-  { key: 'alcance', label: 'Alcance Planificado', icon: ClipboardList, roles: ['administrador', 'inspector', 'contratista', 'ingeniera_residente', 'ingenieria_hospital'] },
-  { key: 'avance', label: 'Avance Ejecutado', icon: FileCheck, roles: ['administrador', 'contratista', 'inspector', 'ingeniera_residente', 'directivo_hospital', 'ingenieria_hospital'] },
-  { key: 'admin', label: 'Administración', icon: Settings, roles: ['administrador'] },
+  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['webmaster', 'contratista', 'inspector', 'ingeniera_residente', 'directivo_hospital', 'ingenieria_hospital', 'visitante'] },
+  { key: 'alcance', label: 'Alcance Planificado', icon: ClipboardList, roles: ['webmaster', 'inspector', 'contratista', 'ingeniera_residente', 'ingenieria_hospital', 'visitante'] },
+  { key: 'avance', label: 'Avance Ejecutado', icon: FileCheck, roles: ['webmaster', 'contratista', 'inspector', 'ingeniera_residente', 'directivo_hospital', 'ingenieria_hospital', 'visitante'] },
+  { key: 'admin', label: 'Administración', icon: Settings, roles: ['webmaster'] },
 ]
 
 const ROL_LABELS: Record<string, string> = {
-  administrador: 'Administrador',
+  webmaster: 'Webmaster',
   contratista: 'Contratista',
   inspector: 'Inspector',
   ingeniera_residente: 'Ing. Residente',
   directivo_hospital: 'Directivo Hospital',
   ingenieria_hospital: 'Ing. Hospital',
+  visitante: 'Visitante',
 }
 
 const ROL_COLORS: Record<string, string> = {
-  administrador: 'bg-purple-100 text-purple-800 border-purple-200',
+  webmaster: 'bg-purple-100 text-purple-800 border-purple-200',
   contratista: 'bg-sky-100 text-sky-800 border-sky-200',
   inspector: 'bg-amber-100 text-amber-800 border-amber-200',
   ingeniera_residente: 'bg-emerald-100 text-emerald-800 border-emerald-200',
   directivo_hospital: 'bg-rose-100 text-rose-800 border-rose-200',
   ingenieria_hospital: 'bg-orange-100 text-orange-800 border-orange-200',
+  visitante: 'bg-slate-100 text-slate-800 border-slate-200',
 }
 
 function AppContent() {

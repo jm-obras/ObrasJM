@@ -321,7 +321,7 @@ export function ApprovalDialog({
   onApproval,
   onPhotoViewer,
 }: ApprovalDialogProps) {
-  const isAdmin = userRole === 'administrador'
+  const isAdmin = userRole === 'webmaster'
 
   // Determine which level this user can approve
   const getUserApprovalLevel = (): 'residente' | 'inspector' | 'directivo' | null => {
@@ -329,7 +329,7 @@ export function ApprovalDialog({
       case 'ingeniera_residente': return 'residente'
       case 'inspector': return 'inspector'
       case 'directivo_hospital': return 'directivo'
-      case 'administrador': return null // admin can approve any
+      case 'webmaster': return null // webmaster can approve any
       default: return null
     }
   }
@@ -521,10 +521,10 @@ export function ApprovalDialog({
                   />
                 </div>
 
-                {/* Admin multi-level approval buttons */}
+                {/* Webmaster multi-level approval buttons */}
                 {isAdmin && selectedAvance.status_aprobacion !== 'Aprobado' && selectedAvance.status_aprobacion !== 'Rechazado' && (
                   <div className="space-y-2">
-                    {/* If admin, show approval buttons for each pending level */}
+                    {/* If webmaster, show approval buttons for each pending level */}
                     {steps.filter(s => s.status === 'Pendiente').map((step) => (
                       <div key={step.level} className="flex items-center gap-2 justify-end">
                         <span className="text-xs text-muted-foreground">{step.label}:</span>
@@ -573,7 +573,7 @@ export function ApprovalDialog({
                   </div>
                 )}
 
-                {/* Non-admin: single level approval */}
+                {/* Non-webmaster: single level approval */}
                 {!isAdmin && activeLevel && (
                   <div className="flex gap-2 justify-end">
                     <Button

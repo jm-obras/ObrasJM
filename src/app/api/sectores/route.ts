@@ -45,9 +45,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden crear sectores' },
+        { error: 'Solo los webmasters pueden crear sectores' },
         { status: 403 }
       )
     }

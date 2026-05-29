@@ -65,7 +65,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador' && profile.rol !== 'inspector') {
+    if (profile.rol !== 'webmaster' && profile.rol !== 'inspector') {
       return NextResponse.json(
         { error: 'No tiene permisos para actualizar alcance planificado' },
         { status: 403 }
@@ -152,9 +152,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden eliminar alcance planificado' },
+        { error: 'Solo los webmasters pueden eliminar alcance planificado' },
         { status: 403 }
       )
     }

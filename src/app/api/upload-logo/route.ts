@@ -22,9 +22,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden subir logos' },
+        { error: 'Solo los webmasters pueden subir logos' },
         { status: 403 }
       )
     }

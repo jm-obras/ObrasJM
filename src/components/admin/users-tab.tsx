@@ -347,12 +347,13 @@ export function UsersTab({ profile, unidadesEjecutoras }: UsersTabProps) {
                 <Select value={userForm.rol} onValueChange={(val) => setUserForm((p) => ({ ...p, rol: val as UserRol }))}>
                   <SelectTrigger id="user-rol"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="administrador">Administrador</SelectItem>
+                    <SelectItem value="webmaster">Webmaster</SelectItem>
                     <SelectItem value="contratista">Contratista</SelectItem>
                     <SelectItem value="inspector">Inspector</SelectItem>
                     <SelectItem value="ingeniera_residente">Ing. Residente</SelectItem>
                     <SelectItem value="directivo_hospital">Directivo Hospital</SelectItem>
                     <SelectItem value="ingenieria_hospital">Ing. Hospital</SelectItem>
+                    <SelectItem value="visitante">Visitante</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -404,12 +405,13 @@ export function UsersTab({ profile, unidadesEjecutoras }: UsersTabProps) {
                 <Select value={editUserForm.rol} onValueChange={(val) => setEditUserForm((p) => ({ ...p, rol: val as UserRol }))}>
                   <SelectTrigger id="edit-rol"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="administrador">Administrador</SelectItem>
+                    <SelectItem value="webmaster">Webmaster</SelectItem>
                     <SelectItem value="contratista">Contratista</SelectItem>
                     <SelectItem value="inspector">Inspector</SelectItem>
                     <SelectItem value="ingeniera_residente">Ing. Residente</SelectItem>
                     <SelectItem value="directivo_hospital">Directivo Hospital</SelectItem>
                     <SelectItem value="ingenieria_hospital">Ing. Hospital</SelectItem>
+                    <SelectItem value="visitante">Visitante</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

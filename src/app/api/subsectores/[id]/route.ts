@@ -24,9 +24,9 @@ export async function PUT(
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden actualizar subsectores' },
+        { error: 'Solo los webmasters pueden actualizar subsectores' },
         { status: 403 }
       )
     }
@@ -115,9 +115,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden eliminar subsectores' },
+        { error: 'Solo los webmasters pueden eliminar subsectores' },
         { status: 403 }
       )
     }

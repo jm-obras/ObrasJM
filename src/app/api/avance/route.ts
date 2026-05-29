@@ -91,8 +91,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    // Contratistas, ingenieras residentes, inspectores and administradores can create avances
-    const allowedRoles = ['contratista', 'ingeniera_residente', 'inspector', 'administrador']
+    // Contratistas, ingenieras residentes, inspectores and webmasters can create avances
+    const allowedRoles = ['contratista', 'ingeniera_residente', 'inspector', 'webmaster']
     if (!allowedRoles.includes(profile.rol)) {
       return NextResponse.json(
         { error: 'No tiene permisos para reportar avances' },

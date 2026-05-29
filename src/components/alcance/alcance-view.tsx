@@ -23,9 +23,10 @@ interface AlcanceViewProps {
 }
 
 export function AlcanceView({ profile }: AlcanceViewProps) {
-  const isAdmin = profile.rol === 'administrador'
+  const isAdmin = profile.rol === 'webmaster'
   const isInspector = profile.rol === 'inspector'
-  const canEdit = isAdmin || isInspector
+  const isVisitante = profile.rol === 'visitante'
+  const canEdit = !isVisitante && (isAdmin || isInspector)
 
   // Data
   const [alcances, setAlcances] = useState<AlcancePlanificado[]>([])

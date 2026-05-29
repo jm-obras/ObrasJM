@@ -36,9 +36,9 @@ export async function POST(
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden resetear contraseñas' },
+        { error: 'Solo los webmasters pueden resetear contraseñas' },
         { status: 403 }
       )
     }

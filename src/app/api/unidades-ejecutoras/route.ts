@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador' && profile.rol !== 'inspector') {
+    if (profile.rol !== 'webmaster' && profile.rol !== 'inspector') {
       return NextResponse.json(
         { error: 'No tiene permisos para crear unidades ejecutoras' },
         { status: 403 }

@@ -116,7 +116,7 @@ export async function PUT(
     const updateData: Record<string, unknown> = {}
 
     // --- Data fields: contratistas, residentes, inspectores and admins can update ---
-    if (['contratista', 'ingeniera_residente', 'inspector', 'administrador'].includes(profile.rol)) {
+    if (['contratista', 'ingeniera_residente', 'inspector', 'webmaster'].includes(profile.rol)) {
       if (body.cantidad_reportada !== undefined) updateData.cantidad_reportada = body.cantidad_reportada
       if (body.tipo_trabajo !== undefined) updateData.tipo_trabajo = body.tipo_trabajo
       if (body.fecha_reporte !== undefined) updateData.fecha_reporte = body.fecha_reporte
@@ -141,7 +141,7 @@ export async function PUT(
         )
       }
 
-      if (profile.rol === 'ingeniera_residente' || profile.rol === 'administrador') {
+      if (profile.rol === 'ingeniera_residente' || profile.rol === 'webmaster') {
         updateData.aprobacion_residente = body.aprobacion_residente
         updateData.residente_id = user.id
         currentResidente = body.aprobacion_residente
@@ -162,7 +162,7 @@ export async function PUT(
         )
       }
 
-      if (profile.rol === 'inspector' || profile.rol === 'administrador') {
+      if (profile.rol === 'inspector' || profile.rol === 'webmaster') {
         // Sequential check: inspector can only approve if residente already approved
         if (body.aprobacion_inspector === 'Aprobado' && currentResidente !== 'Aprobado') {
           return NextResponse.json(
@@ -190,7 +190,7 @@ export async function PUT(
         )
       }
 
-      if (profile.rol === 'directivo_hospital' || profile.rol === 'administrador') {
+      if (profile.rol === 'directivo_hospital' || profile.rol === 'webmaster') {
         // Sequential check: directivo can only approve if inspector already approved
         if (body.aprobacion_directivo === 'Aprobado' && currentInspector !== 'Aprobado') {
           return NextResponse.json(

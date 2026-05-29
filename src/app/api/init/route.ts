@@ -151,7 +151,7 @@ export async function POST() {
     }
 
     // ===== STEP 6: Create admin user =====
-    results.push({ step: '6. Crear usuario admin', status: 'info', error: 'Usa el panel de Auth en Supabase para crear un usuario, luego asígnale rol de administrador en la tabla profiles' })
+    results.push({ step: '6. Crear usuario webmaster', status: 'info', error: 'Usa el panel de Auth en Supabase para crear un usuario, luego asígnale rol de webmaster en la tabla profiles' })
 
     return NextResponse.json({
       success: true,
@@ -160,7 +160,7 @@ export async function POST() {
       nextSteps: [
         '1. Si las tablas no existen, ejecuta los archivos SQL en el Editor SQL de Supabase',
         '2. Crea un usuario admin en Authentication > Users',
-        '3. Actualiza su perfil en la tabla profiles con rol = administrador',
+        '3. Actualiza su perfil en la tabla profiles con rol = webmaster',
         '4. Inicia sesión en la aplicación con ese usuario',
       ],
     })

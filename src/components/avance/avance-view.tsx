@@ -27,12 +27,13 @@ import {
 
 /** Which approval level each role can approve (admin can approve all) */
 const APPROVAL_LEVEL_BY_ROLE: Record<UserRol, 'residente' | 'inspector' | 'directivo' | null> = {
-  administrador: null, // null = can approve any level
+  webmaster: null, // null = can approve any level
   ingeniera_residente: 'residente',
   inspector: 'inspector',
   directivo_hospital: 'directivo',
   contratista: null,
   ingenieria_hospital: null,
+  visitante: null,
 }
 
 interface AvanceViewProps {
@@ -40,15 +41,16 @@ interface AvanceViewProps {
 }
 
 export function AvanceView({ profile }: AvanceViewProps) {
-  const isAdmin = profile.rol === 'administrador'
+  const isAdmin = profile.rol === 'webmaster'
   const isInspector = profile.rol === 'inspector'
   const isContratista = profile.rol === 'contratista'
   const isResidente = profile.rol === 'ingeniera_residente'
   const isDirectivo = profile.rol === 'directivo_hospital'
+  const isVisitante = profile.rol === 'visitante'
 
-  const canCreate = isAdmin || isContratista || isInspector || isResidente
-  const canEdit = isAdmin || isInspector || isContratista || isResidente
-  const canApprove = isAdmin || isResidente || isInspector || isDirectivo
+  const canCreate = !isVisitante && (isAdmin || isContratista || isInspector || isResidente)
+  const canEdit = !isVisitante && (isAdmin || isInspector || isContratista || isResidente)
+  const canApprove = !isVisitante && (isAdmin || isResidente || isInspector || isDirectivo)
 
   // Data
   const [avances, setAvances] = useState<AvanceEjecutado[]>([])
@@ -322,7 +324,7 @@ export function AvanceView({ profile }: AvanceViewProps) {
       if (roleLevel) {
         approvalLevel = roleLevel
       } else if (isAdmin) {
-        // Admin approving without specifying level - find the next pending level
+        // Webmaster approving without specifying level - find the next pending level
         if (selectedAvance.aprobacion_residente === 'Pendiente') {
           approvalLevel = 'residente'
         } else if (selectedAvance.aprobacion_inspector === 'Pendiente') {

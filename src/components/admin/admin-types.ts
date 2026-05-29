@@ -4,21 +4,23 @@ import type { Profile, UserRol } from '@/lib/types'
 export const ITEMS_PER_PAGE = 10
 
 export const ROL_COLORS: Record<UserRol, string> = {
-  administrador: 'bg-purple-100 text-purple-800 border-purple-200',
+  webmaster: 'bg-purple-100 text-purple-800 border-purple-200',
   contratista: 'bg-sky-100 text-sky-800 border-sky-200',
   inspector: 'bg-amber-100 text-amber-800 border-amber-200',
   ingeniera_residente: 'bg-emerald-100 text-emerald-800 border-emerald-200',
   directivo_hospital: 'bg-rose-100 text-rose-800 border-rose-200',
   ingenieria_hospital: 'bg-orange-100 text-orange-800 border-orange-200',
+  visitante: 'bg-slate-100 text-slate-800 border-slate-200',
 }
 
 export const ROL_LABELS: Record<UserRol, string> = {
-  administrador: 'Administrador',
+  webmaster: 'Webmaster',
   contratista: 'Contratista',
   inspector: 'Inspector',
   ingeniera_residente: 'Ing. Residente',
   directivo_hospital: 'Directivo Hospital',
   ingenieria_hospital: 'Ing. Hospital',
+  visitante: 'Visitante',
 }
 
 // ===== INTERFACES =====

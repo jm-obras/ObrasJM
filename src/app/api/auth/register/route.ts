@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 export async function POST(request: NextRequest) {
   try {
     // ── Authentication & Authorization ──────────────────────────────
-    // Only authenticated users with the 'administrador' role may register
+    // Only authenticated users with the 'webmaster' role may register
     // new accounts. This prevents unauthenticated users from creating
     // accounts with arbitrary roles (VULN-001).
     const supabase = await createClient()
@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden registrar usuarios' },
+        { error: 'Solo los webmasters pueden registrar usuarios' },
         { status: 403 }
       )
     }
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const validRoles = ['administrador', 'contratista', 'inspector', 'ingeniera_residente', 'directivo_hospital', 'ingenieria_hospital']
+    const validRoles = ['webmaster', 'contratista', 'inspector', 'ingeniera_residente', 'directivo_hospital', 'ingenieria_hospital', 'visitante']
     if (!validRoles.includes(rol)) {
       return NextResponse.json(
         { error: `Rol inválido. Debe ser uno de: ${validRoles.join(', ')}` },

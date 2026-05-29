@@ -114,7 +114,7 @@ function canUserApproveAvance(avance: AvanceEjecutado, userRole: UserRol): boole
       return avance.aprobacion_inspector === 'Pendiente' && avance.aprobacion_residente === 'Aprobado'
     case 'directivo_hospital':
       return avance.aprobacion_directivo === 'Pendiente' && avance.aprobacion_inspector === 'Aprobado'
-    case 'administrador':
+    case 'webmaster':
       return avance.status_aprobacion === 'Pendiente'
     default:
       return false

@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 const VALID_ROLES = [
-  'administrador',
+  'webmaster',
   'contratista',
   'inspector',
   'ingeniera_residente',
@@ -34,9 +34,9 @@ export async function PUT(
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden actualizar usuarios' },
+        { error: 'Solo los webmasters pueden actualizar usuarios' },
         { status: 403 }
       )
     }
@@ -141,9 +141,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden eliminar usuarios' },
+        { error: 'Solo los webmasters pueden eliminar usuarios' },
         { status: 403 }
       )
     }

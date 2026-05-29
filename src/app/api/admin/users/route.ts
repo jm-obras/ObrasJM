@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 const VALID_ROLES = [
-  'administrador',
+  'webmaster',
   'contratista',
   'inspector',
   'ingeniera_residente',
@@ -32,9 +32,9 @@ export async function GET() {
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden listar usuarios' },
+        { error: 'Solo los webmasters pueden listar usuarios' },
         { status: 403 }
       )
     }
@@ -113,9 +113,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden crear usuarios' },
+        { error: 'Solo los webmasters pueden crear usuarios' },
         { status: 403 }
       )
     }

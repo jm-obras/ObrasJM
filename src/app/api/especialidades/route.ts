@@ -46,9 +46,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'administrador') {
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
-        { error: 'Solo los administradores pueden crear especialidades' },
+        { error: 'Solo los webmasters pueden crear especialidades' },
         { status: 403 }
       )
     }
