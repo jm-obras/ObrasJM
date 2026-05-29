@@ -28,19 +28,34 @@ SET
   residente_id = inspector_id
 WHERE status_aprobacion = 'Aprobado';
 
--- 4. Actualizar políticas RLS para el nuevo esquema de aprobación
--- Eliminar políticas anteriores de UPDATE sobre avance_ejecutado
+-- 4. Eliminar TODAS las políticas RLS existentes sobre avance_ejecutado
+DROP POLICY IF EXISTS "Authenticated users can read avance ejecutado" ON public.avance_ejecutado;
+DROP POLICY IF EXISTS "Contratistas and inspectors can insert avance ejecutado" ON public.avance_ejecutado;
 DROP POLICY IF EXISTS "Inspectors can update avance ejecutado" ON public.avance_ejecutado;
-DROP POLICY IF EXISTS "Inspectors and directors can update approval status" ON public.avance_ejecutado;
+DROP POLICY IF EXISTS "Admin can manage avance ejecutado" ON public.avance_ejecutado;
 DROP POLICY IF EXISTS "Contratistas and residents can insert avance ejecutado" ON public.avance_ejecutado;
+DROP POLICY IF EXISTS "Contratistas and residents can read own assigned alcance" ON public.avance_ejecutado;
+DROP POLICY IF EXISTS "Inspectors and directors can update approval status" ON public.avance_ejecutado;
+DROP POLICY IF EXISTS "Authorized roles can insert avance ejecutado" ON public.avance_ejecutado;
+DROP POLICY IF EXISTS "Residentes can update avance fields and own approval" ON public.avance_ejecutado;
+DROP POLICY IF EXISTS "Contratistas can update avance fields" ON public.avance_ejecutado;
+DROP POLICY IF EXISTS "Inspectors can update avance and own approval" ON public.avance_ejecutado;
+DROP POLICY IF EXISTS "Directivo hospital can update own approval" ON public.avance_ejecutado;
 
--- 5. Nueva política INSERT: contratistas, ingenieras residentes, inspectores y admins
+-- 5. Crear nuevas políticas RLS desde cero
+
+-- SELECT: todos los autenticados pueden leer
+CREATE POLICY "Authenticated users can read avance ejecutado" ON public.avance_ejecutado
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+-- INSERT: contratistas, ingenieras residentes, inspectores y admins
 CREATE POLICY "Authorized roles can insert avance ejecutado" ON public.avance_ejecutado
   FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol IN ('contratista', 'ingeniera_residente', 'inspector', 'administrador'))
   );
 
--- 6. Nuevas políticas UPDATE por rol:
+-- UPDATE por rol:
+
 -- Ingeniera Residente: puede actualizar datos básicos + su nivel de aprobación
 CREATE POLICY "Residentes can update avance fields and own approval" ON public.avance_ejecutado
   FOR UPDATE USING (
@@ -65,8 +80,7 @@ CREATE POLICY "Directivo hospital can update own approval" ON public.avance_ejec
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND rol = 'directivo_hospital')
   );
 
--- Ingeniería Hospital: puede ver pero no aprobar (solo lectura)
--- No se necesita política UPDATE para ingenieria_hospital
+-- Ingeniería Hospital: puede ver pero no aprobar (solo lectura - no necesita política UPDATE)
 
 -- Admin: puede hacer todo
 CREATE POLICY "Admin can manage avance ejecutado" ON public.avance_ejecutado
