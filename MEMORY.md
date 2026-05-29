@@ -1,0 +1,768 @@
+# MEMORY.md — Archivo de Contexto del Proyecto ObrasJM
+
+> **POLÍTICA FUNDAMENTAL:** Cero Pérdida de Datos · Control de Versiones de Contexto · Snapshots Anti-Avería
+>
+> Este documento es la **única fuente de verdad** para cualquier IA que trabaje en el desarrollo del sistema ObrasJM. Antes de modificar CUALQUIER línea de código, la IA DEBE leer este archivo completo. Si el código resultante falla, la directiva inmediata será **ignorar el último prompt y revertir al Snapshot anterior**.
+
+---
+
+## A. Ficha Técnica y Estado de la Arquitectura
+
+### A.1 Identidad del Proyecto
+
+| Campo | Valor |
+|-------|-------|
+| **Nombre** | ObrasJM — Control de Porcentaje de Avance Físico (PAF) |
+| **Ubicación** | Hospital de Niños J.M. de los Ríos, Caracas, Venezuela |
+| **Organización** | Plan de Recuperación de Infraestructura Hospitalaria "Dr. José Gregorio Hernández" |
+| **URL Producción** | `https://obrasjm.space-z.ai/` (Vercel) |
+| **Repositorio** | `github.com/jm-obras/ObrasJM` |
+| **Supabase Project ID** | `pmueicotcnsfildkpggp` |
+
+### A.2 Stack Tecnológico Actual
+
+| Capa | Tecnología | Versión | Notas |
+|------|-----------|---------|-------|
+| **Framework** | Next.js (App Router) | 16.x | SPA monolítica en ruta única `/` |
+| **Lenguaje** | TypeScript | 5.x | `ignoreBuildErrors: true` en next.config ⚠️ |
+| **Estilos** | Tailwind CSS | 4.x | + tailwindcss-animate |
+| **Componentes UI** | shadcn/ui (Radix) | New York style | 48 componentes instalados |
+| **Backend/BD** | Supabase (PostgreSQL) | — | RLS habilitado en TODAS las tablas |
+| **Auth** | Supabase Auth | — | NO usa next-auth (aunque está en deps) |
+| **Gráficos** | Recharts | 2.x | Dashboard KPIs |
+| **Tablas Datos** | TanStack Table | 8.x | En dependencias (uso parcial) |
+| **Formularios** | react-hook-form + zod | 7.x / 4.x | Validación cliente |
+| **Animaciones** | Framer Motion | — | Transiciones UI |
+| **Fechas** | date-fns | 4.x | Formateo de fechas |
+| **Deploy** | Vercel | — | Auto-deploy desde GitHub `main` |
+
+### A.3 Arquitectura de la Aplicación
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    NAVEGADOR (Cliente)                       │
+│                                                              │
+│  / (src/app/page.tsx) — RUTA ÚNICA SPA                      │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  AuthGuard                                            │   │
+│  │  ├─ No autenticado → LandingPage (con modal login)    │   │
+│  │  ├─ debe_cambiar_password → ChangePasswordForm        │   │
+│  │  └─ Autenticado → AppContent (Tabs React)             │   │
+│  │      ├─ Tab: Dashboard (TODOS los roles)              │   │
+│  │      ├─ Tab: Alcance Planificado (admin, inspector,   │   │
+│  │      │   contratista, ingeniera_residente,             │   │
+│  │      │   ingenieria_hospital)                          │   │
+│  │      ├─ Tab: Avance Ejecutado (TODOS los roles)       │   │
+│  │      └─ Tab: Administración (SOLO admin)              │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                          │ fetch()                           │
+│                          ▼                                   │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  API Routes (src/app/api/) — 24 endpoints            │   │
+│  │  ├─ /api/auth/* (login, register, logout, me,        │   │
+│  │  │   change-password)                                 │   │
+│  │  ├─ /api/alcance, /api/alcance/[id]                  │   │
+│  │  ├─ /api/avance, /api/avance/[id]                    │   │
+│  │  ├─ /api/dashboard                                   │   │
+│  │  ├─ /api/admin/users, /api/admin/users/[id]          │   │
+│  │  ├─ /api/especialidades, /api/sectores,              │   │
+│  │  │   /api/subsectores, /api/unidades-ejecutoras      │   │
+│  │  ├─ /api/landing/stats                               │   │
+│  │  └─ /api/init                                        │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                          │                                   │
+│            ┌─────────────┼─────────────┐                     │
+│            ▼             ▼             ▼                     │
+│    Supabase Client   Supabase    Supabase Admin              │
+│    (browser/ssr)     Server      (service_role)              │
+│    ≡ usuario actual  Client      ≡ bypass RLS                │
+│    sujeto a RLS      ≡ usuario                              │
+│                      actual                                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### A.4 Regla Arquitectónica Crítica
+
+> ⛔ **NO se deben crear rutas adicionales de Next.js** (`/dashboard`, `/admin`, etc.) para las vistas principales del sistema. Toda la navegación ocurre mediante **estados de React (Tabs)** dentro del componente `AppContent` en `src/app/page.tsx`. La única ruta del frontend es `/`.
+>
+> Excepción: Se pueden crear rutas API bajo `/api/` libremente.
+
+---
+
+## B. Mapa de Componentes Críticos (Monolitos Actuales)
+
+### B.1 Tamaños de Archivos — Alerta de Complejidad
+
+| Archivo | Líneas | Riesgo | Descripción |
+|---------|--------|--------|-------------|
+| `src/components/admin/admin-view.tsx` | **~1,625** | 🔴 CRÍTICO | Panel admin: CRUD usuarios, unidades ejecutoras, especialidades, sectores, subsectores |
+| `src/components/avance/avance-view.tsx` | **~1,373** | 🔴 CRÍTICO | Registro y visualización de avances, aprobación, filtros, evidencias |
+| `src/components/alcance/alcance-view.tsx` | **~804** | 🟡 ALTO | Gestión de alcance planificado, creación, edición, filtrado |
+| `src/app/page.tsx` | **~411** | 🟡 ALTO | Shell SPA, Tabs, AuthProvider, enrutamiento interno |
+| `src/lib/auth-context.tsx` | **~195** | 🟢 MEDIO | Contexto de autenticación React |
+| `src/components/dashboard/hospital-heatmap.tsx` | **~238** | 🟢 MEDIO | Mapa de calor del hospital |
+| `src/components/dashboard/kpi-cards.tsx` | **~196** | 🟢 MEDIO | Tarjetas KPI del dashboard |
+| `src/components/landing/stats-section.tsx` | **~206** | 🟢 MEDIO | Estadísticas landing pública |
+| **Total componentes app** | **~6,434** | — | Sin contar shadcn/ui |
+
+### B.2 Monolitos — Guía de Refactorización Futura
+
+> ⚠️ Los archivos marcados como 🔴 CRÍTICO son candidatos prioritarios para refactorización. Sin embargo, **NO se debe refactorizar sin autorización explícita** del usuario. Cualquier refactorización DEBE:
+> 1. Preservar toda la funcionalidad existente
+> 2. Ser incremental (un componente a la vez)
+> 3. Incluir pruebas de regresión visual
+> 4. Actualizar este MEMORY.md tras completarse
+
+### B.3 Componentes shadcn/ui Instalados (48)
+
+`accordion`, `alert-dialog`, `alert`, `aspect-ratio`, `avatar`, `badge`, `breadcrumb`, `button`, `calendar`, `card`, `carousel`, `chart`, `checkbox`, `collapsible`, `command`, `context-menu`, `dialog`, `drawer`, `dropdown-menu`, `form`, `hover-card`, `input-otp`, `input`, `label`, `menubar`, `navigation-menu`, `pagination`, `popover`, `progress`, `radio-group`, `resizable`, `scroll-area`, `select`, `separator`, `sheet`, `sidebar`, `skeleton`, `slider`, `sonner`, `switch`, `table`, `tabs`, `textarea`, `toast`, `toaster`, `toggle-group`, `toggle`, `tooltip`
+
+### B.4 Componentes de Negocio (No-UI)
+
+| Componente | Archivo | Función |
+|------------|---------|---------|
+| `AppContent` | `src/app/page.tsx` | Shell principal con Tabs |
+| `AdminView` | `src/components/admin/admin-view.tsx` | Panel de administración |
+| `AvanceView` | `src/components/avance/avance-view.tsx` | Vista de avances ejecutados |
+| `AlcanceView` | `src/components/alcance/alcance-view.tsx` | Vista de alcance planificado |
+| `DashboardView` | `src/components/dashboard/dashboard-view.tsx` | Dashboard con KPIs |
+| `HospitalHeatmap` | `src/components/dashboard/hospital-heatmap.tsx` | Mapa de calor por sector |
+| `KPICards` | `src/components/dashboard/kpi-cards.tsx` | Tarjetas de indicadores |
+| `PAFChart` | `src/components/dashboard/paf-chart.tsx` | Gráfico de PAF |
+| `LandingPage` | `src/components/landing/landing-page.tsx` | Landing pública |
+| `AuthGuard` | `src/components/auth-guard.tsx` | Protección de rutas por autenticación |
+| `LoginForm` | `src/components/login-form.tsx` | Formulario de login |
+| `ChangePasswordForm` | `src/components/change-password-form.tsx` | Cambio forzado de contraseña |
+
+---
+
+## C. Base de Datos — Supabase (PostgreSQL + RLS)
+
+### C.1 Enumeraciones
+
+| Enum | Valores |
+|------|---------|
+| `user_rol` | `administrador`, `contratista`, `inspector`, `ingeniera_residente`, `directivo_hospital`, `ingenieria_hospital` |
+| `trabajo_tipo` | `Planificado`, `Imprevisto` |
+| `aprobacion_status` | `Pendiente`, `Aprobado`, `Rechazado` |
+| `alcance_status` | `Activo`, `Completado`, `Suspendido` |
+
+### C.2 Tablas (7 + auth.users)
+
+#### `profiles` — Perfiles de usuario (1:1 con auth.users)
+| Columna | Tipo | Restricciones | Default |
+|---------|------|---------------|---------|
+| `id` | UUID | PK, FK → auth.users(id) ON DELETE CASCADE | — |
+| `nombre_completo` | TEXT | NOT NULL | — |
+| `rol` | user_rol | NOT NULL | `'contratista'` |
+| `unidad_ejecutora_id` | UUID | nullable | — |
+| `telefono` | TEXT | nullable | — |
+| `ente_pertenece` | TEXT | nullable | — |
+| `debe_cambiar_password` | BOOLEAN | NOT NULL | `false` |
+| `activo` | BOOLEAN | NOT NULL | `true` |
+| `created_at` | TIMESTAMPTZ | NOT NULL | `now()` |
+| `updated_at` | TIMESTAMPTZ | NOT NULL | `now()` |
+
+#### `unidades_ejecutoras` — Contratistas/Empresas
+| Columna | Tipo | Restricciones | Default |
+|---------|------|---------------|---------|
+| `id` | UUID | PK | `gen_random_uuid()` |
+| `nombre` | TEXT | NOT NULL | — |
+| `rif` | TEXT | nullable | — |
+| `contacto` | TEXT | nullable | — |
+| `activa` | BOOLEAN | NOT NULL | `true` |
+| `created_at` | TIMESTAMPTZ | NOT NULL | `now()` |
+
+#### `especialidades` — Tipos de trabajo
+| Columna | Tipo | Restricciones | Default |
+|---------|------|---------------|---------|
+| `id` | UUID | PK | `gen_random_uuid()` |
+| `nombre` | TEXT | NOT NULL, UNIQUE | — |
+| `created_at` | TIMESTAMPTZ | NOT NULL | `now()` |
+
+#### `sectores` — Torres/Áreas del hospital
+| Columna | Tipo | Restricciones | Default |
+|---------|------|---------------|---------|
+| `id` | UUID | PK | `gen_random_uuid()` |
+| `nombre` | TEXT | NOT NULL | — |
+| `codigo` | TEXT | NOT NULL, UNIQUE | — |
+| `created_at` | TIMESTAMPTZ | NOT NULL | `now()` |
+
+#### `subsectores` — Pisos/Sub-áreas
+| Columna | Tipo | Restricciones | Default |
+|---------|------|---------------|---------|
+| `id` | UUID | PK | `gen_random_uuid()` |
+| `sector_id` | UUID | NOT NULL, FK → sectores(id) CASCADE | — |
+| `nombre` | TEXT | NOT NULL | — |
+| `codigo` | TEXT | nullable | — |
+| `created_at` | TIMESTAMPTZ | NOT NULL | `now()` |
+
+**Unique:** `(sector_id, nombre)`
+
+#### `alcance_planificado` — Items de trabajo planificado
+| Columna | Tipo | Restricciones | Default |
+|---------|------|---------------|---------|
+| `id` | UUID | PK | `gen_random_uuid()` |
+| `especialidad_id` | UUID | NOT NULL, FK → especialidades(id) CASCADE | — |
+| `subsector_id` | UUID | NOT NULL, FK → subsectores(id) CASCADE | — |
+| `descripcion` | TEXT | NOT NULL | — |
+| `peso_relativo` | NUMERIC(5,2) | NOT NULL, CHECK 0–100 | `0.00` |
+| `unidad_medida` | TEXT | NOT NULL | — |
+| `cantidad_planificada` | NUMERIC(12,2) | NOT NULL, CHECK ≥0 | `0.00` |
+| `unidad_ejecutora_id` | UUID | FK → unidades_ejecutoras(id) SET NULL | — |
+| `status` | alcance_status | NOT NULL | `'Activo'` |
+| `created_at` | TIMESTAMPTZ | NOT NULL | `now()` |
+| `updated_at` | TIMESTAMPTZ | NOT NULL | `now()` |
+
+#### `avance_ejecutado` — Reportes de avance
+| Columna | Tipo | Restricciones | Default |
+|---------|------|---------------|---------|
+| `id` | UUID | PK | `gen_random_uuid()` |
+| `alcance_id` | UUID | NOT NULL, FK → alcance_planificado(id) CASCADE | — |
+| `cantidad_reportada` | NUMERIC(12,2) | NOT NULL, CHECK ≥0 | `0.00` |
+| `tipo_trabajo` | trabajo_tipo | NOT NULL | `'Planificado'` |
+| `fecha_reporte` | DATE | NOT NULL | `CURRENT_DATE` |
+| `fotos_evidencia_urls` | TEXT[] | DEFAULT | `'{}'` |
+| `notas` | TEXT | nullable | — |
+| `inspector_id` | UUID | FK → profiles(id) SET NULL | — |
+| `status_aprobacion` | aprobacion_status | NOT NULL | `'Pendiente'` |
+| `created_at` | TIMESTAMPTZ | NOT NULL | `now()` |
+| `updated_at` | TIMESTAMPTZ | NOT NULL | `now()` |
+
+### C.3 Mapa de Relaciones (Foreign Keys)
+
+```
+auth.users ◄─────── profiles.id (1:1, CASCADE)
+profiles ◄───────── avance_ejecutado.inspector_id (SET NULL)
+unidades_ejecutoras ◄── alcance_planificado.unidad_ejecutora_id (SET NULL)
+especialidades ◄─── alcance_planificado.especialidad_id (CASCADE)
+sectores ◄───────── subsectores.sector_id (CASCADE)
+subsectores ◄────── alcance_planificado.subsector_id (CASCADE)
+alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
+```
+
+> ⚠️ `profiles.unidad_ejecutora_id` es una referencia lógica sin FK a nivel de BD.
+
+### C.4 RLS Policies — Matriz Completa de Permisos
+
+#### `profiles`
+| Operación | Quién |
+|-----------|-------|
+| SELECT | authenticated |
+| INSERT | administrador |
+| UPDATE | administrador + propio usuario |
+| DELETE | — (no hay política) |
+
+#### `unidades_ejecutoras`
+| Operación | Quién |
+|-----------|-------|
+| ALL | administrador |
+| SELECT | authenticated |
+
+#### `especialidades`
+| Operación | Quién |
+|-----------|-------|
+| ALL | administrador |
+| SELECT | público (true) |
+
+#### `sectores`
+| Operación | Quién |
+|-----------|-------|
+| ALL | administrador |
+| SELECT | público (true) |
+
+#### `subsectores`
+| Operación | Quién |
+|-----------|-------|
+| ALL | administrador |
+| SELECT | público (true) |
+
+#### `alcance_planificado`
+| Operación | Quién |
+|-----------|-------|
+| SELECT | authenticated + contratista/ingeniera_residente (su UE) |
+| INSERT | administrador + inspector |
+| UPDATE | administrador + inspector |
+| DELETE | administrador |
+
+#### `avance_ejecutado`
+| Operación | Quién |
+|-----------|-------|
+| SELECT | authenticated |
+| INSERT | contratista + ingeniera_residente + inspector + administrador |
+| UPDATE | inspector + directivo_hospital + ingenieria_hospital + administrador |
+| DELETE | administrador |
+
+#### Storage (`evidencias`)
+| Operación | Quién |
+|-----------|-------|
+| SELECT | público (true) |
+| INSERT | authenticated |
+| DELETE | administrador |
+
+### C.5 Vistas SQL (PAF Calculation)
+
+| Vista | Propósito |
+|-------|-----------|
+| `v_paf_subsector` | PAF % por item de alcance (JOINs: especialidad + subsector + sector, SUM solo avances Aprobados) |
+| `v_paf_sector` | PAF ponderado por sector: `Σ(peso × avance) / Σ(peso)` |
+| `v_paf_global` | PAF global ponderado + conteo de items y items con avance |
+
+> ⚠️ Las vistas SQL existen en la BD pero el endpoint `/api/dashboard` **NO las usa** — reimplementa el cálculo PAF en TypeScript con el admin client.
+
+### C.6 Triggers y Funciones
+
+| Trigger | Tabla | Timing | Función |
+|---------|-------|--------|---------|
+| `update_profiles_updated_at` | profiles | BEFORE UPDATE | `update_updated_at()` |
+| `update_alcance_planificado_updated_at` | alcance_planificado | BEFORE UPDATE | `update_updated_at()` |
+| `update_avance_ejecutado_updated_at` | avance_ejecutado | BEFORE UPDATE | `update_updated_at()` |
+| `on_auth_user_created` | auth.users | AFTER INSERT | `handle_new_user()` (SECURITY DEFINER) |
+
+> La función `handle_new_user()` crea automáticamente un perfil en `profiles` cuando se inserta un usuario en `auth.users`. Lee de `raw_user_meta_data`: `nombre_completo`, `rol`, `telefono`, `ente_pertenece`, `debe_cambiar_password`. Por esto se usa `upsert` con `onConflict: 'id'` al crear usuarios desde la API.
+
+### C.7 Datos Semilla (Seed Data)
+
+- **16 especialidades**: Electricidad (Luminarias, Generadores, UPS), Obras Civiles, Climatización, Impermeabilización, Transporte Vertical, Desmalezamiento, Limpieza de Escombros, Planta de Cloración, Sistemas de Bombeo, Almacenamiento de Agua, Destapado de Tuberías, Salas de Baños, Achicamiento de Agua, Telecomunicaciones
+- **6 sectores**: TH (Torre Hospitalaria), TC (Torre de Consultas), TA (Torre de Ambulatorios), T3 (Torre 3), A-PB (Anexo Planta Baja), A-S (Anexo Sótano)
+- **28 subsectores**: Pisos por torre (TH: P1-P8 + Sótano, TC: P1-P4, TA: P1-P3, T3: P1-P2) + áreas Anexo
+
+---
+
+## D. API Routes — Mapa Completo
+
+### D.1 Endpoints de Autenticación
+
+| Endpoint | Método | Auth | Rol | Admin Client | Notas |
+|----------|--------|------|-----|--------------|-------|
+| `/api/auth/login` | POST | No | — | No | Verifica `activo=true` en profile |
+| `/api/auth/register` | POST | No | ⚠️ NINGUNO | **Sí** | **VULNERABILIDAD**: Cualquiera puede registrar con cualquier rol |
+| `/api/auth/logout` | POST | No | — | No | — |
+| `/api/auth/me` | GET | Sí | — | No | Retorna user + profile |
+| `/api/auth/change-password` | POST | Sí | — | No | Establece `debe_cambiar_password = false` |
+
+### D.2 Endpoints de Negocio
+
+| Endpoint | Método | Auth | Roles Permitidos | Admin Client | Notas |
+|----------|--------|------|-----------------|--------------|-------|
+| `/api/alcance` | GET | No | — | No | Filtros: especialidad_id, subsector_id, sector_id, status |
+| `/api/alcance` | POST | Sí | admin, inspector | No | Fuerza status='Activo' |
+| `/api/alcance/[id]` | GET | No | — | No | — |
+| `/api/alcance/[id]` | PUT | Sí | admin, inspector | No | `updated_at` manual (redundante con trigger) |
+| `/api/alcance/[id]` | DELETE | Sí | admin | No | — |
+| `/api/avance` | GET | No | — | No | Filtros: alcance_id, status_aprobacion, fecha_desde, fecha_hasta |
+| `/api/avance` | POST | Sí | contratista, inspector, admin | No | `inspector_id=null`, `status_aprobacion='Pendiente'` |
+| `/api/avance/[id]` | GET | No | — | No | — |
+| `/api/avance/[id]` | PUT | Sí | Por campos (ver nota) | No | Contratista/inspector/admin: datos. Inspector/admin: aprobación. Al aprobar: `inspector_id=user.id` |
+| `/api/dashboard` | GET | ⚠️ No | ⚠️ Ninguno | **Sí** | Calcula PAF en TypeScript, bypass RLS |
+| `/api/landing/stats` | GET | ⚠️ No | ⚠️ Ninguno | **Sí** | Stats públicas, `metrosCuadrados: 12500` hardcoded |
+
+### D.3 Endpoints de Administración
+
+| Endpoint | Método | Auth | Rol | Admin Client | Notas |
+|----------|--------|------|-----|--------------|-------|
+| `/api/admin/users` | GET | Sí | admin | **Sí** | Merge auth.users + profiles |
+| `/api/admin/users` | POST | Sí | admin | **Sí** | `debe_cambiar_password=true`, cleanup si falla profile |
+| `/api/admin/users/[id]` | PUT | Sí | admin | **Sí** | Actualiza email/password en auth + campos profile |
+| `/api/admin/users/[id]` | DELETE | Sí | admin | **Sí** | Impide auto-eliminación; borra profile primero |
+| `/api/admin/users/[id]/reset-password` | POST | Sí | admin | **Sí** | Password temporal 10 chars, `debe_cambiar_password=true` |
+
+### D.4 Endpoints de Catálogos
+
+| Endpoint | Método | Auth | Roles POST | Notas |
+|----------|--------|------|------------|-------|
+| `/api/especialidades` | GET/POST | GET: No / POST: Sí | admin | — |
+| `/api/especialidades/[id]` | PUT/DELETE | Sí | admin | Verifica refs en alcance antes de eliminar |
+| `/api/sectores` | GET/POST | GET: No / POST: Sí | admin | Fuerza `codigo` a uppercase |
+| `/api/sectores/[id]` | PUT/DELETE | Sí | admin | Verifica subsectores antes de eliminar |
+| `/api/subsectores` | GET/POST | GET: No / POST: Sí | admin | Filtro `?sector_id=`; verifica sector existe |
+| `/api/subsectores/[id]` | PUT/DELETE | Sí | admin | Verifica refs en alcance antes de eliminar |
+| `/api/unidades-ejecutoras` | GET/POST | GET: No / POST: Sí | admin, inspector | ⚠️ RLS solo permite admin — inspector fallaría en BD |
+| `/api/unidades-ejecutoras/[id]` | PUT/DELETE | Sí | admin | — |
+
+### D.5 Endpoints de Sistema
+
+| Endpoint | Método | Auth | Notas |
+|----------|--------|------|-------|
+| `/api` | GET | No | Health check: `{ message: "Hello, world!" }` |
+| `/api/init` | GET/POST | ⚠️ No | Verifica/seed BD. **DEBE deshabilitarse en producción** |
+
+---
+
+## E. Roles y Permisos — Matriz Funcional
+
+### E.1 Visibilidad de Tabs por Rol
+
+| Tab | admin | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital |
+|-----|:-----:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|
+| Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Alcance Planificado | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Avance Ejecutado | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Administración | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+### E.2 Capacidades por Rol en Avance Ejecutado
+
+| Acción | admin | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital |
+|--------|:-----:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|
+| Crear avance | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Editar datos | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Aprobar/Rechazar | ✅ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+### E.3 Capacidades por Rol en Alcance Planificado
+
+| Acción | admin | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital |
+|--------|:-----:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|
+| Ver | ✅ | ✅ (su UE) | ✅ | ✅ (su UE) | ❌ | ✅ |
+| Crear | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Editar | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+---
+
+## F. Clientes Supabase — Uso y Seguridad
+
+### F.1 Tres Clientes Diferentes
+
+| Cliente | Archivo | Clave | RLS | Uso |
+|---------|---------|-------|-----|-----|
+| **Browser** | `src/lib/supabase/client.ts` | `ANON_KEY` | ✅ Sujeto | Solo para `onAuthStateChange` en auth-context |
+| **Server** | `src/lib/supabase/server.ts` | `ANON_KEY` | ✅ Sujeto | API routes — opera como el usuario autenticado |
+| **Admin** | `src/lib/supabase/admin.ts` | `SERVICE_ROLE_KEY` | ❌ Bypass | Solo operaciones admin y agregaciones |
+
+### F.2 Uso del Admin Client (Service Role)
+
+El admin client se usa EXCLUSIVAMENTE en estos endpoints:
+- `/api/auth/register` — crear usuarios sin confirmación email
+- `/api/admin/users` (GET/POST) — listar/crear usuarios
+- `/api/admin/users/[id]` (PUT/DELETE) — modificar/eliminar usuarios
+- `/api/admin/users/[id]/reset-password` — resetear contraseñas
+- `/api/dashboard` — cálculo PAF global (agregación, bypass RLS)
+- `/api/landing/stats` — estadísticas públicas landing
+- `/api/init` — verificación/seed de la BD
+
+> ⚠️ El admin client **NUNCA** debe exponerse al navegador. Solo se usa en API routes del servidor.
+
+---
+
+## G. Vulnerabilidades y Deuda Técnica Conocida
+
+### G.1 Vulnerabilidades de Seguridad
+
+| ID | Severidad | Descripción | Estado |
+|----|-----------|-------------|--------|
+| VULN-001 | 🔴 CRÍTICA | `/api/auth/register` sin autenticación — cualquiera puede crear cuentas con cualquier rol | Pendiente |
+| VULN-002 | 🟡 ALTA | `/api/dashboard` sin autenticación — expone datos agregados del proyecto | Pendiente |
+| VULN-003 | 🟡 ALTA | `/api/init` sin autenticación — permite verificar y modificar la estructura de la BD | Pendiente |
+| VULN-004 | 🟡 ALTA | GET endpoints de negocio (`/api/alcance`, `/api/avance`) sin verificación de autenticación | Pendiente |
+| VULN-005 | 🟠 MEDIA | Storage `evidencias` con lectura pública — cualquiera puede ver fotos de evidencia | Pendiente |
+| VULN-006 | 🟠 MEDIA | API permite inspector POST en `/api/unidades-ejecutoras` pero RLS solo permite admin — inserción falla silenciosamente | Pendiente |
+| VULN-007 | 🟢 BAJA | Sin política de complejidad de contraseñas — solo mínimo 6 caracteres | Pendiente |
+
+### G.2 Deuda Técnica
+
+| ID | Área | Descripción | Estado |
+|----|------|-------------|--------|
+| DEBT-001 | Config | `ignoreBuildErrors: true` en next.config.ts — errores TypeScript ignorados | Pendiente |
+| DEBT-002 | Config | `reactStrictMode: false` — modo estricto deshabilitado | Pendiente |
+| DEBT-003 | Deps | `next-auth` instalado pero NO usado (auth es 100% Supabase) | Pendiente |
+| DEBT-004 | Deps | `zustand` instalado pero NO usado (estado con React Context) | Pendiente |
+| DEBT-005 | Deps | `@tanstack/react-query` instalado pero NO usado (fetch con useEffect) | Pendiente |
+| DEBT-006 | Deps | `next-intl` instalado pero NO usado (sin i18n) | Pendiente |
+| DEBT-007 | Deps | `@mdxeditor/editor` instalado pero NO usado | Pendiente |
+| DEBT-008 | Deps | `prisma`/SQLite configurado pero NO usado en producción (solo Supabase) | Pendiente |
+| DEBT-009 | BD | Vistas SQL `v_paf_*` existen pero `/api/dashboard` reimplementa el cálculo en TypeScript | Pendiente |
+| DEBT-010 | Código | `updated_at` se establece manualmente en PUT de alcance/avance — redundante con trigger | Pendiente |
+| DEBT-011 | SQL | `schema.sql` desincronizado con `setup-complete.sql` — drift entre archivos SQL | Pendiente |
+| DEBT-012 | Refactor | Archivos monolíticos: admin-view (1625), avance-view (1373), alcance-view (804) | Pendiente |
+
+---
+
+## H. Flujo de Autenticación
+
+### H.1 Ciclo de Vida del Usuario
+
+```
+1. Registro (admin crea usuario)
+   POST /api/admin/users → adminClient.auth.admin.createUser()
+                               ↓
+                         Trigger: on_auth_user_created
+                               ↓
+                         handle_new_user() → INSERT profiles (básico)
+                               ↓
+                         API: UPSERT profiles (datos completos, onConflict: 'id')
+                               ↓
+                         debe_cambiar_password = true
+
+2. Primer Login
+   POST /api/auth/login → Verifica activo=true → Cookie SSR
+                               ↓
+                         AuthGuard detecta debe_cambiar_password=true
+                               ↓
+                         ChangePasswordForm → cambio forzado
+                               ↓
+                         debe_cambiar_password = false → acceso al sistema
+
+3. Sesión Normal
+   middleware.ts → updateSession() → refresh JWT cookie
+                               ↓
+                         AuthContext → onAuthStateChange (SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED)
+                               ↓
+                         Tab-based navigation según rol
+```
+
+### H.2 Flujo de Aprobación de Avances
+
+```
+contratista/inspector → Crea Avance (status: Pendiente)
+                               ↓
+inspector/admin → Revisa → Aprueba (status: Aprobado, inspector_id = user.id)
+                      └─→ Rechaza (status: Rechazado)
+                               ↓
+directivo_hospital/ingenieria_hospital → También pueden aprobar/rechazar
+```
+
+---
+
+## I. Variables de Entorno
+
+| Variable | Requerida | Uso |
+|----------|-----------|-----|
+| `NEXT_PUBLIC_SUPABASE_URL` | ✅ | URL del proyecto Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | Clave pública (anon) de Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Clave service role (admin) — SOLO servidor |
+| `DATABASE_URL` | ⚠️ | Solo para Prisma/SQLite (dev local, NO producción) |
+
+> ⚠️ No existe archivo `.env.example`. Las variables de Supabase se configuran directamente en Vercel.
+
+---
+
+## J. Archivos SQL de Supabase
+
+| Archivo | Propósito | Líneas |
+|---------|-----------|--------|
+| `supabase/schema.sql` | Schema completo combinado (steps 1-6) | 448 |
+| `supabase/setup-complete.sql` | Teardown-rebuild completo | 296 |
+| `supabase/step1-tables.sql` | Creación de enums y tablas | 80 |
+| `supabase/step2-seed-data.sql` | Datos semilla | 72 |
+| `supabase/step3-rls-policies.sql` | Habilitar RLS + todas las políticas | 152 |
+| `supabase/step4-functions-triggers.sql` | Funciones y triggers | 53 |
+| `supabase/step5-views.sql` | Vistas de cálculo PAF | 53 |
+| `supabase/step6-storage.sql` | Bucket evidencias + políticas | 26 |
+| `supabase/migration-new-roles.sql` | Agrega 3 roles + 3 columnas a profiles | 62 |
+| `supabase/migration-inspector-alcance-policies.sql` | Inspector INSERT/UPDATE en alcance | 28 |
+| `supabase/migration-inspector-avance-policies.sql` | Inspector INSERT en avance | 17 |
+
+---
+
+## K. Reglas de Oro para la IA — Restricciones de Código
+
+### K.1 Validación Doble (RLS + API)
+
+> ⛔ **Está PROHIBIDO saltar el Row Level Security (RLS) de Supabase** en operaciones de usuario.
+>
+> - Las llamadas CRUD de usuarios normales **DEBEN** ir por el **cliente estándar** (server client), que está sujeto a RLS.
+> - Solo las métricas globales agregadas del dashboard y las operaciones administrativas usan el **cliente admin** (service role).
+> - Toda operación que use el admin client DEBE tener verificación de rol `administrador` en la API route.
+> - Al crear nuevas API routes, siempre verificar que el rol del usuario tenga permisos tanto en la API **como** en las políticas RLS.
+
+### K.2 No Borrar Código Implícito
+
+> ⛔ **Está ESTRICTAMENTE PROHIBIDO:**
+>
+> 1. Usar comentarios del tipo `// ... resto del código igual ...` o `// ... existing code ...`
+> 2. Asumir que el usuario recordará lo que se borró
+> 3. Omitir código existente al reescribir una función
+> 4. Usar `// ... (código anterior sin cambios) ...`
+>
+> **Si se pide refactorizar una función, se DEBE reescribir o mantener TODO el código existente.** Cada línea de código funcional debe estar presente en el resultado final.
+
+### K.3 No Crear Rutas Next.js Adicionales
+
+> ⛔ **NO se deben crear rutas de Next.js** (`/dashboard`, `/admin`, etc.) para las vistas principales. Toda la navegación ocurre mediante Tabs de React en `page.tsx`.
+>
+> **Excepción:** Se pueden crear rutas API bajo `/api/` libremente.
+
+### K.4 Upsert con onConflict para Profiles
+
+> Al crear o actualizar profiles vía API, **SIEMPRE usar `upsert` con `onConflict: 'id'`** porque el trigger `handle_new_user()` puede haber creado ya el perfil básico. Un `insert` simple fallará con error de clave duplicada.
+
+### K.5 Protección de Archivos SQL
+
+> Los archivos SQL en `supabase/` representan el estado de la base de datos. **NO modificarlos sin actualizar también las políticas RLS correspondientes.** Cualquier cambio en tablas DEBE acompañarse de las políticas RLS apropiadas.
+
+### K.6 Dependencias No Utilizadas
+
+> Las siguientes dependencias están instaladas pero NO se usan actualmente: `next-auth`, `zustand`, `@tanstack/react-query`, `next-intl`, `@mdxeditor/editor`, `prisma` (en producción). **NO agregar código que las use sin autorización explícita.** Priorizar las herramientas ya en uso.
+
+### K.7 Patrón de Commit para Despliegue
+
+> El sistema se despliega automáticamente en Vercel al hacer `git push` a la rama `main`. **Siempre verificar con `git status` y `git push` después de cambios significativos.** No asumir que los cambios locales se reflejan en producción.
+
+---
+
+## L. Registro de Snapshots y Control de Cambios
+
+### L.1 Mecanismo Anti-Avería
+
+> **ANTES de realizar cualquier cambio drástico en el código**, la IA DEBE:
+>
+> 1. **Actualizar este log de cambios** con la versión, descripción y estado
+> 2. **Crear un Snapshot de Respaldo Mental** — documentar el estado actual de los archivos que se van a modificar
+> 3. Si el nuevo código falla, la **directiva inmediata** será: **ignorar el último prompt y revertir el contexto al Snapshot anterior**
+> 4. **NUNCA eliminar funcionalidad existente** sin migración explícita
+
+### L.2 Tabla de Historial de Snapshots
+
+| Versión Contexto | Fecha/Hora | Último Cambio Funcional Estable | Commit/Hito de Referencia | Estado del Sistema |
+|:---|:---|:---|:---|:---|
+| v1.0.0 (Base) | 29-May-2026 | Estructura base post-auditoría. Todos los roles operativos. Inspector con CRUD en alcance y avance. | Inicial | ✅ Operativo en Vercel |
+| v1.1.0 | 29-May-2026 | Agregar permisos de inspector para alcance_planificado (RLS + API) | `fix: add detailed error logging` | ✅ Operativo |
+| v1.2.0 | 29-May-2026 | Agregar permisos de inspector para avance_ejecutado (RLS + API + UI) | Push a GitHub para deploy | ✅ Operativo |
+| v1.3.0 | 29-May-2026 | Fix: upsert profiles con onConflict para handle_new_user trigger | `fix: change profile insert to upsert` | ✅ Operativo |
+| v1.4.0 | 29-May-2026 | Fix: reset password admin + Dialog accessibility warnings | `fix: add detailed error logging and fix Dialog accessibility` | ✅ Operativo |
+
+### L.3 Próximo Snapshot (Plantilla)
+
+```markdown
+| v_X.X.X | [FECHA] | [DESCRIPCIÓN DEL CAMBIO] | [COMMIT/REFERENCIA] | [ESTADO] |
+```
+
+### L.4 Snapshot de Respaldo Mental — Plantilla
+
+Antes de cada cambio significativo, documentar:
+
+```markdown
+### Snapshot Pre-Cambio — [FECHA]
+**Cambio planificado:** [DESCRIPCIÓN]
+**Archivos afectados:**
+- [archivo1] — [líneas/código que se modifica]
+- [archivo2] — [líneas/código que se modifica]
+**Rollback plan:** [Cómo revertir si falla]
+**Estado pre-cambio:** [✅/⚠️/❌]
+```
+
+---
+
+## M. Apéndices
+
+### M.1 Estructura de Directorios (Resumen)
+
+```
+src/
+├── app/
+│   ├── page.tsx              # SPA shell (~411 líneas)
+│   ├── layout.tsx            # Root layout
+│   ├── globals.css           # Estilos globales
+│   └── api/                  # 24 route handlers
+│       ├── auth/             # login, register, logout, me, change-password
+│       ├── alcance/          # CRUD alcance planificado
+│       ├── avance/           # CRUD avance ejecutado
+│       ├── dashboard/        # Dashboard aggregation
+│       ├── admin/users/      # User management
+│       ├── especialidades/   # CRUD especialidades
+│       ├── sectores/         # CRUD sectores
+│       ├── subsectores/      # CRUD subsectores
+│       ├── unidades-ejecutoras/ # CRUD UEs
+│       ├── landing/stats/    # Public landing stats
+│       └── init/             # DB initialization
+├── components/
+│   ├── admin/                # AdminView (~1625 líneas)
+│   ├── alcance/              # AlcanceView (~804 líneas)
+│   ├── avance/               # AvanceView (~1373 líneas)
+│   ├── dashboard/            # Dashboard + KPIs + Heatmap + Chart
+│   ├── landing/              # LandingPage + 5 secciones
+│   ├── auth-guard.tsx        # Route protection
+│   ├── login-form.tsx        # Login form
+│   ├── change-password-form.tsx # Forced password change
+│   └── ui/                   # 48 shadcn/ui components
+├── hooks/
+│   ├── use-mobile.ts
+│   └── use-toast.ts
+└── lib/
+    ├── auth-context.tsx       # Auth React Context
+    ├── types.ts               # TypeScript interfaces
+    ├── utils.ts               # cn() utility
+    ├── db.ts                  # Prisma client (unused in prod)
+    └── supabase/
+        ├── client.ts          # Browser client (ANON_KEY)
+        ├── server.ts          # Server client (ANON_KEY + cookies)
+        ├── admin.ts           # Admin client (SERVICE_ROLE_KEY)
+        └── middleware.ts      # Session refresh helper
+```
+
+### M.2 Interfaces TypeScript Principales (src/lib/types.ts)
+
+```typescript
+// Perfil de usuario
+interface Profile {
+  id: string;
+  nombre_completo: string;
+  rol: 'administrador' | 'contratista' | 'inspector' | 'ingeniera_residente' | 'directivo_hospital' | 'ingenieria_hospital';
+  unidad_ejecutora_id: string | null;
+  telefono: string | null;
+  ente_pertenece: string | null;
+  debe_cambiar_password: boolean;
+  activo: boolean;
+}
+
+// Alcance planificado
+interface AlcancePlanificado {
+  id: string;
+  especialidad_id: string;
+  subsector_id: string;
+  descripcion: string;
+  peso_relativo: number;
+  unidad_medida: string;
+  cantidad_planificada: number;
+  unidad_ejecutora_id: string | null;
+  status: 'Activo' | 'Completado' | 'Suspendido';
+}
+
+// Avance ejecutado
+interface AvanceEjecutado {
+  id: string;
+  alcance_id: string;
+  cantidad_reportada: number;
+  tipo_trabajo: 'Planificado' | 'Imprevisto';
+  fecha_reporte: string;
+  fotos_evidencia_urls: string[];
+  notas: string | null;
+  inspector_id: string | null;
+  status_aprobacion: 'Pendiente' | 'Aprobado' | 'Rechazado';
+}
+```
+
+### M.3 Archivos Estáticos (public/)
+
+| Ruta | Descripción |
+|------|-------------|
+| `/VSOPS.png` | Logo VSOPS (rectangular) |
+| `/logo_hospital.png` | Logo del hospital |
+| `/logo_ministerio.png` | Logo del ministerio |
+| `/logo.svg` | Logo SVG |
+| `/instituciones/*.png` | 9 logos de instituciones asociadas |
+| `/obras/*.jpeg` | 9 fotos de obras |
+| `/Informe_Tecnico_Auditoria_ObrasJM.pdf` | Informe de auditoría técnica |
+| `/Manual_Usuario_ObrasJM_v2.pdf` | Manual de usuario |
+
+---
+
+## N. Protocolo de Actualización de este Documento
+
+> Este archivo `MEMORY.md` DEBE actualizarse en los siguientes casos:
+>
+> 1. ✅ **Antes de cada cambio significativo** — Crear Snapshot Pre-Cambio
+> 2. ✅ **Después de cada cambio exitoso** — Actualizar tabla de Snapshots
+> 3. ✅ **Al agregar/modificar tablas de BD** — Actualizar sección C
+> 4. ✅ **Al agregar/modificar API routes** — Actualizar sección D
+> 5. ✅ **Al agregar/modificar roles o permisos** — Actualizar sección E y C.4
+> 6. ✅ **Al descubrir nuevas vulnerabilidades o deuda técnica** — Actualizar sección G
+> 7. ✅ **Al modificar la estructura de componentes** — Actualizar sección B
+>
+> ⛔ **NUNCA eliminar secciones de este documento.** Si una sección queda obsoleta, marcarla como `[DEPRECATED]` pero conservarla para referencia histórica.
+
+---
+
+*Documento generado: Mayo 2026 — Versión v1.4.0*
+*Próxima revisión programada: Antes de cualquier cambio significativo al sistema*
