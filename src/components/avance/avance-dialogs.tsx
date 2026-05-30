@@ -11,6 +11,9 @@ import {
   ShieldCheck,
   UserCheck,
   Building2,
+  AlertTriangle,
+  Wrench,
+  MessageSquare,
 } from 'lucide-react'
 
 import type { AvanceEjecutado, AprobacionStatus, AlcancePlanificado, UserRol } from '@/lib/types'
@@ -33,7 +36,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 /* -------------------------------------------------------------------------- */
-/*  Step Indicator for 3-level approval                                       */
+/*  Step Indicator for 3-level approval with objection/subsanation support     */
 /* -------------------------------------------------------------------------- */
 
 interface ApprovalStep {
@@ -42,6 +45,8 @@ interface ApprovalStep {
   status: AprobacionStatus
   approvedBy: string | null
   canApproveThisLevel: boolean
+  motivoObjecion: string | null
+  notasSubsanacion: string | null
 }
 
 function ApprovalStepIndicator({ steps }: { steps: ApprovalStep[] }) {
@@ -51,6 +56,10 @@ function ApprovalStepIndicator({ steps }: { steps: ApprovalStep[] }) {
         return <CheckCircle className="h-5 w-5 text-emerald-600" />
       case 'Rechazado':
         return <XCircle className="h-5 w-5 text-red-500" />
+      case 'Objetado':
+        return <AlertTriangle className="h-5 w-5 text-orange-500" />
+      case 'Subsanado':
+        return <Wrench className="h-5 w-5 text-sky-500" />
       default:
         return <Circle className="h-5 w-5 text-muted-foreground" />
     }
@@ -73,8 +82,21 @@ function ApprovalStepIndicator({ steps }: { steps: ApprovalStep[] }) {
         return 'text-emerald-700 bg-emerald-50 border-emerald-200'
       case 'Rechazado':
         return 'text-red-700 bg-red-50 border-red-200'
+      case 'Objetado':
+        return 'text-orange-700 bg-orange-50 border-orange-200'
+      case 'Subsanado':
+        return 'text-sky-700 bg-sky-50 border-sky-200'
       default:
         return 'text-muted-foreground bg-muted/50 border-muted'
+    }
+  }
+
+  const statusActionLabel = (status: AprobacionStatus) => {
+    switch (status) {
+      case 'Rechazado': return 'Rechazado'
+      case 'Objetado': return 'Objetado'
+      case 'Subsanado': return 'Subsanado (pendiente re-revisión)'
+      default: return ''
     }
   }
 
@@ -86,7 +108,7 @@ function ApprovalStepIndicator({ steps }: { steps: ApprovalStep[] }) {
           {idx > 0 && (
             <div className="absolute left-[11px] -top-3 w-0.5 h-3 bg-muted-foreground/20" />
           )}
-          <div className={`flex items-start gap-3 p-3 rounded-lg border ${statusColor(step.status)} ${step.canApproveThisLevel && step.status === 'Pendiente' ? 'ring-2 ring-primary/30' : ''}`}>
+          <div className={`flex items-start gap-3 p-3 rounded-lg border ${statusColor(step.status)} ${step.canApproveThisLevel && (step.status === 'Pendiente' || step.status === 'Subsanado') ? 'ring-2 ring-primary/30' : ''}`}>
             <div className="mt-0.5">
               {statusIcon(step.status)}
             </div>
@@ -97,12 +119,37 @@ function ApprovalStepIndicator({ steps }: { steps: ApprovalStep[] }) {
               </div>
               {step.approvedBy && (
                 <p className="text-xs mt-0.5 opacity-80">
-                  {step.status === 'Rechazado' ? 'Rechazado' : 'Aprobado'} por: {step.approvedBy}
+                  {statusActionLabel(step.status) || 'Aprobado'} por: {step.approvedBy}
                 </p>
+              )}
+              {/* Show objection reason */}
+              {step.motivoObjecion && (
+                <div className="mt-1.5 p-2 bg-orange-100/60 rounded border border-orange-200/50">
+                  <p className="text-xs font-medium text-orange-800 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Motivo de objeción:
+                  </p>
+                  <p className="text-xs text-orange-700 mt-0.5">{step.motivoObjecion}</p>
+                </div>
+              )}
+              {/* Show subsanation notes */}
+              {step.notasSubsanacion && (
+                <div className="mt-1.5 p-2 bg-sky-100/60 rounded border border-sky-200/50">
+                  <p className="text-xs font-medium text-sky-800 flex items-center gap-1">
+                    <Wrench className="h-3 w-3" />
+                    Subsanación declarada:
+                  </p>
+                  <p className="text-xs text-sky-700 mt-0.5">{step.notasSubsanacion}</p>
+                </div>
               )}
               {step.canApproveThisLevel && step.status === 'Pendiente' && (
                 <p className="text-xs mt-0.5 font-medium text-primary">
-                  Pendiente su aprobación
+                  Pendiente su revisión
+                </p>
+              )}
+              {step.canApproveThisLevel && step.status === 'Subsanado' && (
+                <p className="text-xs mt-0.5 font-medium text-sky-700">
+                  Pendiente re-revisión (objeción subsanada)
                 </p>
               )}
             </div>
@@ -293,7 +340,7 @@ export function EditAvanceDialog({
 }
 
 /* -------------------------------------------------------------------------- */
-/*  ApprovalDialog - 3-level approval with step indicator                     */
+/*  ApprovalDialog - 3-level approval with objection/subsanation              */
 /* -------------------------------------------------------------------------- */
 
 interface ApprovalDialogProps {
@@ -301,11 +348,15 @@ interface ApprovalDialogProps {
   onOpenChange: (open: boolean) => void
   selectedAvance: AvanceEjecutado | null
   canApprove: boolean
+  canSubsanate: boolean
   userRole: UserRol
-  rejectionNotes: string
-  setRejectionNotes: (notes: string) => void
+  objectionNotes: string
+  setObjecttionNotes: (notes: string) => void
+  subsanationNotes: string
+  setSubsanationNotes: (notes: string) => void
   submitting: boolean
   onApproval: (status: AprobacionStatus, level?: 'residente' | 'inspector' | 'directivo') => void
+  onSubsanate: (level: 'residente' | 'inspector' | 'directivo') => void
   onPhotoViewer: (url: string) => void
 }
 
@@ -314,11 +365,15 @@ export function ApprovalDialog({
   onOpenChange,
   selectedAvance,
   canApprove,
+  canSubsanate,
   userRole,
-  rejectionNotes,
-  setRejectionNotes,
+  objectionNotes,
+  setObjecttionNotes,
+  subsanationNotes,
+  setSubsanationNotes,
   submitting,
   onApproval,
+  onSubsanate,
   onPhotoViewer,
 }: ApprovalDialogProps) {
   const isAdmin = userRole === 'webmaster'
@@ -345,21 +400,27 @@ export function ApprovalDialog({
         label: 'Ing. Residente',
         status: selectedAvance.aprobacion_residente,
         approvedBy: selectedAvance.residente?.nombre_completo || null,
-        canApproveThisLevel: canApprove && (userLevel === 'residente' || isAdmin) && selectedAvance.aprobacion_residente === 'Pendiente',
+        canApproveThisLevel: canApprove && (userLevel === 'residente' || isAdmin) && (selectedAvance.aprobacion_residente === 'Pendiente' || selectedAvance.aprobacion_residente === 'Subsanado'),
+        motivoObjecion: selectedAvance.motivo_objecion_residente,
+        notasSubsanacion: selectedAvance.notas_subsanacion_residente,
       },
       {
         level: 'inspector',
         label: 'Inspector MPPOP',
         status: selectedAvance.aprobacion_inspector,
         approvedBy: selectedAvance.inspector?.nombre_completo || null,
-        canApproveThisLevel: canApprove && (userLevel === 'inspector' || isAdmin) && selectedAvance.aprobacion_inspector === 'Pendiente' && selectedAvance.aprobacion_residente === 'Aprobado',
+        canApproveThisLevel: canApprove && (userLevel === 'inspector' || isAdmin) && (selectedAvance.aprobacion_inspector === 'Pendiente' || selectedAvance.aprobacion_inspector === 'Subsanado') && selectedAvance.aprobacion_residente === 'Aprobado',
+        motivoObjecion: selectedAvance.motivo_objecion_inspector,
+        notasSubsanacion: selectedAvance.notas_subsanacion_inspector,
       },
       {
         level: 'directivo',
         label: 'Directivo Hospital',
         status: selectedAvance.aprobacion_directivo,
         approvedBy: selectedAvance.directivo?.nombre_completo || null,
-        canApproveThisLevel: canApprove && (userLevel === 'directivo' || isAdmin) && selectedAvance.aprobacion_directivo === 'Pendiente' && selectedAvance.aprobacion_inspector === 'Aprobado',
+        canApproveThisLevel: canApprove && (userLevel === 'directivo' || isAdmin) && (selectedAvance.aprobacion_directivo === 'Pendiente' || selectedAvance.aprobacion_directivo === 'Subsanado') && selectedAvance.aprobacion_inspector === 'Aprobado',
+        motivoObjecion: selectedAvance.motivo_objecion_directivo,
+        notasSubsanacion: selectedAvance.notas_subsanacion_directivo,
       },
     ]
   }
@@ -373,12 +434,20 @@ export function ApprovalDialog({
   const getActiveApprovalLevel = (): 'residente' | 'inspector' | 'directivo' | null => {
     // For non-admin, their assigned level
     if (userLevel) return userLevel
-    // For admin, find the first pending level
-    const pendingStep = steps.find(s => s.status === 'Pendiente')
-    return pendingStep?.level || null
+    // For admin, find the first pending/subsanado level
+    const activeStep = steps.find(s => s.status === 'Pendiente' || s.status === 'Subsanado')
+    return activeStep?.level || null
   }
 
   const activeLevel = getActiveApprovalLevel()
+
+  // Check if there are objeted levels that this user can subsanate
+  const getObjectedLevels = (): ApprovalStep[] => {
+    if (!canSubsanate) return []
+    return steps.filter(s => s.status === 'Objetado')
+  }
+
+  const objectedLevels = getObjectedLevels()
 
   // Level names for display
   const levelNames: Record<string, string> = {
@@ -394,8 +463,10 @@ export function ApprovalDialog({
           <DialogTitle>Detalle del Avance</DialogTitle>
           <DialogDescription>
             {canApproveAnyLevel
-              ? 'Revise y apruebe o rechace este avance.'
-              : 'Detalle del avance ejecutado.'}
+              ? 'Revise y apruebe, objete o rechace este avance.'
+              : objectedLevels.length > 0
+                ? 'Este avance tiene objeciones pendientes por subsanar.'
+                : 'Detalle del avance ejecutado.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -500,23 +571,79 @@ export function ApprovalDialog({
               </div>
             )}
 
-            {/* Approval actions - only show if user can approve at some level */}
+            {/* Subsanation section - show if there are objected levels and user can subsanate */}
+            {objectedLevels.length > 0 && (
+              <div className="space-y-3 border-t pt-4">
+                <div className="flex items-center gap-2">
+                  <Wrench className="h-4 w-4 text-sky-600" />
+                  <Label className="text-sm font-semibold">
+                    Declarar Objeción como Subsanada
+                  </Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Si ha corregido los asuntos indicados en la objeción, declare la subsanación para que el revisor pueda re-evaluar.
+                </p>
+
+                {objectedLevels.map((step) => (
+                  <div key={step.level} className="space-y-2 p-3 border rounded-lg bg-sky-50/50 border-sky-200">
+                    <div className="flex items-center gap-1.5">
+                      <AlertTriangle className="h-4 w-4 text-orange-500" />
+                      <span className="text-sm font-medium">{step.label}</span>
+                      <Badge variant="outline" className="text-[10px] bg-orange-100 text-orange-800 border-orange-200">
+                        Objetado
+                      </Badge>
+                    </div>
+                    {step.motivoObjecion && (
+                      <p className="text-xs text-orange-700 bg-orange-100/60 p-2 rounded">
+                        <strong>Motivo:</strong> {step.motivoObjecion}
+                      </p>
+                    )}
+                    <Label htmlFor={`subsanation_${step.level}`} className="text-xs text-muted-foreground">
+                      Notas de subsanación (describa qué se corrigió)
+                    </Label>
+                    <Textarea
+                      id={`subsanation_${step.level}`}
+                      value={subsanationNotes}
+                      onChange={(e) => setSubsanationNotes(e.target.value)}
+                      placeholder="Describa las correcciones realizadas..."
+                      rows={2}
+                    />
+                    <Button
+                      size="sm"
+                      className="bg-sky-600 hover:bg-sky-700 gap-1.5"
+                      onClick={() => onSubsanate(step.level)}
+                      disabled={submitting}
+                    >
+                      {submitting ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Wrench className="h-3 w-3" />
+                      )}
+                      Declarar Subsanado ({step.label})
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Approval/Objection/Rejection actions - only show if user can approve at some level */}
             {canApproveAnyLevel && (
               <div className="space-y-3 border-t pt-4">
                 <div className="flex items-center gap-2">
                   <Label className="text-sm font-semibold">
-                    Su aprobación como {activeLevel ? levelNames[activeLevel] : 'Administrador'}
+                    Su revisión como {activeLevel ? levelNames[activeLevel] : 'Administrador'}
                   </Label>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="rejection_notes" className="text-xs text-muted-foreground">
-                    Notas de Rechazo (opcional)
+                  <Label htmlFor="objection_notes" className="text-xs text-muted-foreground flex items-center gap-1">
+                    <MessageSquare className="h-3 w-3" />
+                    Motivo de objeción (obligatorio si objeta, opcional si rechaza)
                   </Label>
                   <Textarea
-                    id="rejection_notes"
-                    value={rejectionNotes}
-                    onChange={(e) => setRejectionNotes(e.target.value)}
-                    placeholder="Razón del rechazo (si aplica)"
+                    id="objection_notes"
+                    value={objectionNotes}
+                    onChange={(e) => setObjecttionNotes(e.target.value)}
+                    placeholder="Describa el motivo de la objeción o rechazo..."
                     rows={2}
                   />
                 </div>
@@ -524,9 +651,8 @@ export function ApprovalDialog({
                 {/* Webmaster multi-level approval buttons */}
                 {isAdmin && selectedAvance.status_aprobacion !== 'Aprobado' && selectedAvance.status_aprobacion !== 'Rechazado' && (
                   <div className="space-y-2">
-                    {/* If webmaster, show approval buttons for each pending level */}
-                    {steps.filter(s => s.status === 'Pendiente').map((step) => (
-                      <div key={step.level} className="flex items-center gap-2 justify-end">
+                    {steps.filter(s => s.status === 'Pendiente' || s.status === 'Subsanado').map((step) => (
+                      <div key={step.level} className="flex items-center gap-2 justify-end flex-wrap">
                         <span className="text-xs text-muted-foreground">{step.label}:</span>
                         <TooltipProvider>
                           <Tooltip>
@@ -546,6 +672,26 @@ export function ApprovalDialog({
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>Rechazar a nivel {step.label}</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                className="bg-orange-500 hover:bg-orange-600 text-white"
+                                onClick={() => onApproval('Objetado', step.level)}
+                                disabled={submitting}
+                              >
+                                {submitting ? (
+                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                                ) : (
+                                  <AlertTriangle className="mr-1 h-3 w-3" />
+                                )}
+                                Objetar
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Objetar a nivel {step.label} — requiere motivo</TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
                         <TooltipProvider>
@@ -575,7 +721,7 @@ export function ApprovalDialog({
 
                 {/* Non-webmaster: single level approval */}
                 {!isAdmin && activeLevel && (
-                  <div className="flex gap-2 justify-end">
+                  <div className="flex gap-2 justify-end flex-wrap">
                     <Button
                       variant="destructive"
                       onClick={() => onApproval('Rechazado', activeLevel)}
@@ -587,6 +733,18 @@ export function ApprovalDialog({
                         <XCircle className="mr-2 h-4 w-4" />
                       )}
                       Rechazar
+                    </Button>
+                    <Button
+                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                      onClick={() => onApproval('Objetado', activeLevel)}
+                      disabled={submitting}
+                    >
+                      {submitting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <AlertTriangle className="mr-2 h-4 w-4" />
+                      )}
+                      Objetar
                     </Button>
                     <Button
                       className="bg-emerald-600 hover:bg-emerald-700"

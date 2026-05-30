@@ -51,6 +51,7 @@ export function AvanceView({ profile }: AvanceViewProps) {
   const canCreate = !isVisitante && (isAdmin || isContratista || isInspector || isResidente)
   const canEdit = !isVisitante && (isAdmin || isInspector || isContratista || isResidente)
   const canApprove = !isVisitante && (isAdmin || isResidente || isInspector || isDirectivo)
+  const canSubsanate = !isVisitante && !isDirectivo && (isAdmin || isContratista || isInspector || isResidente)
 
   // Data
   const [avances, setAvances] = useState<AvanceEjecutado[]>([])
@@ -82,7 +83,8 @@ export function AvanceView({ profile }: AvanceViewProps) {
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([])
   const [viewerPhotoUrl, setViewerPhotoUrl] = useState<string>('')
   const [formData, setFormData] = useState<AvanceFormData>(emptyForm)
-  const [rejectionNotes, setRejectionNotes] = useState('')
+  const [objectionNotes, setObjecttionNotes] = useState('')
+  const [subsanationNotes, setSubsanationNotes] = useState('')
 
   // Add dialog date picker state
   const [datePickerOpen, setDatePickerOpen] = useState(false)
@@ -254,7 +256,8 @@ export function AvanceView({ profile }: AvanceViewProps) {
 
   const handleApprovalOpen = (avance: AvanceEjecutado) => {
     setSelectedAvance(avance)
-    setRejectionNotes('')
+    setObjecttionNotes('')
+    setSubsanationNotes('')
     setShowApprovalDialog(true)
   }
 
@@ -311,7 +314,7 @@ export function AvanceView({ profile }: AvanceViewProps) {
   }
 
   /**
-   * 3-level approval handler.
+   * 3-level approval handler with objection/subsanation support.
    * Determines which approval field to set based on the user's role.
    */
   const handleApproval = async (status: AprobacionStatus, level?: 'residente' | 'inspector' | 'directivo') => {
@@ -324,12 +327,12 @@ export function AvanceView({ profile }: AvanceViewProps) {
       if (roleLevel) {
         approvalLevel = roleLevel
       } else if (isAdmin) {
-        // Webmaster approving without specifying level - find the next pending level
-        if (selectedAvance.aprobacion_residente === 'Pendiente') {
+        // Webmaster approving without specifying level - find the next pending/subsanado level
+        if (selectedAvance.aprobacion_residente === 'Pendiente' || selectedAvance.aprobacion_residente === 'Subsanado') {
           approvalLevel = 'residente'
-        } else if (selectedAvance.aprobacion_inspector === 'Pendiente') {
+        } else if (selectedAvance.aprobacion_inspector === 'Pendiente' || selectedAvance.aprobacion_inspector === 'Subsanado') {
           approvalLevel = 'inspector'
-        } else if (selectedAvance.aprobacion_directivo === 'Pendiente') {
+        } else if (selectedAvance.aprobacion_directivo === 'Pendiente' || selectedAvance.aprobacion_directivo === 'Subsanado') {
           approvalLevel = 'directivo'
         }
       }
@@ -337,6 +340,12 @@ export function AvanceView({ profile }: AvanceViewProps) {
 
     if (!approvalLevel) {
       toast.error('No tiene permisos para aprobar este avance')
+      return
+    }
+
+    // Validate: Objetado requires motivo
+    if (status === 'Objetado' && !objectionNotes.trim()) {
+      toast.error('El motivo de objeción es obligatorio')
       return
     }
 
@@ -352,8 +361,14 @@ export function AvanceView({ profile }: AvanceViewProps) {
         body.aprobacion_directivo = status
       }
 
-      if (status === 'Rechazado' && rejectionNotes) {
-        body.notas = rejectionNotes
+      // Add objection reason if objecting
+      if (status === 'Objetado') {
+        body[`motivo_objecion_${approvalLevel}`] = objectionNotes.trim()
+      }
+
+      // Add rejection notes if rejecting
+      if (status === 'Rechazado' && objectionNotes.trim()) {
+        body.notas = objectionNotes.trim()
       }
 
       const res = await fetch(`/api/avance/${selectedAvance.id}`, {
@@ -367,11 +382,50 @@ export function AvanceView({ profile }: AvanceViewProps) {
       if (res.ok) {
         const levelNames = { residente: 'Ing. Residente', inspector: 'Inspector MPPOP', directivo: 'Directivo Hospital' }
         const levelName = levelNames[approvalLevel]
-        toast.success(
-          status === 'Aprobado'
-            ? `Aprobado por ${levelName} exitosamente`
-            : `Rechazado por ${levelName}`
-        )
+        const actionLabels: Record<AprobacionStatus, string> = {
+          Aprobado: 'Aprobado',
+          Rechazado: 'Rechazado',
+          Objetado: 'Objetado',
+          Subsanado: 'Subsanado',
+          Pendiente: 'Revertido a Pendiente',
+        }
+        toast.success(`${actionLabels[status]} por ${levelName} exitosamente`)
+        setShowApprovalDialog(false)
+        fetchAvances()
+      } else {
+        toast.error(data.error || 'Error al procesar')
+      }
+    } catch {
+      toast.error('Error de conexión')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  /**
+   * Subsanation handler - creator declares an objection has been resolved.
+   */
+  const handleSubsanate = async (level: 'residente' | 'inspector' | 'directivo') => {
+    if (!selectedAvance) return
+
+    setSubmitting(true)
+    try {
+      const body: Record<string, unknown> = {
+        [`aprobacion_${level}`]: 'Subsanado',
+        [`notas_subsanacion_${level}`]: subsanationNotes.trim() || null,
+      }
+
+      const res = await fetch(`/api/avance/${selectedAvance.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        const levelNames = { residente: 'Ing. Residente', inspector: 'Inspector MPPOP', directivo: 'Directivo Hospital' }
+        toast.success(`Objeción de ${levelNames[level]} declarada como subsanada`)
         setShowApprovalDialog(false)
         fetchAvances()
       } else {
@@ -449,6 +503,7 @@ export function AvanceView({ profile }: AvanceViewProps) {
         canEdit={canEdit}
         canApprove={canApprove}
         canCreate={canCreate}
+        canSubsanate={canSubsanate}
         userRole={profile.rol}
         onEdit={handleEditOpen}
         onApproval={handleApprovalOpen}
@@ -499,11 +554,15 @@ export function AvanceView({ profile }: AvanceViewProps) {
         onOpenChange={setShowApprovalDialog}
         selectedAvance={selectedAvance}
         canApprove={canApprove}
+        canSubsanate={canSubsanate}
         userRole={profile.rol}
-        rejectionNotes={rejectionNotes}
-        setRejectionNotes={setRejectionNotes}
+        objectionNotes={objectionNotes}
+        setObjecttionNotes={setObjecttionNotes}
+        subsanationNotes={subsanationNotes}
+        setSubsanationNotes={setSubsanationNotes}
         submitting={submitting}
         onApproval={handleApproval}
+        onSubsanate={handleSubsanate}
         onPhotoViewer={handlePhotoViewer}
       />
 

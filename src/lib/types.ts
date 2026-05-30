@@ -1,6 +1,6 @@
 export type UserRol = 'webmaster' | 'contratista' | 'inspector' | 'ingeniera_residente' | 'directivo_hospital' | 'ingenieria_hospital' | 'visitante'
 export type TrabajoTipo = 'Planificado' | 'Imprevisto'
-export type AprobacionStatus = 'Pendiente' | 'Aprobado' | 'Rechazado'
+export type AprobacionStatus = 'Pendiente' | 'Aprobado' | 'Rechazado' | 'Objetado' | 'Subsanado'
 export type AlcanceStatus = 'Activo' | 'Completado' | 'Suspendido'
 
 export interface Profile {
@@ -81,6 +81,12 @@ export interface AvanceEjecutado {
   aprobacion_residente: AprobacionStatus
   aprobacion_inspector: AprobacionStatus
   aprobacion_directivo: AprobacionStatus
+  motivo_objecion_residente: string | null
+  motivo_objecion_inspector: string | null
+  motivo_objecion_directivo: string | null
+  notas_subsanacion_residente: string | null
+  notas_subsanacion_inspector: string | null
+  notas_subsanacion_directivo: string | null
   created_at: string
   updated_at: string
   // Joined fields

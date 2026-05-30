@@ -15,6 +15,8 @@ import {
   Circle,
   XCircle,
   ShieldCheck,
+  AlertTriangle,
+  Wrench,
 } from 'lucide-react'
 
 import type { AvanceEjecutado, UserRol } from '@/lib/types'
@@ -48,6 +50,7 @@ interface AvanceTableProps {
   canEdit: boolean
   canApprove: boolean
   canCreate: boolean
+  canSubsanate: boolean
   userRole: UserRol
   onEdit: (avance: AvanceEjecutado) => void
   onApproval: (avance: AvanceEjecutado) => void
@@ -82,13 +85,21 @@ function MiniApprovalIndicator({ avance }: { avance: AvanceEjecutado }) {
                       ? 'text-emerald-600'
                       : level.status === 'Rechazado'
                         ? 'text-red-500'
-                        : 'text-muted-foreground/40'
+                        : level.status === 'Objetado'
+                          ? 'text-orange-500'
+                          : level.status === 'Subsanado'
+                            ? 'text-sky-500'
+                            : 'text-muted-foreground/40'
                   }
                 >
                   {level.status === 'Aprobado' ? (
                     <CheckCircle className="h-3.5 w-3.5" />
                   ) : level.status === 'Rechazado' ? (
                     <XCircle className="h-3.5 w-3.5" />
+                  ) : level.status === 'Objetado' ? (
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                  ) : level.status === 'Subsanado' ? (
+                    <Wrench className="h-3.5 w-3.5" />
                   ) : (
                     <Circle className="h-3.5 w-3.5" />
                   )}
@@ -109,16 +120,25 @@ function MiniApprovalIndicator({ avance }: { avance: AvanceEjecutado }) {
 function canUserApproveAvance(avance: AvanceEjecutado, userRole: UserRol): boolean {
   switch (userRole) {
     case 'ingeniera_residente':
-      return avance.aprobacion_residente === 'Pendiente'
+      return avance.aprobacion_residente === 'Pendiente' || avance.aprobacion_residente === 'Subsanado'
     case 'inspector':
-      return avance.aprobacion_inspector === 'Pendiente' && avance.aprobacion_residente === 'Aprobado'
+      return (avance.aprobacion_inspector === 'Pendiente' || avance.aprobacion_inspector === 'Subsanado') && avance.aprobacion_residente === 'Aprobado'
     case 'directivo_hospital':
-      return avance.aprobacion_directivo === 'Pendiente' && avance.aprobacion_inspector === 'Aprobado'
+      return (avance.aprobacion_directivo === 'Pendiente' || avance.aprobacion_directivo === 'Subsanado') && avance.aprobacion_inspector === 'Aprobado'
     case 'webmaster':
-      return avance.status_aprobacion === 'Pendiente'
+      return avance.status_aprobacion !== 'Aprobado' && avance.status_aprobacion !== 'Rechazado'
     default:
       return false
   }
+}
+
+/** Can the user subsanate an objection on this avance? */
+function canUserSubsanateAvance(avance: AvanceEjecutado, userRole: UserRol): boolean {
+  if (userRole === 'visitante' || userRole === 'ingenieria_hospital' || userRole === 'directivo_hospital') {
+    return false
+  }
+  // Creators/webmaster can subsanate if any level is Objetado
+  return avance.aprobacion_residente === 'Objetado' || avance.aprobacion_inspector === 'Objetado' || avance.aprobacion_directivo === 'Objetado'
 }
 
 export function AvanceTable({
@@ -130,6 +150,7 @@ export function AvanceTable({
   canEdit,
   canApprove,
   canCreate,
+  canSubsanate,
   userRole,
   onEdit,
   onApproval,
@@ -189,6 +210,9 @@ export function AvanceTable({
               ) : (
                 paginatedAvances.map((avance) => {
                   const showApproveBtn = canApprove && canUserApproveAvance(avance, userRole)
+                  const showSubsanateBtn = canSubsanate && canUserSubsanateAvance(avance, userRole)
+                  // Allow edit when Pending or Objetado (to fix issues)
+                  const canEditThisAvance = canEdit && (avance.status_aprobacion === 'Pendiente' || avance.status_aprobacion === 'Objetado')
 
                   return (
                     <TableRow key={avance.id}>
@@ -245,7 +269,7 @@ export function AvanceTable({
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          {canEdit && avance.status_aprobacion === 'Pendiente' && (
+                          {canEditThisAvance && (
                             <Button
                               variant="ghost"
                               size="icon"
@@ -263,10 +287,22 @@ export function AvanceTable({
                               size="icon"
                               className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                               onClick={() => onApproval(avance)}
-                              title="Aprobar/Rechazar"
+                              title="Aprobar/Objetar/Rechazar"
                             >
                               <ShieldCheck className="h-4 w-4" />
-                              <span className="sr-only">Aprobar/Rechazar</span>
+                              <span className="sr-only">Aprobar/Objetar/Rechazar</span>
+                            </Button>
+                          )}
+                          {showSubsanateBtn && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                              onClick={() => onApproval(avance)}
+                              title="Subsanar objeción"
+                            >
+                              <Wrench className="h-4 w-4" />
+                              <span className="sr-only">Subsanar</span>
                             </Button>
                           )}
                           <Button

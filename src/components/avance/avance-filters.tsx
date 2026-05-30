@@ -56,6 +56,8 @@ export function AvanceFilters({
                 <SelectItem value="Pendiente">Pendiente</SelectItem>
                 <SelectItem value="Aprobado">Aprobado (3 niveles)</SelectItem>
                 <SelectItem value="Rechazado">Rechazado</SelectItem>
+                <SelectItem value="Objetado">Objetado</SelectItem>
+                <SelectItem value="Subsanado">Subsanado (pendiente re-revisión)</SelectItem>
               </SelectContent>
             </Select>
           </div>

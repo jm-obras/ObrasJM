@@ -175,7 +175,7 @@
 |------|---------|
 | `user_rol` | `administrador` *(obsoleto, migrado a webmaster)*, `webmaster`, `contratista`, `inspector`, `ingeniera_residente`, `directivo_hospital`, `ingenieria_hospital`, `visitante` |
 | `trabajo_tipo` | `Planificado`, `Imprevisto` |
-| `aprobacion_status` | `Pendiente`, `Aprobado`, `Rechazado` |
+| `aprobacion_status` | `Pendiente`, `Aprobado`, `Rechazado`, `Objetado`, `Subsanado` |
 | `alcance_status` | `Activo`, `Completado`, `Suspendido` |
 
 ### C.2 Tablas (7 + auth.users)
@@ -705,6 +705,7 @@ contratista/inspector/residente/webmaster → Crea Avance
 | v2.1.0 | 04-Jun-2026 | Dashboard con 3 sub-tabs (Vista General, Ejecutoras, Macro Especialidades) + logo_url en unidades_ejecutoras + tabla macro_especialidades | Migración 012 + push | ✅ Operativo |
 | **v3.0.0** | **04-Jun-2026** | **Aprobación en 3 niveles:** Nivel 1=Ing. Residente (declara concluida), Nivel 2=Inspector MPPOP (aprueba por ministerio), Nivel 3=Directivo Hospital (conformidad). Admin aprueba cualquier nivel. Aprobación secuencial obligatoria. status_aprobacion auto-computado. UI con indicador visual de cadena de aprobación. | **Migración 013 + push** | ✅ Operativo |
 | **v3.1.0** | **04-Jun-2026** | **Rol Visitante + Renombrar Administrador→Webmaster + Dominio personalizado:** (1) Nuevo rol `visitante` solo lectura para autoridades, (2) `administrador` renombrado a `webmaster` (evitar confusión con pestaña Administración/Finanzas), (3) Dominio propio `obras.hospitaljmdelosrios.org.ve` vía CNAME→Vercel, (4) Migración 014 dividida en 014a (enum) + 014b (datos+RLS) por restricción PostgreSQL de enum values en transacción, (5) Fix: `visitante` agregado a VALID_ROLES en API `/api/admin/users` y `/api/admin/users/[id]`, (6) Manual de usuario actualizado a v3.1 con nuevo dominio, rol webmaster, rol visitante, fecha mayo 2026 | **Migraciones 014a+014b + fixes + push** | ✅ Operativo |
+| **v3.2.0** | **04-Jun-2026** | **Sistema de Objeción/Subsanación:** (1) Nuevos estados `Objetado` y `Subsanado` en enum `aprobacion_status`, (2) 6 campos nuevos en `avance_ejecutado`: `motivo_objecion_*` y `notas_subsanacion_*` por nivel, (3) Revisor puede objetar con motivo obligatorio (intermedio entre aprobar y rechazar), (4) Creador del avance puede declarar objeción como subsanada, (5) Revisor re-evalúa tras subsanación (puede aprobar, objetar de nuevo o rechazar), (6) `status_aprobacion` auto-computado con nueva prioridad: Rechazado > Objetado > Subsanado > Aprobado > Pendiente, (7) Webmaster puede revertir cualquier nivel a Pendiente, (8) UI: botón Objetar (naranja), sección de subsanación, indicadores visuales en tabla y diálogo, (9) Filtros de estado actualizados con Objetado y Subsanado | **Migraciones 015a+015b + push** | ✅ Operativo |
 
 ### L.3 Próximo Snapshot (Plantilla)
 
@@ -861,5 +862,5 @@ interface AvanceEjecutado {
 ---
 
 *Documento generado: Mayo 2026 — Versión v2.0.0*
-*Última actualización: 04-Jun-2026 — v3.1.0 — Rol Visitante + Webmaster rename + Dominio personalizado obras.hospitaljmdelosrios.org.ve*
+*Última actualización: 04-Jun-2026 — v3.2.0 — Sistema de Objeción/Subsanación en aprobación de avances*
 *Próxima revisión programada: Antes de cualquier cambio significativo al sistema*
