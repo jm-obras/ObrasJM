@@ -27,3 +27,29 @@ Stage Summary:
 - status_aprobacion se calcula automáticamente: Aprobado solo si los 3 niveles aprueban
 - UI muestra cadena de aprobación con indicador visual de 3 pasos
 - Migración SQL debe ejecutarse en Supabase SQL Editor: 013_three_level_approval.sql
+
+---
+Task ID: 2
+Agent: Main
+Task: Protocolo de inicio de nueva jornada - sincronización y verificación
+
+Work Log:
+- Leído MEMORY.md completo (865 líneas, v3.1.0)
+- Leído worklog.md existente (1 entrada: Task ID 1)
+- Verificado estado del código: webmaster/visitante presentes en 26 archivos fuente
+- Verificado git status: ramas divergidas (local 1 ahead, remote 1 ahead)
+- Ejecutado git stash + git pull --rebase origin main
+- Resuelto conflicto en MEMORY.md durante rebase (local v3.0.0 vs remote v3.1.0)
+- Resuelto conflicto en .zscripts/dev.pid
+- Restaurado MEMORY.md a v3.1.0 (el rebase había sobrescrito con v3.0.0)
+- Push exitoso a GitHub (commit eda03b3)
+- Verificado dev server corriendo en puerto 3000 (PID 768)
+- Verificado errores de Supabase env vars (solo local, Vercel las tiene configuradas)
+- Verificada estructura de migraciones: 014a y 014b presentes
+
+Stage Summary:
+- Repo local sincronizado con GitHub (rama main)
+- MEMORY.md restaurado a v3.1.0 (visitante role, webmaster rename, custom domain)
+- Dev server operativo en puerto 3000
+- Errores de Supabase env vars solo en local (Vercel OK)
+- Commit más reciente: eda03b3 "fix: restore MEMORY.md v3.1.0"
