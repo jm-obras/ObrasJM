@@ -53,3 +53,38 @@ Stage Summary:
 - Dev server operativo en puerto 3000
 - Errores de Supabase env vars solo en local (Vercel OK)
 - Commit más reciente: eda03b3 "fix: restore MEMORY.md v3.1.0"
+
+---
+Task ID: 3
+Agent: Main
+Task: Implementar sistema de Objeción/Subsanación para aprobación de avances (v3.2.0)
+
+Work Log:
+- Creada migración 015a_add_objecion_enum_values.sql (ALTER TYPE aprobacion_status ADD VALUE Objetado, Subsanado)
+- Creada migración 015b_add_objecion_fields.sql (6 campos nuevos: motivo_objecion_*, notas_subsanacion_*)
+- Actualizado tipo AprobacionStatus en src/lib/types.ts con Objetado y Subsanado
+- Actualizado interfaz AvanceEjecutado con 6 campos nuevos de objeción/subsanación
+- Actualizado avance-types.ts con colores para Objetado (orange) y Subsanado (sky)
+- Reescrita API PUT /api/avance/[id] con lógica completa de objeción/subsanación:
+  - Objetado: revisor objeta con motivo obligatorio, desde Pendiente o Subsanado
+  - Subsanado: creador declara subsanada, desde Objetado
+  - Aprobado: desde Pendiente o Subsanado, con validación secuencial
+  - Rechazado: desde cualquier estado no-terminal
+  - Pendiente: solo webmaster puede revertir
+- Actualizado avance-dialogs.tsx con ApprovalStepIndicator mejorado (iconos y colores para Objetado/Subsanado)
+- Actualizado ApprovalDialog con sección de subsanación, botón Objetar, y motivo obligatorio
+- Actualizado avance-table.tsx con MiniApprovalIndicator para Objetado/Subsanado
+- Agregada función canUserSubsanateAvance en avance-table.tsx
+- Actualizado avance-view.tsx con handlers handleApproval y handleSubsanate
+- Agregada prop canSubsanate y estado subsanationNotes
+- Actualizado avance-filters.tsx con opciones Objetado y Subsanado
+- Actualizado MEMORY.md a v3.2.0
+- Lint pasa sin errores
+- Push exitoso a GitHub (commit ba5b157)
+
+Stage Summary:
+- Sistema de objeción/subsanación completamente implementado
+- 5 estados de aprobación: Pendiente, Aprobado, Rechazado, Objetado, Subsanado
+- 10 archivos modificados, 2 nuevos (migraciones SQL)
+- Ciclo completo: Objetar → Subsanar → Re-revisar (puede repetirse)
+- Migraciones 015a y 015b deben ejecutarse en Supabase SQL Editor (015a primero)
