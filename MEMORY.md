@@ -60,7 +60,7 @@
 │                          │ fetch()                           │
 │                          ▼                                   │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │  API Routes (src/app/api/) — 24 endpoints            │   │
+│  │  API Routes (src/app/api/) — 26 endpoints            │   │
 │  │  ├─ /api/auth/* (login, register, logout, me,        │   │
 │  │  │   change-password)                                 │   │
 │  │  ├─ /api/alcance, /api/alcance/[id]                  │   │
@@ -69,6 +69,7 @@
 │  │  ├─ /api/admin/users, /api/admin/users/[id]          │   │
 │  │  ├─ /api/especialidades, /api/sectores,              │   │
 │  │  │   /api/subsectores, /api/unidades-ejecutoras      │   │
+│  │  ├─ /api/upload, /api/upload-logo                    │   │
 │  │  ├─ /api/landing/stats                               │   │
 │  │  └─ /api/init                                        │   │
 │  └──────────────────────────────────────────────────────┘   │
@@ -340,12 +341,14 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 >
 > **Visitante:** Solo tiene políticas SELECT → acceso de solo lectura automático (sin INSERT/UPDATE/DELETE en ninguna tabla).
 
-#### Storage (`evidencias`)
-| Operación | Quién |
-|-----------|-------|
-| SELECT | público (true) |
-| INSERT | authenticated |
-| DELETE | webmaster |
+#### Storage (`evidencias`) — bucket `public=true`
+| Operación | Quién | Notas |
+|-----------|-------|-------|
+| SELECT | authenticated (RLS) | ⚠️ Bucket es público → URL directa accesible sin auth. RLS solo aplica a acceso vía API |
+| INSERT | authenticated | — |
+| DELETE | webmaster | — |
+
+> ⚠️ **VULN-005 parcial:** La migración 016 cambió la RLS SELECT de público a autenticado, pero como el bucket sigue siendo `public=true`, las URLs públicas siguen accesibles directamente en el navegador. Para protección completa, el bucket debe ser privado + URLs firmadas.
 
 ### C.5 Vistas SQL (PAF Calculation)
 
@@ -507,7 +510,7 @@ El admin client se usa EXCLUSIVAMENTE en estos endpoints:
 | VULN-002 | 🟡 ALTA | ~~`/api/dashboard` sin autenticación — expone datos agregados del proyecto~~ | ✅ CORREGIDO v3.2.1 |
 | VULN-003 | 🟡 ALTA | ~~`/api/init` sin autenticación — permite verificar y modificar la estructura de la BD~~ | ✅ CORREGIDO v3.2.1 |
 | VULN-004 | 🟡 ALTA | ~~GET endpoints de negocio (`/api/alcance`, `/api/avance`) sin verificación de autenticación~~ | ✅ CORREGIDO v3.2.1 |
-| VULN-005 | 🟠 MEDIA | ~~Storage `evidencias` con lectura pública — cualquiera puede ver fotos de evidencia~~ | ✅ CORREGIDO v3.2.1 (migración 016) |
+| VULN-005 | 🟠 MEDIA | ~~Storage `evidencias` con lectura pública~~ | ⚠️ PARCIAL v3.2.1 — RLS corregido pero bucket sigue público, URLs accesibles directamente |
 | VULN-006 | 🟠 MEDIA | ~~API permite inspector POST en `/api/unidades-ejecutoras` pero RLS solo permite admin — inserción falla silenciosamente~~ | ✅ CORREGIDO v3.2.1 |
 | VULN-007 | 🟢 BAJA | ~~Sin política de complejidad de contraseñas — solo mínimo 6 caracteres~~ | ✅ CORREGIDO v3.2.1 (mín 8, mayús, mín, núm, especial) |
 
@@ -710,6 +713,7 @@ contratista/inspector/residente/webmaster → Crea Avance
 | **v3.1.0** | **04-Jun-2026** | **Rol Visitante + Renombrar Administrador→Webmaster + Dominio personalizado:** (1) Nuevo rol `visitante` solo lectura para autoridades, (2) `administrador` renombrado a `webmaster` (evitar confusión con pestaña Administración/Finanzas), (3) Dominio propio `obras.hospitaljmdelosrios.org.ve` vía CNAME→Vercel, (4) Migración 014 dividida en 014a (enum) + 014b (datos+RLS) por restricción PostgreSQL de enum values en transacción, (5) Fix: `visitante` agregado a VALID_ROLES en API `/api/admin/users` y `/api/admin/users/[id]`, (6) Manual de usuario actualizado a v3.1 con nuevo dominio, rol webmaster, rol visitante, fecha mayo 2026 | **Migraciones 014a+014b + fixes + push** | ✅ Operativo |
 | **v3.2.0** | **04-Jun-2026** | **Sistema de Objeción/Subsanación:** (1) Nuevos estados `Objetado` y `Subsanado` en enum `aprobacion_status`, (2) 6 campos nuevos en `avance_ejecutado`: `motivo_objecion_*` y `notas_subsanacion_*` por nivel, (3) Revisor puede objetar con motivo obligatorio (intermedio entre aprobar y rechazar), (4) Creador del avance puede declarar objeción como subsanada, (5) Revisor re-evalúa tras subsanación (puede aprobar, objetar de nuevo o rechazar), (6) `status_aprobacion` auto-computado con nueva prioridad: Rechazado > Objetado > Subsanado > Aprobado > Pendiente, (7) Webmaster puede revertir cualquier nivel a Pendiente, (8) UI: botón Objetar (naranja), sección de subsanación, indicadores visuales en tabla y diálogo, (9) Filtros de estado actualizados con Objetado y Subsanado | **Migraciones 015a+015b + push** | ✅ Operativo |
 | **v3.2.1** | **04-Jun-2026** | **Security Hardening + Technical Debt Cleanup:** (1) VULN-002: `/api/dashboard` (3 endpoints) requieren autenticación, (2) VULN-003: `/api/init` requiere rol webmaster, (3) VULN-004: GET `/api/alcance` y `/api/avance` (4 endpoints) requieren autenticación, (4) VULN-005: Storage `evidencias` lectura cambiada de público a autenticado (migración 016), (5) VULN-006: API unidades-ejecutoras alineada con RLS (solo webmaster), (6) VULN-007: Política de complejidad de contraseñas (mín 8, mayús, mín, núm, especial), (7) DEBT-001: `ignoreBuildErrors` deshabilitado, (8) DEBT-002: `reactStrictMode` habilitado, (9) DEBT-008: Prisma/SQLite eliminados del proyecto, (10) DEBT-010: `updated_at` manual redundante eliminado, (11) DEBT-011: Archivos SQL legacy marcados con advertencias de obsolescencia | **Migración 016 + deps cleanup + push** | ✅ Operativo |
+| **v3.2.2** | **04-Jun-2026** | **Fix:** Restaurar `/api/upload` eliminado accidentalmente (causaba 404 al subir evidencias). VULN-005 reclasificado como PARCIAL (bucket público, URLs accesibles directamente). | **Push** | ✅ Operativo |
 
 ### L.3 Próximo Snapshot (Plantilla)
 
