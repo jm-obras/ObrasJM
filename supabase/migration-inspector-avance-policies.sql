@@ -1,3 +1,4 @@
+-- ⚠️ SUPERSEDED: Inspector avance policies are now in migrations/014b.
 -- ============================================================
 -- MIGRACIÓN: Permitir que inspectores creen y modifiquen avances ejecutados
 -- Ejecutar en el SQL Editor de Supabase

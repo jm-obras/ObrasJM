@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { validatePassword, formatPasswordError } from '@/lib/password-validation'
 
 const VALID_ROLES = [
   'webmaster',
@@ -127,6 +128,15 @@ export async function POST(request: NextRequest) {
     if (!email || !password || !nombre_completo || !rol) {
       return NextResponse.json(
         { error: 'Campos requeridos: email, password, nombre_completo, rol' },
+        { status: 400 }
+      )
+    }
+
+    // VULN-007 FIX: Enforce password complexity policy
+    const validation = validatePassword(password)
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: formatPasswordError(validation.errors) },
         { status: 400 }
       )
     }

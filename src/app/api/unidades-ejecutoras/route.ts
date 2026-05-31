@@ -47,7 +47,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'webmaster' && profile.rol !== 'inspector') {
+    // VULN-006 FIX: Aligned with RLS — only webmaster can create unidades ejecutoras
+    // (RLS policy only allows webmaster for INSERT; inspector would fail silently)
+    if (profile.rol !== 'webmaster') {
       return NextResponse.json(
         { error: 'No tiene permisos para crear unidades ejecutoras' },
         { status: 403 }

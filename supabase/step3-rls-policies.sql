@@ -1,3 +1,4 @@
+-- ⚠️ LEGACY: RLS policies. OUT OF SYNC — does not include webmaster/visitante role changes. Use migrations/014b for updated policies.
 -- ============================================================
 -- OBRASJM - PASO 3: HABILITAR RLS Y CREAR POLÍTICAS
 -- Ejecutar después del Paso 2

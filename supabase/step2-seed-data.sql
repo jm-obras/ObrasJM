@@ -1,3 +1,4 @@
+-- ⚠️ LEGACY: Seed data. Use migrations/ for the complete incremental history.
 -- ============================================================
 -- OBRASJM - PASO 2: INSERTAR DATOS SEMILLA
 -- Ejecutar después del Paso 1

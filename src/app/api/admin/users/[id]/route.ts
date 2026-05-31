@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { validatePassword, formatPasswordError } from '@/lib/password-validation'
 
 const VALID_ROLES = [
   'webmaster',
@@ -49,6 +50,17 @@ export async function PUT(
 
     // Update auth user email/password if provided
     if (email || password) {
+      // VULN-007 FIX: Validate password complexity if password is being set
+      if (password) {
+        const validation = validatePassword(password)
+        if (!validation.valid) {
+          return NextResponse.json(
+            { error: formatPasswordError(validation.errors) },
+            { status: 400 }
+          )
+        }
+      }
+
       const authUpdate: { email?: string; password?: string } = {}
       if (email) authUpdate.email = email
       if (password) authUpdate.password = password

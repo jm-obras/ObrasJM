@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { validatePassword, formatPasswordError } from '@/lib/password-validation'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,9 +13,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (new_password.length < 6) {
+    // VULN-007 FIX: Enforce password complexity policy
+    const validation = validatePassword(new_password)
+    if (!validation.valid) {
       return NextResponse.json(
-        { error: 'La nueva contraseña debe tener al menos 6 caracteres' },
+        { error: formatPasswordError(validation.errors) },
         { status: 400 }
       )
     }

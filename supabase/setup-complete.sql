@@ -1,3 +1,4 @@
+-- ⚠️ DEPRECATED: This file is OUT OF SYNC with the current database state. Use migrations/ for incremental updates.
 -- ============================================================
 -- OBRASJM - ESQUEMA COMPLETO
 -- Copia TODO este contenido y pégalo en el SQL Editor de Supabase

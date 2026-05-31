@@ -180,8 +180,15 @@ export function UsersTab({ profile, unidadesEjecutoras }: UsersTabProps) {
     if (!userForm.email || !userForm.password || !userForm.nombre_completo || !userForm.rol) {
       toast.error('Complete todos los campos requeridos'); return
     }
-    if (userForm.password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres'); return
+    // VULN-007 FIX: Client-side password complexity validation
+    const pwErrors: string[] = []
+    if (userForm.password.length < 8) pwErrors.push('8 caracteres')
+    if (!/[A-Z]/.test(userForm.password)) pwErrors.push('una mayúscula')
+    if (!/[a-z]/.test(userForm.password)) pwErrors.push('una minúscula')
+    if (!/[0-9]/.test(userForm.password)) pwErrors.push('un número')
+    if (!/[!@#$%^&*()_\-=\[\]{};'":"\\|,.<>\/?]/.test(userForm.password)) pwErrors.push('un carácter especial')
+    if (pwErrors.length > 0) {
+      toast.error(`Contraseña requiere: ${pwErrors.join(', ')}`); return
     }
     setSubmitting(true)
     try {
@@ -335,7 +342,7 @@ export function UsersTab({ profile, unidadesEjecutoras }: UsersTabProps) {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="user-password">Contraseña *</Label>
-              <Input id="user-password" type="password" value={userForm.password} onChange={(e) => setUserForm((p) => ({ ...p, password: e.target.value }))} placeholder="Mínimo 6 caracteres" />
+              <Input id="user-password" type="password" value={userForm.password} onChange={(e) => setUserForm((p) => ({ ...p, password: e.target.value }))} placeholder="Mín. 8 chars, mayús, min, núm, especial" />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="user-nombre">Nombre Completo *</Label>

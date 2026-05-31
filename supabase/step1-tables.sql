@@ -1,3 +1,4 @@
+-- ⚠️ LEGACY: Base tables setup. Use migrations/ for the complete incremental history.
 -- ============================================================
 -- OBRASJM - PASO 1: CREAR ENUMS Y TABLAS
 -- Ejecutar este bloque completo en el SQL Editor de Supabase

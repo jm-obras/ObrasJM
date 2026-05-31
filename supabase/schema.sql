@@ -1,3 +1,4 @@
+-- ⚠️ DEPRECATED: This file is OUT OF SYNC with the current database state. Use migrations/ for incremental updates.
 -- ============================================================
 -- OBRASJM - Hospital de Niños J.M. de los Ríos
 -- PAF (Porcentaje de Avance Físico) Control System

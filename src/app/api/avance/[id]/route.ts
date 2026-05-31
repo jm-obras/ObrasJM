@@ -52,6 +52,12 @@ export async function GET(
     const { id } = await params
     const supabase = await createClient()
 
+    // VULN-004 FIX: Verify user is authenticated before exposing avance data
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    }
+
     const { data, error } = await supabase
       .from('avance_ejecutado')
       .select(`
@@ -344,9 +350,9 @@ export async function PUT(
     const overallStatus = computeOverallStatus(currentResidente, currentInspector, currentDirectivo)
     updateData.status_aprobacion = overallStatus
 
-    updateData.updated_at = new Date().toISOString()
+    // DEBT-010 FIX: Removed manual updated_at — DB trigger handles this automatically
 
-    if (Object.keys(updateData).length <= 1) {
+    if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
         { error: 'No hay campos para actualizar' },
         { status: 400 }

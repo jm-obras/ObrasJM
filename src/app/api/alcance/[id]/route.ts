@@ -9,6 +9,12 @@ export async function GET(
     const { id } = await params
     const supabase = await createClient()
 
+    // VULN-004 FIX: Verify user is authenticated before exposing alcance data
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    }
+
     const { data, error } = await supabase
       .from('alcance_planificado')
       .select(`
@@ -93,7 +99,7 @@ export async function PUT(
     if (cantidad_planificada !== undefined) updateData.cantidad_planificada = cantidad_planificada
     if (unidad_ejecutora_id !== undefined) updateData.unidad_ejecutora_id = unidad_ejecutora_id
     if (status !== undefined) updateData.status = status
-    updateData.updated_at = new Date().toISOString()
+    // DEBT-010 FIX: Removed manual updated_at — DB trigger handles this automatically
 
     const { data, error } = await supabase
       .from('alcance_planificado')

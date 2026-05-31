@@ -4,6 +4,13 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
+
+    // VULN-004 FIX: Verify user is authenticated before exposing alcance data
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
 
     const especialidad_id = searchParams.get('especialidad_id')

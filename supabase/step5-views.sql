@@ -1,3 +1,4 @@
+-- ⚠️ LEGACY: PAF views. Use migrations/ for the complete incremental history.
 -- ============================================================
 -- OBRASJM - PASO 5: VISTAS DE CÁLCULO PAF
 -- Ejecutar después del Paso 4

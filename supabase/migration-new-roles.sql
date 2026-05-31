@@ -1,3 +1,4 @@
+-- ⚠️ SUPERSEDED: This migration has been replaced by migrations/014a and 014b.
 -- ============================================================
 -- MIGRACIÓN: Nuevos roles, teléfono, ente_pertenece y debe_cambiar_password
 -- Ejecutar en el SQL Editor de Supabase

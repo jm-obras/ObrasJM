@@ -1,7 +1,33 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST() {
+  // VULN-003 FIX: Verify user is authenticated and has webmaster role
+  // This endpoint can modify database structure/seed data — must be protected
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('rol')
+    .eq('id', user.id)
+    .single()
+
+  if (profileError || !profile) {
+    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
+  }
+
+  if (profile.rol !== 'webmaster') {
+    return NextResponse.json(
+      { error: 'Solo el rol webmaster puede ejecutar la inicialización' },
+      { status: 403 }
+    )
+  }
+
   const results: { step: string; status: string; error?: string }[] = []
   const admin = createAdminClient()
 
@@ -176,6 +202,13 @@ export async function POST() {
 }
 
 export async function GET() {
+  // VULN-003 FIX: Even the GET info endpoint requires authentication
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+  }
+
   return NextResponse.json({
     message: 'Usa POST para inicializar/verificar la base de datos',
     endpoint: '/api/init',

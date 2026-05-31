@@ -1,3 +1,4 @@
+-- ⚠️ LEGACY: Storage policies. OUT OF SYNC — uses old 'administrador' role and public read. Use migrations/016 for updated policies.
 -- ============================================================
 -- OBRASJM - PASO 6: BUCKET DE STORAGE Y POLÍTICAS
 -- Ejecutar después del Paso 5

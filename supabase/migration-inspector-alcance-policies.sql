@@ -1,3 +1,4 @@
+-- ⚠️ SUPERSEDED: Inspector alcance policies are now in migrations/014b.
 -- ============================================================
 -- MIGRACIÓN: Permitir que inspectores creen y editen alcances planificados
 -- Ejecutar en el SQL Editor de Supabase

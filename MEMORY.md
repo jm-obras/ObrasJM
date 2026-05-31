@@ -504,28 +504,28 @@ El admin client se usa EXCLUSIVAMENTE en estos endpoints:
 | ID | Severidad | Descripción | Estado |
 |----|-----------|-------------|--------|
 | VULN-001 | 🔴 CRÍTICA | ~~`/api/auth/register` sin autenticación~~ | ✅ CORREGIDO v2.0 |
-| VULN-002 | 🟡 ALTA | `/api/dashboard` sin autenticación — expone datos agregados del proyecto | Pendiente |
-| VULN-003 | 🟡 ALTA | `/api/init` sin autenticación — permite verificar y modificar la estructura de la BD | Pendiente |
-| VULN-004 | 🟡 ALTA | GET endpoints de negocio (`/api/alcance`, `/api/avance`) sin verificación de autenticación | Pendiente |
-| VULN-005 | 🟠 MEDIA | Storage `evidencias` con lectura pública — cualquiera puede ver fotos de evidencia | Pendiente |
-| VULN-006 | 🟠 MEDIA | API permite inspector POST en `/api/unidades-ejecutoras` pero RLS solo permite admin — inserción falla silenciosamente | Pendiente |
-| VULN-007 | 🟢 BAJA | Sin política de complejidad de contraseñas — solo mínimo 6 caracteres | Pendiente |
+| VULN-002 | 🟡 ALTA | ~~`/api/dashboard` sin autenticación — expone datos agregados del proyecto~~ | ✅ CORREGIDO v3.2.1 |
+| VULN-003 | 🟡 ALTA | ~~`/api/init` sin autenticación — permite verificar y modificar la estructura de la BD~~ | ✅ CORREGIDO v3.2.1 |
+| VULN-004 | 🟡 ALTA | ~~GET endpoints de negocio (`/api/alcance`, `/api/avance`) sin verificación de autenticación~~ | ✅ CORREGIDO v3.2.1 |
+| VULN-005 | 🟠 MEDIA | ~~Storage `evidencias` con lectura pública — cualquiera puede ver fotos de evidencia~~ | ✅ CORREGIDO v3.2.1 (migración 016) |
+| VULN-006 | 🟠 MEDIA | ~~API permite inspector POST en `/api/unidades-ejecutoras` pero RLS solo permite admin — inserción falla silenciosamente~~ | ✅ CORREGIDO v3.2.1 |
+| VULN-007 | 🟢 BAJA | ~~Sin política de complejidad de contraseñas — solo mínimo 6 caracteres~~ | ✅ CORREGIDO v3.2.1 (mín 8, mayús, mín, núm, especial) |
 
 ### G.2 Deuda Técnica
 
 | ID | Área | Descripción | Estado |
 |----|------|-------------|--------|
-| DEBT-001 | Config | `ignoreBuildErrors: true` en next.config.ts — errores TypeScript ignorados | Pendiente |
-| DEBT-002 | Config | `reactStrictMode: false` — modo estricto deshabilitado | Pendiente |
+| DEBT-001 | Config | ~~`ignoreBuildErrors: true` en next.config.ts — errores TypeScript ignorados~~ | ✅ CORREGIDO v3.2.1 |
+| DEBT-002 | Config | ~~`reactStrictMode: false` — modo estricto deshabilitado~~ | ✅ CORREGIDO v3.2.1 |
 | DEBT-003 | Deps | ~~`next-auth` instalado pero NO usado~~ | ✅ ELIMINADO v2.0 |
 | DEBT-004 | Deps | ~~`zustand` instalado pero NO usado~~ | ✅ ELIMINADO v2.0 |
 | DEBT-005 | Deps | ~~`@tanstack/react-query` instalado pero NO usado~~ | ✅ ELIMINADO v2.0 |
 | DEBT-006 | Deps | ~~`next-intl` instalado pero NO usado~~ | ✅ ELIMINADO v2.0 |
 | DEBT-007 | Deps | ~~`@mdxeditor/editor` instalado pero NO usado~~ | ✅ ELIMINADO v2.0 |
-| DEBT-008 | Deps | `prisma`/SQLite configurado pero NO usado en producción (solo Supabase) | Pendiente |
+| DEBT-008 | Deps | ~~`prisma`/SQLite configurado pero NO usado en producción (solo Supabase)~~ | ✅ ELIMINADO v3.2.1 |
 | DEBT-009 | BD | ~~Vistas SQL `v_paf_*` desincronizadas con TypeScript~~ | ✅ CORREGIDO v2.0 |
-| DEBT-010 | Código | `updated_at` se establece manualmente en PUT de alcance/avance — redundante con trigger | Pendiente |
-| DEBT-011 | SQL | `schema.sql` desincronizado con `setup-complete.sql` — drift entre archivos SQL | Pendiente |
+| DEBT-010 | Código | ~~`updated_at` se establece manualmente en PUT de alcance/avance — redundante con trigger~~ | ✅ CORREGIDO v3.2.1 |
+| DEBT-011 | SQL | ~~`schema.sql` desincronizado con `setup-complete.sql` — drift entre archivos SQL~~ | ✅ CORREGIDO v3.2.1 (archivos legacy marcados con advertencias) |
 | DEBT-012 | Refactor | ~~Archivos monolíticos: admin-view (1625), avance-view (1373), alcance-view (804)~~ | ✅ CORREGIDO v2.0 |
 | DEBT-013 | Deps | ~~`react-markdown`, `react-syntax-highlighter`, `@reactuses/core` instalados pero NO usados~~ | ✅ ELIMINADO v2.0 |
 
@@ -632,6 +632,9 @@ contratista/inspector/residente/webmaster → Crea Avance
 | `supabase/migrations/013_three_level_approval.sql` | Aprobación en 3 niveles (residente/inspector/directivo) + nuevas columnas + RLS por rol | ~75 |
 | `supabase/migrations/014a_add_enum_values.sql` | Agrega `webmaster` y `visitante` al enum user_rol (DEBE ejecutarse primero, en transacción separada) | ~8 |
 | `supabase/migrations/014b_migrate_data_and_policies.sql` | Migra perfiles administrador→webmaster + actualiza TODAS las políticas RLS con nuevos nombres de rol | ~210 |
+| `supabase/migrations/015a_add_objecion_enum_values.sql` | Agrega `Objetado` y `Subsanado` al enum aprobacion_status | ~8 |
+| `supabase/migrations/015b_add_objecion_fields.sql` | Agrega 6 campos de objeción/subsanación a avance_ejecutado + RLS | ~80 |
+| `supabase/migrations/016_storage_and_rls_fixes.sql` | VULN-005: Storage lectura→autenticado + VULN-006: delete policy administrador→webmaster | ~25 |
 
 ---
 
@@ -673,7 +676,7 @@ contratista/inspector/residente/webmaster → Crea Avance
 
 ### K.6 Dependencias No Utilizadas
 
-> Las siguientes dependencias están instaladas pero NO se usan actualmente: `next-auth`, `zustand`, `@tanstack/react-query`, `next-intl`, `@mdxeditor/editor`, `prisma` (en producción). **NO agregar código que las use sin autorización explícita.** Priorizar las herramientas ya en uso.
+> ~~Las siguientes dependencias estaban instaladas pero NO se usaban: `next-auth`, `zustand`, `@tanstack/react-query`, `next-intl`, `@mdxeditor/editor`, `prisma` (en producción).~~ Todas han sido eliminadas en v2.0 y v3.2.1. **NO agregar código que use dependencias no listadas en package.json sin autorización explícita.** Priorizar las herramientas ya en uso.
 
 ### K.7 Patrón de Commit para Despliegue
 
@@ -706,6 +709,7 @@ contratista/inspector/residente/webmaster → Crea Avance
 | **v3.0.0** | **04-Jun-2026** | **Aprobación en 3 niveles:** Nivel 1=Ing. Residente (declara concluida), Nivel 2=Inspector MPPOP (aprueba por ministerio), Nivel 3=Directivo Hospital (conformidad). Admin aprueba cualquier nivel. Aprobación secuencial obligatoria. status_aprobacion auto-computado. UI con indicador visual de cadena de aprobación. | **Migración 013 + push** | ✅ Operativo |
 | **v3.1.0** | **04-Jun-2026** | **Rol Visitante + Renombrar Administrador→Webmaster + Dominio personalizado:** (1) Nuevo rol `visitante` solo lectura para autoridades, (2) `administrador` renombrado a `webmaster` (evitar confusión con pestaña Administración/Finanzas), (3) Dominio propio `obras.hospitaljmdelosrios.org.ve` vía CNAME→Vercel, (4) Migración 014 dividida en 014a (enum) + 014b (datos+RLS) por restricción PostgreSQL de enum values en transacción, (5) Fix: `visitante` agregado a VALID_ROLES en API `/api/admin/users` y `/api/admin/users/[id]`, (6) Manual de usuario actualizado a v3.1 con nuevo dominio, rol webmaster, rol visitante, fecha mayo 2026 | **Migraciones 014a+014b + fixes + push** | ✅ Operativo |
 | **v3.2.0** | **04-Jun-2026** | **Sistema de Objeción/Subsanación:** (1) Nuevos estados `Objetado` y `Subsanado` en enum `aprobacion_status`, (2) 6 campos nuevos en `avance_ejecutado`: `motivo_objecion_*` y `notas_subsanacion_*` por nivel, (3) Revisor puede objetar con motivo obligatorio (intermedio entre aprobar y rechazar), (4) Creador del avance puede declarar objeción como subsanada, (5) Revisor re-evalúa tras subsanación (puede aprobar, objetar de nuevo o rechazar), (6) `status_aprobacion` auto-computado con nueva prioridad: Rechazado > Objetado > Subsanado > Aprobado > Pendiente, (7) Webmaster puede revertir cualquier nivel a Pendiente, (8) UI: botón Objetar (naranja), sección de subsanación, indicadores visuales en tabla y diálogo, (9) Filtros de estado actualizados con Objetado y Subsanado | **Migraciones 015a+015b + push** | ✅ Operativo |
+| **v3.2.1** | **04-Jun-2026** | **Security Hardening + Technical Debt Cleanup:** (1) VULN-002: `/api/dashboard` (3 endpoints) requieren autenticación, (2) VULN-003: `/api/init` requiere rol webmaster, (3) VULN-004: GET `/api/alcance` y `/api/avance` (4 endpoints) requieren autenticación, (4) VULN-005: Storage `evidencias` lectura cambiada de público a autenticado (migración 016), (5) VULN-006: API unidades-ejecutoras alineada con RLS (solo webmaster), (6) VULN-007: Política de complejidad de contraseñas (mín 8, mayús, mín, núm, especial), (7) DEBT-001: `ignoreBuildErrors` deshabilitado, (8) DEBT-002: `reactStrictMode` habilitado, (9) DEBT-008: Prisma/SQLite eliminados del proyecto, (10) DEBT-010: `updated_at` manual redundante eliminado, (11) DEBT-011: Archivos SQL legacy marcados con advertencias de obsolescencia | **Migración 016 + deps cleanup + push** | ✅ Operativo |
 
 ### L.3 Próximo Snapshot (Plantilla)
 
@@ -862,5 +866,5 @@ interface AvanceEjecutado {
 ---
 
 *Documento generado: Mayo 2026 — Versión v2.0.0*
-*Última actualización: 04-Jun-2026 — v3.2.0 — Sistema de Objeción/Subsanación en aprobación de avances*
+*Última actualización: 04-Jun-2026 — v3.2.1 — Security Hardening + Technical Debt Cleanup*
 *Próxima revisión programada: Antes de cualquier cambio significativo al sistema*

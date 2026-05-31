@@ -1,3 +1,4 @@
+-- ⚠️ LEGACY: Functions and triggers. Use migrations/ for the complete incremental history.
 -- ============================================================
 -- OBRASJM - PASO 4: FUNCIONES Y TRIGGERS
 -- Ejecutar después del Paso 3

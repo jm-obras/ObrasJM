@@ -26,8 +26,15 @@ export function ChangePasswordForm() {
     e.preventDefault()
     setError(null)
 
-    if (newPassword.length < 6) {
-      setError('La nueva contraseña debe tener al menos 6 caracteres')
+    // VULN-007 FIX: Client-side password complexity validation
+    const errors: string[] = []
+    if (newPassword.length < 8) errors.push('al menos 8 caracteres')
+    if (!/[A-Z]/.test(newPassword)) errors.push('una letra mayúscula')
+    if (!/[a-z]/.test(newPassword)) errors.push('una letra minúscula')
+    if (!/[0-9]/.test(newPassword)) errors.push('un número')
+    if (!/[!@#$%^&*()_+\-=\[\]{};'":"\\|,.<>\/?]/.test(newPassword)) errors.push('un carácter especial')
+    if (errors.length > 0) {
+      setError(`La contraseña debe tener: ${errors.join(', ')}`)
       return
     }
 
@@ -100,7 +107,7 @@ export function ChangePasswordForm() {
               <Input
                 id="new-password"
                 type="password"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres, mayús, mín, núm, especial"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
