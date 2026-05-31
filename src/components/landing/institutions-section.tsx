@@ -4,14 +4,14 @@ import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 
 const logos = [
-  { src: '/instituciones/mppop.png', name: 'MPPOP' },
-  { src: '/instituciones/corpoelec.png', name: 'CORPOELEC Industrial' },
-  { src: '/instituciones/cantv.png', name: 'CANTV' },
-  { src: '/instituciones/minaguas.png', name: 'MinAguas' },
-  { src: '/instituciones/hidroven.png', name: 'Hidroven' },
-  { src: '/instituciones/fundeeh.png', name: 'FUNDEEH' },
-  { src: '/instituciones/alcaldia.png', name: 'Alcaldía de Caracas' },
-  { src: '/instituciones/alcaldia-ccs.png', name: 'Alcaldía CCS' },
+  { src: '/instituciones/MPPOP__LOGO_II.png', name: 'MPPOP' },
+  { src: '/instituciones/CORPOELEC__IND_LOGO_II.png', name: 'CORPOELEC Industrial' },
+  { src: '/instituciones/CANTV_LOGO_II.png', name: 'CANTV' },
+  { src: '/instituciones/MINAGUAS__LOGO_II.png', name: 'MinAguas' },
+  { src: '/instituciones/HIDROVEN__LOGO_II.png', name: 'Hidroven' },
+  { src: '/instituciones/FUNDEEH__LOGO_II.png', name: 'FUNDEEH' },
+  { src: '/instituciones/ALCALDIA_CARACAS__LOGO_II.png', name: 'Alcaldía de Caracas' },
+  { src: '/instituciones/ALCALDIA_CCS__LOGO_II.png', name: 'Alcaldía CCS' },
 ]
 
 // Duplicate for seamless loop
