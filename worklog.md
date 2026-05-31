@@ -88,3 +88,32 @@ Stage Summary:
 - 10 archivos modificados, 2 nuevos (migraciones SQL)
 - Ciclo completo: Objetar → Subsanar → Re-revisar (puede repetirse)
 - Migraciones 015a y 015b deben ejecutarse en Supabase SQL Editor (015a primero)
+
+---
+Task ID: 4
+Agent: Main
+Task: Security Hardening + Technical Debt Cleanup (v3.2.1)
+
+Work Log:
+- VULN-002: Agregada verificación de autenticación a 3 endpoints del dashboard (/api/dashboard, /api/dashboard/ejecutoras, /api/dashboard/especialidades)
+- VULN-003: Agregada verificación de autenticación + rol webmaster a /api/init (GET y POST)
+- VULN-004: Agregada verificación de autenticación a GET /api/alcance, /api/alcance/[id], /api/avance, /api/avance/[id]
+- VULN-005: Creada migración 016_storage_and_rls_fixes.sql — cambia política de lectura del storage evidencias de público a autenticado + actualiza política de delete de administrador a webmaster
+- VULN-006: Alineada API /api/unidades-ejecutoras con RLS — quitado inspector del POST, solo webmaster
+- VULN-007: Creada función validatePassword() en src/lib/password-validation.ts — requiere mín 8 chars, mayús, mín, núm, especial. Aplicada en 3 endpoints backend + 2 formularios frontend (change-password-form.tsx, users-tab.tsx)
+- DEBT-001: Cambiado ignoreBuildErrors de true a false en next.config.ts
+- DEBT-002: Cambiado reactStrictMode de false a true en next.config.ts
+- DEBT-008: Eliminados prisma/, db/custom.db, src/lib/db.ts, @prisma/client y prisma de package.json
+- DEBT-010: Eliminado updated_at manual redundante en PUT /api/alcance/[id] y PUT /api/avance/[id] (BD tiene triggers que lo manejan)
+- DEBT-011: Agregados headers de advertencia de obsolescencia a 11 archivos SQL legacy
+- Actualizado MEMORY.md a v3.2.1 con todos los cambios documentados
+- Lint pasa sin errores
+- Push exitoso a GitHub (commit 692aab6)
+
+Stage Summary:
+- 6 vulnerabilidades de seguridad corregidas (VULN-002 a VULN-007)
+- 5 ítems de deuda técnica resueltos (DEBT-001, 002, 008, 010, 011)
+- 34 archivos modificados, 2 nuevos, 3 eliminados
+- Migración 016_storage_and_rls_fixes.sql debe ejecutarse en Supabase SQL Editor
+- Todas las vulnerabilidades conocidas ahora están corregidas (VULN-001 a VULN-007)
+- Toda la deuda técnica de deps está resuelta, solo quedan DEBT-009 (corregido en v2.0) y DEBT-012/013 (corregidos en v2.0)
