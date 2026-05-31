@@ -16,7 +16,7 @@ const services = [
   },
   {
     title: 'Energía Continua',
-    institution: 'Corpoelec Industrial',
+    institution: 'CORPOELEC Industrial',
     description:
       'Generadores, UPS y luminarias de alta eficiencia para garantizar un suministro eléctrico ininterrumpido.',
     icon: Zap,

@@ -5,10 +5,11 @@ import { useRef } from 'react'
 
 const logos = [
   { src: '/instituciones/mppop.png', name: 'MPPOP' },
-  { src: '/instituciones/corpoelec.png', name: 'Corpoelec Industrial' },
+  { src: '/instituciones/corpoelec.png', name: 'CORPOELEC Industrial' },
   { src: '/instituciones/cantv.png', name: 'CANTV' },
   { src: '/instituciones/minaguas.png', name: 'MinAguas' },
   { src: '/instituciones/hidroven.png', name: 'Hidroven' },
+  { src: '/instituciones/fundeeh.png', name: 'FUNDEEH' },
   { src: '/instituciones/alcaldia.png', name: 'Alcaldía de Caracas' },
 ]
 

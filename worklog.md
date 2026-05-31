@@ -117,3 +117,22 @@ Stage Summary:
 - Migración 016_storage_and_rls_fixes.sql debe ejecutarse en Supabase SQL Editor
 - Todas las vulnerabilidades conocidas ahora están corregidas (VULN-001 a VULN-007)
 - Toda la deuda técnica de deps está resuelta, solo quedan DEBT-009 (corregido en v2.0) y DEBT-012/013 (corregidos en v2.0)
+---
+Task ID: 1
+Agent: Main Agent
+Task: Update landing page and manual with FUNDEEH + CORPOELEC Industrial branding + new logos
+
+Work Log:
+- Copied 8 new _II logo files from upload/ to public/instituciones/ (both lowercase and uppercase LOGO versions)
+- Added FUNDEEH logo (fundeeh.png and FUNDEEH_LOGO.png) - previously missing
+- Updated institutions-section.tsx: Added FUNDEEH entry, changed "Corpoelec Industrial" to "CORPOELEC Industrial"
+- Updated services-section.tsx: Changed "Corpoelec Industrial" to "CORPOELEC Industrial" 
+- Updated generate_manual.py: Added FUNDEEH to institutions table, updated CORPOELEC Industrial display name and siglas
+- Regenerated manual PDF: generate_manual.py → Manual_Usuario_Sistema_PAF.pdf → copied to public/Manual_Usuario_ObrasJM_v3.2.pdf
+- Lint check passed cleanly
+
+Stage Summary:
+- Landing page now shows 7 institutions (added FUNDEEH): MPPOP, CORPOELEC Industrial, CANTV, MinAguas, Hidroven, FUNDEEH, Alcaldía de Caracas
+- All logos replaced with new _II versions provided by user
+- CORPOELEC Industrial branding standardized across landing page and manual
+- Manual v3.2 PDF regenerated with FUNDEEH included
