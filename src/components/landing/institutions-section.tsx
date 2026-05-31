@@ -49,9 +49,10 @@ export function InstitutionsSection() {
 
           {/* Overflow hidden wrapper */}
           <div className="overflow-hidden">
-            {/* Scrolling track using CSS animation via inline style */}
+            {/* Scrolling track using inline style animation (Tailwind arbitrary class breaks in production) */}
             <div
-              className="flex gap-4 sm:gap-6 w-max animate-[marquee_30s_linear_infinite]"
+              className="flex gap-4 sm:gap-6 w-max"
+              style={{ animation: 'marquee 30s linear infinite' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.animationPlayState = 'paused'
               }}
