@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     // Flatten the sector info for convenience
     const enrichedData = data?.map((item: Record<string, unknown>) => ({
       ...item,
-      sector: item.subsector?.sector || null,
+      sector: (item.subsector as Record<string, unknown> | undefined)?.sector || null,
     }))
 
     return NextResponse.json({ data: enrichedData })
