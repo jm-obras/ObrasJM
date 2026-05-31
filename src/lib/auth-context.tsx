@@ -60,6 +60,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const supabase = createClient()
+
+    // If Supabase is not configured, skip auth state listener
+    if (!supabase || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      return
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event) => {
         if (event === 'SIGNED_IN') {

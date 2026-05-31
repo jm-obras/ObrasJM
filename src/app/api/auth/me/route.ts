@@ -5,6 +5,14 @@ export async function GET() {
   try {
     const supabase = await createClient()
 
+    // Gracefully handle missing Supabase configuration
+    if (!supabase || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      return NextResponse.json(
+        { error: 'No autenticado' },
+        { status: 401 }
+      )
+    }
+
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
