@@ -10,6 +10,7 @@ const logos = [
   { src: '/instituciones/minaguas.png', name: 'MinAguas' },
   { src: '/instituciones/hidroven.png', name: 'Hidroven' },
   { src: '/instituciones/fundeeh.png', name: 'FUNDEEH' },
+  { src: '/instituciones/fundeeh-ii.png', name: 'FUNDEEH' },
   { src: '/instituciones/alcaldia.png', name: 'Alcaldía de Caracas' },
   { src: '/instituciones/alcaldia-ccs.png', name: 'Alcaldía CCS' },
 ]
