@@ -11,6 +11,7 @@ const logos = [
   { src: '/instituciones/hidroven.png', name: 'Hidroven' },
   { src: '/instituciones/fundeeh.png', name: 'FUNDEEH' },
   { src: '/instituciones/alcaldia.png', name: 'Alcaldía de Caracas' },
+  { src: '/instituciones/alcaldia-ccs.png', name: 'Alcaldía CCS' },
 ]
 
 // Duplicate for seamless loop
