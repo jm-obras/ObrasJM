@@ -20,3 +20,26 @@ Stage Summary:
 - All 8 logos now accessible: MPPOP, CORPOELEC Industrial, CANTV, MinAguas, Hidroven, FUNDEEH, Alcaldía Caracas, Alcaldía CCS
 - Manual PDF regenerated with correct institution data
 - Dev server running on port 3000, all files serving correctly
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix Vercel deployment failures and sync logos to production
+
+Work Log:
+- Investigated why production site (obras.hospitaljmdelosrios.org.ve) was not updating
+- Checked GitHub API for Vercel deployment statuses - ALL were failing with "failure" state
+- Ran `npx next build` locally and found TypeScript build error: `supabase` possibly null in reset-password route
+- Root cause: `createClient()` in `src/lib/supabase/server.ts` returned `null` when env vars missing, causing TypeScript strict mode to flag all usages
+- Fix: Changed `return null` to `throw new Error(...)` so TypeScript knows the return type is never null
+- Also fixed marquee animation: replaced Tailwind arbitrary class `animate-[marquee_30s_linear_infinite]` with inline `style={{ animation: 'marquee 30s linear infinite' }}` because Tailwind was mangling the class name in production builds
+- Pushed 2 commits: animation fix + supabase fix
+- Verified Vercel deployment succeeded (status: "success") via GitHub API
+- Verified all 8 logos are accessible on production (HTTP 200):
+  - fundeeh.png ✅, alcaldia-ccs.png ✅, mppop.png ✅, corpoelec.png ✅, cantv.png ✅, minaguas.png ✅, hidroven.png ✅, alcaldia.png ✅
+
+Stage Summary:
+- Vercel deployments were failing due to TypeScript build error (supabase null check)
+- After fix, deployment succeeded and new code is live on production
+- All 8 institution logos now accessible on production
+- Marquee animation fixed with inline style instead of broken Tailwind arbitrary class
