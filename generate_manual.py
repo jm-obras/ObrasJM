@@ -298,8 +298,9 @@ def build_content():
     story.append(Paragraph(
         'El Sistema de Seguimiento de Porcentaje de Avance Fisico (PAF) es una plataforma web '
         'disenada para el Hospital de Ninos J.M. de los Rios, que permite monitorear en tiempo real '
-        'el progreso de las obras de recuperacion institucional. Este manual le guiara en el uso '
-        'del sistema segun su perfil de usuario.',
+        'el progreso de las obras de recuperacion institucional. El sistema implementa un flujo de '
+        'aprobacion secuencial de 3 niveles y un mecanismo de objecion/subsanacion. Este manual '
+        'le guiara en el uso del sistema segun su perfil de usuario.',
         style_body
     ))
     story.append(Spacer(1, 8))
@@ -327,19 +328,24 @@ def build_content():
     
     story.append(add_heading('Perfiles de Usuario', style_h2, level=1))
     story.append(Paragraph(
-        'El sistema cuenta con cinco perfiles operativos, cada uno con funciones especificas '
-        'que se ajustan a su rol dentro del proyecto:',
+        'El sistema cuenta con siete perfiles operativos, cada uno con funciones especificas '
+        'que se ajustan a su rol dentro del proyecto. Los avances pasan por un sistema de '
+        'aprobacion secuencial de 3 niveles: Nivel 1 (Ingeniera Residente), Nivel 2 (Inspector MPPOP) '
+        'y Nivel 3 (Directivo Hospital). El Webmaster puede aprobar cualquier nivel sin seguir '
+        'la secuencia.',
         style_body
     ))
     story.append(Spacer(1, 6))
     
     roles_data = [
         [Paragraph('<b>Perfil</b>', style_th), Paragraph('<b>Funcion Principal</b>', style_th)],
-        [Paragraph('Contratista', style_td), Paragraph('Reportar avances de obra y subir evidencia fotografica', style_td_left)],
-        [Paragraph('Inspector', style_td), Paragraph('Crear alcances, aprobar/rechazar avances reportados', style_td_left)],
-        [Paragraph('Ingeniera Residente', style_td), Paragraph('Consulta de avance y alcance (solo lectura)', style_td_left)],
-        [Paragraph('Directivo Hospital', style_td), Paragraph('Supervision general de avance (solo lectura)', style_td_left)],
+        [Paragraph('Webmaster', style_td), Paragraph('Administracion total del sistema, usuarios y aprobacion de cualquier nivel', style_td_left)],
+        [Paragraph('Contratista', style_td), Paragraph('Reportar avances de obra, subir evidencia fotografica y declarar subsanaciones', style_td_left)],
+        [Paragraph('Inspector', style_td), Paragraph('Crear alcances, aprobar en Nivel 2 (MPPOP), objetar y crear avances', style_td_left)],
+        [Paragraph('Ingeniera Residente', style_td), Paragraph('Declarar obra concluida en Nivel 1, crear avances y objetar', style_td_left)],
+        [Paragraph('Directivo Hospital', style_td), Paragraph('Dar conformidad final en Nivel 3 y objetar', style_td_left)],
         [Paragraph('Ingenieria Hospital', style_td), Paragraph('Consulta de avance y alcance (solo lectura)', style_td_left)],
+        [Paragraph('Visitante', style_td), Paragraph('Solo lectura en Dashboard, Alcance y Avance (sin acciones)', style_td_left)],
     ]
     story.append(make_table(roles_data, [CONTENT_W*0.35, CONTENT_W*0.65]))
     story.append(Spacer(1, 12))
@@ -347,7 +353,7 @@ def build_content():
     story.append(tip_box(
         '<b>Consejo:</b> Cada perfil tiene acceso solo a las funciones necesarias para su rol. '
         'Si necesita realizar una accion que no le esta disponible, contacte al Inspector o '
-        'Administrador del sistema.'
+        'Webmaster del sistema.'
     ))
     story.append(Spacer(1, 12))
 
@@ -375,14 +381,14 @@ def build_content():
         'Haga clic en el boton <b>"Iniciar Sesion"</b> ubicado en la barra superior de la pagina, '
         'o en el boton <b>"Ver Avance de Obras en Tiempo Real"</b> de la seccion principal.',
         'Se abrira una ventana modal donde debe ingresar su <b>correo electronico</b> y '
-        '<b>contrasena</b> proporcionados por el administrador.',
+        '<b>contrasena</b> proporcionados por el Webmaster.',
         'Haga clic en <b>"Iniciar Sesion"</b>. Si los datos son correctos, ingresara al panel principal.',
     ]))
     story.append(Spacer(1, 8))
     
     story.append(warning_box(
         '<b>Importante:</b> No intente registrarse por su cuenta. Los usuarios son creados '
-        'exclusivamente por el Administrador del sistema. Si no tiene credenciales, solicite '
+        'exclusivamente por el Webmaster del sistema. Si no tiene credenciales, solicite '
         'su acceso al equipo de gestion.'
     ))
     story.append(Spacer(1, 12))
@@ -396,16 +402,17 @@ def build_content():
     ))
     story.extend(step_list([
         'Al iniciar sesion por primera vez, aparecera el formulario de cambio de contrasena.',
-        'Ingrese su <b>contrasena actual</b> (la proporcionada por el administrador).',
-        'Cree una <b>nueva contrasena</b> (minimo 6 caracteres). No puede ser igual a la actual.',
+        'Ingrese su <b>contrasena actual</b> (la proporcionada por el Webmaster).',
+        'Cree una <b>nueva contrasena</b> (minimo 8 caracteres, incluyendo mayuscula, minuscula, numero y caracter especial). No puede ser igual a la actual.',
         '<b>Confirme la nueva contrasena</b> escribiendola nuevamente.',
         'Haga clic en <b>"Cambiar Contrasena"</b>.',
     ]))
     story.append(Spacer(1, 8))
     
     story.append(tip_box(
-        '<b>Consejo:</b> Utilice una contrasena segura que incluya letras, numeros y caracteres '
-        'especiales. No comparta sus credenciales con terceros.'
+        '<b>Consejo:</b> La contrasena debe cumplir los siguientes requisitos: minimo 8 caracteres, '
+        'al menos una letra mayuscula, una minuscula, un numero y un caracter especial. '
+        'No comparta sus credenciales con terceros.'
     ))
     story.append(Spacer(1, 12))
 
@@ -418,7 +425,7 @@ def build_content():
         'Haga clic en el menu desplegable con su nombre en la esquina superior derecha de la pantalla.',
         'Seleccione la opcion <b>"Cambiar Contrasena"</b>.',
         'Se abrira una ventana modal donde debe ingresar su <b>contrasena actual</b>, '
-        'la <b>nueva contrasena</b> (minimo 6 caracteres) y <b>confirmar la nueva contrasena</b>.',
+        'la <b>nueva contrasena</b> (minimo 8 caracteres, incluyendo mayuscula, minuscula, numero y caracter especial) y <b>confirmar la nueva contrasena</b>.',
         'Haga clic en <b>"Cambiar Contrasena"</b> para guardar los cambios.',
         'Si el cambio es exitoso, vera un mensaje de confirmacion verde y la ventana se cerrara automaticamente.',
     ]))
@@ -426,7 +433,7 @@ def build_content():
     
     story.append(tip_box(
         '<b>Consejo:</b> Es recomendable cambiar su contrasena periodicamente por seguridad. '
-        'Si olvida su contrasena, debe contactar al Administrador del sistema para que la restablezca.'
+        'Si olvida su contrasena, debe contactar al Webmaster del sistema para que la restablezca.'
     ))
     story.append(Spacer(1, 10))
     
@@ -502,6 +509,22 @@ def build_content():
     ))
     story.append(Spacer(1, 8))
     
+    story.append(add_heading('Sub-pestanas del Dashboard', style_h2, level=1))
+    story.append(Paragraph(
+        'El Dashboard se organiza en tres sub-pestanas que permiten diferentes vistas del avance:',
+        style_body
+    ))
+    story.append(Spacer(1, 6))
+    
+    subtab_data = [
+        [Paragraph('<b>Sub-pestana</b>', style_th), Paragraph('<b>Descripcion</b>', style_th)],
+        [Paragraph('Vista General', style_td), Paragraph('Muestra el resumen global del PAF con todos los indicadores, el mapa de calor y el grafico por sector. Es la vista por defecto.', style_td_left)],
+        [Paragraph('Por Ejecutoras', style_td), Paragraph('Desglosa el PAF por Unidad Ejecutora, permitiendo comparar el avance entre los diferentes organismos responsables de la ejecucion de obras.', style_td_left)],
+        [Paragraph('Por Macro Especialidades', style_td), Paragraph('Agrupa el PAF por macro especialidades, facilitando la comparacion entre grandes categorias de trabajo (ej: Infraestructura, Electricidad, Plomeria).', style_td_left)],
+    ]
+    story.append(make_table(subtab_data, [CONTENT_W*0.3, CONTENT_W*0.7]))
+    story.append(Spacer(1, 8))
+
     story.append(add_heading('Actualizacion Automatica', style_h2, level=1))
     story.append(Paragraph(
         'Los datos del Dashboard se refrescan automaticamente cada 30 segundos. Tambien puede '
@@ -509,16 +532,81 @@ def build_content():
         'recarga de datos en cualquier momento.',
         style_body
     ))
+    story.append(Spacer(1, 8))
+
+    story.append(tip_box(
+        '<b>URL del sistema:</b> Puede acceder al sistema desde '
+        '<b>obras.hospitaljmdelosrios.org.ve</b> en cualquier navegador web moderno.'
+    ))
     story.append(Spacer(1, 12))
 
     # ──────────────────────────────────────────────
-    # 4. GUIA POR PERFIL: CONTRATISTA
+    # 4. GUIA POR PERFIL DE USUARIO
     # ──────────────────────────────────────────────
     story.extend(add_major_section('4. Guia por Perfil de Usuario'))
     story.append(Paragraph(
         'En esta seccion encontrara instrucciones detalladas segun su perfil de usuario. '
-        'Localice su perfil a continuacion y siga las indicaciones correspondientes.',
+        'Localice su perfil a continuacion y siga las indicaciones correspondientes. '
+        'Los avances pasan por un sistema de <b>aprobacion secuencial de 3 niveles</b> con '
+        'posibilidad de <b>objecion y subsanacion</b>.',
         style_body
+    ))
+    story.append(Spacer(1, 12))
+
+    # ── WEBMASTER ──
+    story.append(role_banner('WEBMASTER', '#6d28d9'))
+    story.append(Spacer(1, 10))
+    
+    story.append(Paragraph(
+        'El Webmaster es el <b>administrador integral del sistema</b>. Tiene acceso completo a todas '
+        'las funcionalidades y es el unico perfil que puede gestionar usuarios, tablas catalogo '
+        'y aprobar avances en cualquier nivel sin seguir la secuencia.',
+        style_body
+    ))
+    story.append(Spacer(1, 8))
+    
+    access_webmaster = [
+        [Paragraph('<b>Seccion</b>', style_th), Paragraph('<b>Acceso</b>', style_th), Paragraph('<b>Acciones</b>', style_th)],
+        [Paragraph('Dashboard', style_td), Paragraph('Completo', style_td), Paragraph('Ver indicadores, mapa de calor, graficos', style_td_left)],
+        [Paragraph('Alcance Planificado', style_td), Paragraph('Completo', style_td), Paragraph('Crear, editar, eliminar y consultar alcances', style_td_left)],
+        [Paragraph('Avance Ejecutado', style_td), Paragraph('Completo', style_td), Paragraph('Crear, editar, eliminar avances; aprobar cualquier nivel, objetar, declarar subsanada', style_td_left)],
+        [Paragraph('Administracion', style_td), Paragraph('Exclusivo', style_td), Paragraph('Gestionar usuarios, tablas catalogo, logos de UE', style_td_left)],
+    ]
+    story.append(make_table(access_webmaster, [CONTENT_W*0.25, CONTENT_W*0.2, CONTENT_W*0.55]))
+    story.append(Spacer(1, 12))
+    
+    story.append(add_heading('Aprobacion en Cualquier Nivel', style_h2, level=1))
+    story.append(Paragraph(
+        'A diferencia de los demas roles, el Webmaster <b>no esta sujeto a la secuencia de aprobacion</b>. '
+        'Puede aprobar el Nivel 1, 2 o 3 en cualquier orden, sin necesidad de que los niveles '
+        'previos esten aprobados. Tambien puede <b>revertir cualquier nivel de aprobacion</b> de '
+        'vuelta a estado "Pendiente" si se requiere una revision.',
+        style_body
+    ))
+    story.append(Spacer(1, 8))
+    
+    story.append(add_heading('Gestion de Usuarios', style_h2, level=1))
+    story.extend(step_list([
+        'Haga clic en la pestana <b>"Administracion"</b> (solo visible para Webmaster).',
+        'Para crear un usuario: haga clic en <b>"Nuevo Usuario"</b>, ingrese nombre, correo, '
+        'perfil y contrasena temporal (minimo 8 caracteres, incluyendo mayuscula, minuscula, numero y caracter especial).',
+        'Para editar un usuario: haga clic en el icono de <b>lapiz</b> y modifique los campos necesarios.',
+        'Para restablecer una contrasena: seleccione la opcion de <b>reset</b> en el usuario correspondiente.',
+    ]))
+    story.append(Spacer(1, 8))
+
+    story.append(add_heading('Gestion de Tablas Catalogo', style_h2, level=1))
+    story.append(Paragraph(
+        'Desde la pestana "Administracion", el Webmaster puede gestionar las tablas catalogo del sistema: '
+        'especialidades, sectores, subsectores y unidades ejecutoras. Tambien puede subir logos '
+        'para las unidades ejecutoras que se muestran en el Dashboard.',
+        style_body
+    ))
+    story.append(Spacer(1, 8))
+    
+    story.append(warning_box(
+        '<b>Precaucion:</b> Los cambios en las tablas catalogo afectan a todos los usuarios del sistema. '
+        'Elimine registros solo si esta seguro de que no estan siendo utilizados en alcances o avances existentes.'
     ))
     story.append(Spacer(1, 12))
 
@@ -528,18 +616,18 @@ def build_content():
     
     story.append(Paragraph(
         'El Contratista es el <b>principal responsable de reportar avances</b> en el sistema. '
-        'Su funcion principal es ingresar los reportes de ejecucion y subir la evidencia '
-        'fotografica de las obras realizadas.',
+        'Su funcion principal es ingresar los reportes de ejecucion, subir la evidencia '
+        'fotografica de las obras realizadas y <b>declarar subsanaciones</b> cuando un avance '
+        'ha sido objetado.',
         style_body
     ))
     story.append(Spacer(1, 8))
     
-    # Access table for contratista
     access_contratista = [
         [Paragraph('<b>Seccion</b>', style_th), Paragraph('<b>Acceso</b>', style_th), Paragraph('<b>Acciones</b>', style_th)],
         [Paragraph('Dashboard', style_td), Paragraph('Completo', style_td), Paragraph('Ver indicadores, mapa de calor, graficos', style_td_left)],
-        [Paragraph('Alcance Planificado', style_td), Paragraph('Solo lectura', style_td), Paragraph('Consultar y filtrar alcances', style_td_left)],
-        [Paragraph('Avance Ejecutado', style_td), Paragraph('Lectura + Creacion', style_td), Paragraph('Crear reportes, ver detalles, subir fotos', style_td_left)],
+        [Paragraph('Alcance Planificado', style_td), Paragraph('Solo lectura (su UE)', style_td), Paragraph('Consultar y filtrar alcances', style_td_left)],
+        [Paragraph('Avance Ejecutado', style_td), Paragraph('Lectura + Creacion', style_td), Paragraph('Crear reportes, ver detalles, subir fotos, declarar subsanada', style_td_left)],
     ]
     story.append(make_table(access_contratista, [CONTENT_W*0.25, CONTENT_W*0.2, CONTENT_W*0.55]))
     story.append(Spacer(1, 12))
@@ -552,7 +640,7 @@ def build_content():
     ))
     story.extend(step_list([
         'Haga clic en la pestana <b>"Alcance Planificado"</b> en la barra superior.',
-        'Se mostrara una lista de todos los alcances activos con su especialidad, sector, subsector y estado.',
+        'Se mostrara una lista de los alcances activos de su Unidad Ejecutora con su especialidad, sector, subsector y estado.',
         'Use los <b>filtros superiores</b> para buscar por sector, especialidad o estado.',
         'Haga clic en cualquier registro para ver sus detalles completos.',
     ]))
@@ -583,17 +671,31 @@ def build_content():
     story.append(Spacer(1, 8))
     
     story.append(tip_box(
-        '<b>Consejo importante:</b> El reporte se creara con estado <b>"Pendiente"</b>. '
-        'Esto significa que el Inspector debe revisarlo y aprobarlo antes de que se integre al '
-        'calculo del PAF. Asegurese de subir fotos claras y completas como evidencia.'
+        '<b>Consejo importante:</b> El reporte se creara con estado <b>"Pendiente"</b> y debera pasar '
+        'por los 3 niveles de aprobacion: Nivel 1 (Ingeniera Residente), Nivel 2 (Inspector MPPOP) '
+        'y Nivel 3 (Directivo Hospital). Asegurese de subir fotos claras y completas como evidencia.'
     ))
     story.append(Spacer(1, 10))
     
+    story.append(add_heading('Declarar una Objecion como Subsanada', style_h2, level=1))
+    story.append(Paragraph(
+        'Si un revisor objeta su avance, usted puede declarar la objecion como subsanada:',
+        style_body
+    ))
+    story.extend(step_list([
+        'En la lista de avances, identifique los registros con estado <b>"Objetado"</b> (indicador naranja).',
+        'Haga clic en el boton <b>"Declarar Subsanada"</b> del avance objetado.',
+        'Ingrese las <b>notas de subsanacion</b> describiendo las correcciones realizadas.',
+        'Haga clic en <b>"Confirmar"</b>. El estado cambiara a <b>"Subsanado"</b> (indicador azul).',
+        'El revisor podra entonces re-evaluar el avance (aprobar, objetar nuevamente o rechazar).',
+    ]))
+    story.append(Spacer(1, 10))
+
     story.append(add_heading('Ver Detalles de un Avance', style_h2, level=1))
     story.extend(step_list([
         'En la lista de avances, haga clic en el icono de <b>ojo</b> (Ver detalles) del registro deseado.',
         'Se abrira una vista detallada con toda la informacion del avance: datos del alcance, '
-        'cantidad reportada, tipo de trabajo, fecha, estado de aprobacion, notas y galeria fotografica.',
+        'cantidad reportada, tipo de trabajo, fecha, estado de aprobacion por nivel, notas y galeria fotografica.',
         'En la galeria puede ver las fotos de evidencia en tamano completo.',
     ]))
     story.append(Spacer(1, 10))
@@ -601,7 +703,7 @@ def build_content():
     story.append(add_heading('Filtrar Avances', style_h2, level=1))
     story.append(Paragraph(
         'Use los filtros disponibles en la parte superior de la lista de avances para buscar '
-        'por estado de aprobacion (Pendiente, Aprobado, Rechazado) y por fecha.',
+        'por estado de aprobacion (Pendiente, Aprobado, Rechazado, Objetado, Subsanado) y por fecha.',
         style_body
     ))
     story.append(Spacer(1, 12))
@@ -611,9 +713,10 @@ def build_content():
     story.append(Spacer(1, 10))
     
     story.append(Paragraph(
-        'El Inspector tiene un rol dual: <b>gestiona los alcances planificados</b> y '
-        '<b>aprueba o rechaza los avances</b> reportados por los contratistas. Es el responsable '
-        'de garantizar la calidad y veracidad de los datos en el sistema.',
+        'El Inspector tiene un rol multiple: <b>gestiona los alcances planificados</b>, '
+        '<b>aprueba avances en el Nivel 2</b> en representacion del MPPOP, puede <b>objetar</b> '
+        'avances y tambien <b>crear avances</b>. Es responsable de garantizar la calidad y '
+        'veracidad de los datos en el sistema.',
         style_body
     ))
     story.append(Spacer(1, 8))
@@ -622,7 +725,7 @@ def build_content():
         [Paragraph('<b>Seccion</b>', style_th), Paragraph('<b>Acceso</b>', style_th), Paragraph('<b>Acciones</b>', style_th)],
         [Paragraph('Dashboard', style_td), Paragraph('Completo', style_td), Paragraph('Ver indicadores, mapa de calor, graficos', style_td_left)],
         [Paragraph('Alcance Planificado', style_td), Paragraph('Lectura + Creacion + Edicion', style_td), Paragraph('Crear, editar, consultar y filtrar alcances', style_td_left)],
-        [Paragraph('Avance Ejecutado', style_td), Paragraph('Lectura + Aprobacion', style_td), Paragraph('Aprobar/rechazar avances, ver detalles, fotos', style_td_left)],
+        [Paragraph('Avance Ejecutado', style_td), Paragraph('Lectura + Creacion + Aprobacion N2', style_td), Paragraph('Aprobar/objetar/rechazar en N2, crear avances, ver detalles, declarar subsanada', style_td_left)],
     ]
     story.append(make_table(access_inspector, [CONTENT_W*0.25, CONTENT_W*0.25, CONTENT_W*0.50]))
     story.append(Spacer(1, 12))
@@ -662,31 +765,33 @@ def build_content():
     
     story.append(warning_box(
         '<b>Precaucion:</b> Cambiar el estado de un alcance a "Completado" o "Suspendido" lo elimina '
-        'del calculo del PAF de frentes activos. Solo el Administrador puede eliminar alcances.'
+        'del calculo del PAF de frentes activos. Solo el Webmaster puede eliminar alcances.'
     ))
     story.append(Spacer(1, 10))
     
-    story.append(add_heading('Aprobar o Rechazar Avances', style_h2, level=1))
+    story.append(add_heading('Aprobar, Objetar o Rechazar en Nivel 2', style_h2, level=1))
     story.append(Paragraph(
-        'Como Inspector, usted es responsable de revisar y validar los avances reportados por '
-        'los contratistas. Los avances pendientes de revision se reflejan como "Alertas" en el Dashboard.',
+        'Como Inspector, usted aprueba avances en el <b>Nivel 2</b> (representando al MPPOP). '
+        'Solo puede aprobar si el Nivel 1 ya fue aprobado por la Ingeniera Residente. '
+        'Los avances pendientes de revision se reflejan como "Alertas" en el Dashboard.',
         style_body
     ))
     story.extend(step_list([
         'Haga clic en la pestana <b>"Avance Ejecutado"</b>.',
-        'Filtre por estado <b>"Pendiente"</b> para ver los avances que requieren su revision.',
+        'Filtre por avances que tienen <b>Nivel 1 aprobado</b> y <b>Nivel 2 pendiente</b>.',
         'Revise los detalles de cada avance: verifique la cantidad reportada, las fotos de evidencia y las notas.',
-        'Para <b>aprobar</b>: haga clic en el icono de <b>check verde</b>. El avance pasara a estado "Aprobado" '
-        'y se integrara al calculo del PAF.',
-        'Para <b>rechazar</b>: haga clic en el icono de <b>X roja</b>. Se le solicitara que ingrese '
-        'una razon de rechazo. El avance pasara a estado "Rechazado" y no se contabilizara.',
+        'Para <b>aprobar en Nivel 2</b>: haga clic en el icono de <b>check verde</b>. El Nivel 2 pasara a "Aprobado".',
+        'Para <b>objetar</b>: haga clic en el boton <b>"Objetar"</b>. Debe ingresar una razon obligatoria. '
+        'El avance pasara a estado "Objetado" (indicador naranja). El creador podra declararlo subsanado.',
+        'Para <b>rechazar</b>: haga clic en el icono de <b>X roja</b>. Se le solicitara una razon de rechazo. '
+        'El avance pasara a estado "Rechazado" y no se contabilizara.',
     ]))
     story.append(Spacer(1, 8))
     
     story.append(tip_box(
-        '<b>Recomendacion:</b> Antes de aprobar un avance, revise detenidamente las fotos de evidencia '
-        'para verificar que el trabajo reportado coincide con la realidad de obra. Un avance aprobado '
-        'incorpora su cantidad al calculo del PAF global del proyecto.'
+        '<b>Recomendacion:</b> Si tiene dudas sobre un avance pero no desea rechazarlo definitivamente, '
+        'use la opcion de <b>Objetar</b>. Esto da la oportunidad al creador de corregir y declarar '
+        'la subsanacion antes de una decision final.'
     ))
     story.append(Spacer(1, 12))
 
@@ -695,9 +800,9 @@ def build_content():
     story.append(Spacer(1, 10))
     
     story.append(Paragraph(
-        'La Ingeniera Residente tiene acceso de <b>solo lectura</b> al sistema. Su funcion es '
-        'monitorear el avance de las obras y los alcances planificados para realizar seguimiento '
-        'tecnico de la ejecucion.',
+        'La Ingeniera Residente tiene un rol activo en el flujo de aprobacion: es responsable de '
+        '<b>declarar la obra concluida en el Nivel 1</b>. Tambien puede crear avances, objetar y '
+        'declarar subsanaciones.',
         style_body
     ))
     story.append(Spacer(1, 8))
@@ -705,27 +810,42 @@ def build_content():
     access_ing_residente = [
         [Paragraph('<b>Seccion</b>', style_th), Paragraph('<b>Acceso</b>', style_th), Paragraph('<b>Acciones</b>', style_th)],
         [Paragraph('Dashboard', style_td), Paragraph('Completo', style_td), Paragraph('Ver indicadores, mapa de calor, graficos', style_td_left)],
-        [Paragraph('Alcance Planificado', style_td), Paragraph('Solo lectura', style_td), Paragraph('Consultar y filtrar alcances', style_td_left)],
-        [Paragraph('Avance Ejecutado', style_td), Paragraph('Solo lectura', style_td), Paragraph('Ver lista, detalles y fotos de avances', style_td_left)],
+        [Paragraph('Alcance Planificado', style_td), Paragraph('Solo lectura (su UE)', style_td), Paragraph('Consultar y filtrar alcances', style_td_left)],
+        [Paragraph('Avance Ejecutado', style_td), Paragraph('Lectura + Creacion + Aprobacion N1', style_td), Paragraph('Declarar concluida (N1), crear avances, objetar, declarar subsanada', style_td_left)],
     ]
-    story.append(make_table(access_ing_residente, [CONTENT_W*0.25, CONTENT_W*0.2, CONTENT_W*0.55]))
+    story.append(make_table(access_ing_residente, [CONTENT_W*0.25, CONTENT_W*0.25, CONTENT_W*0.50]))
     story.append(Spacer(1, 10))
     
-    story.append(add_heading('Consultar Informacion', style_h2, level=1))
+    story.append(add_heading('Aprobar, Objetar o Rechazar en Nivel 1', style_h2, level=1))
     story.append(Paragraph(
-        'Puede navegar libremente por todas las secciones del sistema para consultar informacion:',
+        'Como Ingeniera Residente, usted es la primera en la cadena de aprobacion. Su funcion es '
+        '<b>declarar la obra como concluida</b> en el Nivel 1, verificando que el trabajo reportado '
+        'corresponde a la realidad de la obra.',
         style_body
     ))
-    story.extend(bullet_list([
-        '<b>Dashboard:</b> Revise los indicadores clave, el mapa de calor por sectores y los graficos de PAF.',
-        '<b>Alcance Planificado:</b> Consulte los frentes de trabajo activos, sus especialidades y ubicaciones. Use los filtros para busquedas especificas.',
-        '<b>Avance Ejecutado:</b> Vea los reportes de avance, sus estados (Pendiente, Aprobado, Rechazado) y la evidencia fotografica asociada.',
+    story.extend(step_list([
+        'Haga clic en la pestana <b>"Avance Ejecutado"</b>.',
+        'Filtre por avances con <b>Nivel 1 pendiente</b>.',
+        'Revise los detalles: cantidad reportada, fotos de evidencia y notas.',
+        'Para <b>aprobar en Nivel 1</b>: haga clic en el icono de <b>check verde</b> para declarar la obra concluida. '
+        'El avance avanzara al Nivel 2 para revision del Inspector.',
+        'Para <b>objetar</b>: haga clic en <b>"Objetar"</b> con una razon obligatoria. El avance pasara a "Objetado".',
+        'Para <b>rechazar</b>: haga clic en <b>X roja</b> con una razon. El avance pasara a "Rechazado".',
     ]))
     story.append(Spacer(1, 8))
     
+    story.append(add_heading('Crear Avances', style_h2, level=1))
+    story.append(Paragraph(
+        'Ademas de su rol de aprobacion, la Ingeniera Residente puede crear reportes de avance '
+        'y declarar objeciones como subsanadas, siguiendo el mismo procedimiento descrito para '
+        'el Contratista.',
+        style_body
+    ))
+    story.append(Spacer(1, 8))
+    
     story.append(warning_box(
-        '<b>Nota:</b> Su perfil no permite crear, editar ni aprobar registros. Si identifica '
-        'alguna inconsistencia o necesita registrar informacion, contacte al Contratista o Inspector correspondiente.'
+        '<b>Nota:</b> Su aprobacion en Nivel 1 es requisito para que el Inspector pueda aprobar el Nivel 2. '
+        'Si objeta un avance, el creador debera subsanarlo antes de que usted pueda re-evaluar.'
     ))
     story.append(Spacer(1, 12))
 
@@ -734,9 +854,9 @@ def build_content():
     story.append(Spacer(1, 10))
     
     story.append(Paragraph(
-        'El Directivo de Hospital es el perfil mas restringido del sistema. Su funcion es la '
-        '<b>supervision general del avance</b> de las obras, con acceso al Dashboard y a los '
-        'reportes de avance ejecutado.',
+        'El Directivo de Hospital tiene un rol clave en el flujo de aprobacion: es responsable de '
+        '<b>dar la conformidad final en el Nivel 3</b>. Solo puede aprobar avances que ya tengan '
+        'los Niveles 1 y 2 aprobados. Tambien puede objetar avances.',
         style_body
     ))
     story.append(Spacer(1, 8))
@@ -745,10 +865,28 @@ def build_content():
         [Paragraph('<b>Seccion</b>', style_th), Paragraph('<b>Acceso</b>', style_th), Paragraph('<b>Acciones</b>', style_th)],
         [Paragraph('Dashboard', style_td), Paragraph('Completo', style_td), Paragraph('Ver indicadores, mapa de calor, graficos', style_td_left)],
         [Paragraph('Alcance Planificado', style_td), Paragraph('No disponible', style_td), Paragraph('Esta seccion no es visible para este perfil', style_td_left)],
-        [Paragraph('Avance Ejecutado', style_td), Paragraph('Solo lectura', style_td), Paragraph('Ver lista, detalles y fotos de avances', style_td_left)],
+        [Paragraph('Avance Ejecutado', style_td), Paragraph('Lectura + Aprobacion N3', style_td), Paragraph('Dar conformidad final (N3), objetar, ver detalles y fotos', style_td_left)],
     ]
     story.append(make_table(access_directivo, [CONTENT_W*0.25, CONTENT_W*0.2, CONTENT_W*0.55]))
     story.append(Spacer(1, 10))
+    
+    story.append(add_heading('Dar Conformidad Final (Nivel 3)', style_h2, level=1))
+    story.append(Paragraph(
+        'Como Directivo, usted da la conformidad final al avance. Solo puede aprobar si los '
+        'Niveles 1 y 2 ya estan aprobados:',
+        style_body
+    ))
+    story.extend(step_list([
+        'Haga clic en la pestana <b>"Avance Ejecutado"</b>.',
+        'Filtre por avances con <b>Nivel 1 y 2 aprobados</b> y <b>Nivel 3 pendiente</b>.',
+        'Revise los detalles: cantidad reportada, fotos de evidencia y notas.',
+        'Para <b>dar conformidad</b>: haga clic en el icono de <b>check verde</b>. El avance quedara '
+        '<b>"Aprobado"</b> en todos los niveles y se integrara al calculo del PAF.',
+        'Para <b>objetar</b>: haga clic en <b>"Objetar"</b> con una razon obligatoria. El avance '
+        'pasara a estado "Objetado".',
+        'Para <b>rechazar</b>: haga clic en <b>X roja</b> con una razon. El avance pasara a "Rechazado".',
+    ]))
+    story.append(Spacer(1, 8))
     
     story.append(add_heading('Monitoreo del Avance', style_h2, level=1))
     story.append(Paragraph(
@@ -759,19 +897,14 @@ def build_content():
         '<b>PAF Global:</b> El indicador principal muestra el porcentaje general de avance de todas las obras.',
         '<b>Mapa de Calor:</b> Identifique rapidamente que areas del hospital tienen avances criticos (rojo), intermedios (amarillo) o satisfactorios (verde).',
         '<b>Grafico por Sector:</b> Compare el avance entre los diferentes sectores del hospital.',
-        '<b>Alertas:</b> La tarjeta de alertas indica cuantos avances estan pendientes de revision por el Inspector.',
+        '<b>Alertas:</b> La tarjeta de alertas indica cuantos avances estan pendientes de su conformidad final.',
     ]))
     story.append(Spacer(1, 6))
-    story.append(Paragraph(
-        'En la pestana <b>"Avance Ejecutado"</b> puede ver los detalles de cada reporte, incluyendo '
-        'las fotos de evidencia, para tener una vision completa del progreso real de las obras.',
-        style_body
-    ))
-    story.append(Spacer(1, 8))
     
     story.append(tip_box(
         '<b>Consejo:</b> Si observa que el PAF Global se mantiene en valores bajos o que hay muchas '
-        'alertas pendientes, considere solicitar una reunion de seguimiento con el equipo tecnico.'
+        'alertas pendientes, considere solicitar una reunion de seguimiento con el equipo tecnico. '
+        'Use la opcion de Objeter si necesita que se corrigan detalles antes de dar conformidad final.'
     ))
     story.append(Spacer(1, 12))
 
@@ -805,16 +938,57 @@ def build_content():
         '<b>Alcance Planificado:</b> Revise los frentes de trabajo planificados, sus especialidades, '
         'sectores, subsectores, unidades de medida y cantidades planificadas. Use los filtros para '
         'enfocarse en areas especificas.',
-        '<b>Avance Ejecutado:</b> Consulte los reportes de avance con sus estados, evidencia fotografica '
-        'y notas. Compare lo planificado versus lo ejecutado para cada frente.',
+        '<b>Avance Ejecutado:</b> Consulte los reportes de avance con sus estados por nivel de aprobacion, '
+        'evidencia fotografica y notas. Puede ver si un avance esta Pendiente, Objetado, Subsanado, Aprobado o Rechazado.',
         '<b>Dashboard:</b> Utilice el mapa de calor y los graficos para identificar areas criticas '
         'que requieren atencion prioritaria.',
     ]))
     story.append(Spacer(1, 8))
     
     story.append(warning_box(
-        '<b>Nota:</b> Su perfil no permite crear, editar ni aprobar registros. Si identifica '
-        'situaciones que requieren accion, comuniquese con el Inspector o Contratista asignado.'
+        '<b>Nota:</b> Su perfil no permite crear, editar, aprobar, objetar ni eliminar registros. '
+        'Si identifica situaciones que requieren accion, comuniquese con el Inspector o Webmaster.'
+    ))
+    story.append(Spacer(1, 12))
+
+    # ── VISITANTE ──
+    story.append(role_banner('VISITANTE', '#6b7280'))
+    story.append(Spacer(1, 10))
+    
+    story.append(Paragraph(
+        'El Visitante tiene acceso de <b>solo lectura</b> a todas las secciones de consulta del sistema. '
+        'No puede crear, editar, aprobar, objetar ni eliminar ningun tipo de registro. Es un perfil '
+        'orientado a la transparencia y consulta publica.',
+        style_body
+    ))
+    story.append(Spacer(1, 8))
+    
+    access_visitante = [
+        [Paragraph('<b>Seccion</b>', style_th), Paragraph('<b>Acceso</b>', style_th), Paragraph('<b>Acciones</b>', style_th)],
+        [Paragraph('Dashboard', style_td), Paragraph('Solo lectura', style_td), Paragraph('Ver indicadores, mapa de calor, graficos', style_td_left)],
+        [Paragraph('Alcance Planificado', style_td), Paragraph('Solo lectura', style_td), Paragraph('Consultar y filtrar alcances', style_td_left)],
+        [Paragraph('Avance Ejecutado', style_td), Paragraph('Solo lectura', style_td), Paragraph('Ver lista, detalles y fotos de avances', style_td_left)],
+        [Paragraph('Administracion', style_td), Paragraph('No disponible', style_td), Paragraph('Esta seccion no es visible para este perfil', style_td_left)],
+    ]
+    story.append(make_table(access_visitante, [CONTENT_W*0.25, CONTENT_W*0.2, CONTENT_W*0.55]))
+    story.append(Spacer(1, 10))
+    
+    story.append(add_heading('Consultar Informacion', style_h2, level=1))
+    story.append(Paragraph(
+        'Como Visitante, usted puede navegar libremente por las secciones de consulta del sistema:',
+        style_body
+    ))
+    story.extend(bullet_list([
+        '<b>Dashboard:</b> Revise los indicadores clave, el mapa de calor por sectores, los graficos de PAF y las sub-pestanas (Vista General, Por Ejecutoras, Por Macro Especialidades).',
+        '<b>Alcance Planificado:</b> Consulte los frentes de trabajo activos, sus especialidades y ubicaciones. Use los filtros para busquedas especificas.',
+        '<b>Avance Ejecutado:</b> Vea los reportes de avance, sus estados (Pendiente, Objetado, Subsanado, Aprobado, Rechazado) y la evidencia fotografica asociada.',
+    ]))
+    story.append(Spacer(1, 8))
+    
+    story.append(warning_box(
+        '<b>Nota:</b> Su perfil es exclusivamente de consulta. No puede realizar ninguna accion '
+        'modificatoria en el sistema. Si necesita reportar un avance o solicitar una correccion, '
+        'contacte al Contratista o Webmaster del sistema.'
     ))
     story.append(Spacer(1, 12))
 
@@ -830,36 +1004,53 @@ def build_content():
     story.append(Spacer(1, 12))
     
     # Use special styles for this wide table
-    style_td_sm = ParagraphStyle('TDSm', fontName=BODY_FONT, fontSize=8.5, leading=12, textColor=TEXT_PRIMARY, alignment=TA_CENTER)
-    style_th_sm = ParagraphStyle('THSm', fontName=HEADING_FONT, fontSize=8.5, leading=12, textColor=colors.white, alignment=TA_CENTER)
+    style_td_xs = ParagraphStyle('TDXs', fontName=BODY_FONT, fontSize=7.5, leading=10, textColor=TEXT_PRIMARY, alignment=TA_CENTER)
+    style_th_xs = ParagraphStyle('THXs', fontName=HEADING_FONT, fontSize=7.5, leading=10, textColor=colors.white, alignment=TA_CENTER)
+    style_td_xs_left = ParagraphStyle('TDXsLeft', fontName=BODY_FONT, fontSize=7.5, leading=10, textColor=TEXT_PRIMARY, alignment=TA_LEFT)
     
     summary_data = [
-        [Paragraph('<b>Funcionalidad</b>', style_th_sm),
-         Paragraph('<b>Contratista</b>', style_th_sm),
-         Paragraph('<b>Inspector</b>', style_th_sm),
-         Paragraph('<b>Ing. Residente</b>', style_th_sm),
-         Paragraph('<b>Directivo</b>', style_th_sm),
-         Paragraph('<b>Ing. Hospital</b>', style_th_sm)],
-        [Paragraph('Ver Dashboard', style_td_sm), Paragraph('Si', style_td_sm), Paragraph('Si', style_td_sm), 
-         Paragraph('Si', style_td_sm), Paragraph('Si', style_td_sm), Paragraph('Si', style_td_sm)],
-        [Paragraph('Ver Alcance', style_td_sm), Paragraph('Si', style_td_sm), Paragraph('Si', style_td_sm),
-         Paragraph('Si', style_td_sm), Paragraph('No', style_td_sm), Paragraph('Si', style_td_sm)],
-        [Paragraph('Crear Alcance', style_td_sm), Paragraph('No', style_td_sm), Paragraph('Si', style_td_sm),
-         Paragraph('No', style_td_sm), Paragraph('No', style_td_sm), Paragraph('No', style_td_sm)],
-        [Paragraph('Editar Alcance', style_td_sm), Paragraph('No', style_td_sm), Paragraph('Si', style_td_sm),
-         Paragraph('No', style_td_sm), Paragraph('No', style_td_sm), Paragraph('No', style_td_sm)],
-        [Paragraph('Crear Avance', style_td_sm), Paragraph('Si', style_td_sm), Paragraph('No', style_td_sm),
-         Paragraph('No', style_td_sm), Paragraph('No', style_td_sm), Paragraph('No', style_td_sm)],
-        [Paragraph('Subir Evidencia', style_td_sm), Paragraph('Si', style_td_sm), Paragraph('No', style_td_sm),
-         Paragraph('No', style_td_sm), Paragraph('No', style_td_sm), Paragraph('No', style_td_sm)],
-        [Paragraph('Aprobar/Rechazar', style_td_sm), Paragraph('No', style_td_sm), Paragraph('Si', style_td_sm),
-         Paragraph('No', style_td_sm), Paragraph('No', style_td_sm), Paragraph('No', style_td_sm)],
-        [Paragraph('Ver Detalles/Fotos', style_td_sm), Paragraph('Si', style_td_sm), Paragraph('Si', style_td_sm),
-         Paragraph('Si', style_td_sm), Paragraph('Si', style_td_sm), Paragraph('Si', style_td_sm)],
-        [Paragraph('Filtrar Registros', style_td_sm), Paragraph('Si', style_td_sm), Paragraph('Si', style_td_sm),
-         Paragraph('Si', style_td_sm), Paragraph('Si', style_td_sm), Paragraph('Si', style_td_sm)],
+        [Paragraph('<b>Funcionalidad</b>', style_th_xs),
+         Paragraph('<b>Webmaster</b>', style_th_xs),
+         Paragraph('<b>Contratista</b>', style_th_xs),
+         Paragraph('<b>Inspector</b>', style_th_xs),
+         Paragraph('<b>Ing. Residente</b>', style_th_xs),
+         Paragraph('<b>Directivo</b>', style_th_xs),
+         Paragraph('<b>Ing. Hospital</b>', style_th_xs),
+         Paragraph('<b>Visitante</b>', style_th_xs)],
+        [Paragraph('Ver Dashboard', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), 
+         Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs)],
+        [Paragraph('Ver Alcance', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('Si (su UE)', style_td_xs), Paragraph('Si', style_td_xs),
+         Paragraph('Si (su UE)', style_td_xs), Paragraph('No', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs)],
+        [Paragraph('Crear Alcance', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('Si', style_td_xs),
+         Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Editar Alcance', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('Si', style_td_xs),
+         Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Eliminar Alcance', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs),
+         Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Crear Avance', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs),
+         Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Editar Avance', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs),
+         Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Aprobar Nivel 1 (Residente)', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs),
+         Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Aprobar Nivel 2 (Inspector)', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('Si', style_td_xs),
+         Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Aprobar Nivel 3 (Directivo)', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs),
+         Paragraph('No', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Rechazar (su nivel)', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('Si', style_td_xs),
+         Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Objetar (su nivel)', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('Si', style_td_xs),
+         Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Declarar Subsanada', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs),
+         Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Eliminar Avance', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs),
+         Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
+        [Paragraph('Ver Detalles/Fotos', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs),
+         Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs), Paragraph('Si', style_td_xs)],
+        [Paragraph('Administracion', style_td_xs_left), Paragraph('Si', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs),
+         Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs), Paragraph('No', style_td_xs)],
     ]
-    story.append(make_table(summary_data, [CONTENT_W*0.22, CONTENT_W*0.14, CONTENT_W*0.14, CONTENT_W*0.18, CONTENT_W*0.14, CONTENT_W*0.18]))
+    story.append(make_table(summary_data, [CONTENT_W*0.18, CONTENT_W*0.12, CONTENT_W*0.12, CONTENT_W*0.11, CONTENT_W*0.13, CONTENT_W*0.11, CONTENT_W*0.12, CONTENT_W*0.11]))
     story.append(Spacer(1, 12))
 
     # ──────────────────────────────────────────────
@@ -868,37 +1059,97 @@ def build_content():
     story.extend(add_major_section('6. Flujo de Trabajo del Sistema'))
     
     story.append(Paragraph(
-        'El sistema sigue un flujo de trabajo claramente definido que involucra la colaboracion '
-        'entre los diferentes perfiles de usuario:',
+        'El sistema sigue un flujo de trabajo con <b>aprobacion secuencial de 3 niveles</b> y un '
+        'mecanismo de <b>objecion/subsanacion</b> que permite la correccion antes del rechazo definitivo. '
+        'El Webmaster puede intervenir en cualquier nivel sin seguir la secuencia.',
         style_body
     ))
     story.append(Spacer(1, 10))
+    
+    story.append(add_heading('Flujo de Aprobacion Secuencial', style_h2, level=1))
     
     flow_data = [
         [Paragraph('<b>Paso</b>', style_th), Paragraph('<b>Responsable</b>', style_th), Paragraph('<b>Accion</b>', style_th), Paragraph('<b>Resultado</b>', style_th)],
         [Paragraph('1', style_td), Paragraph('Inspector', style_td), 
          Paragraph('Crea el Alcance Planificado con los datos del frente de trabajo', style_td_left),
          Paragraph('Alcance registrado con estado "Activo"', style_td_left)],
-        [Paragraph('2', style_td), Paragraph('Contratista', style_td),
-         Paragraph('Reporta el Avance Ejecutado con cantidad, fotos y notas', style_td_left),
-         Paragraph('Avance registrado con estado "Pendiente"', style_td_left)],
-        [Paragraph('3', style_td), Paragraph('Inspector', style_td),
-         Paragraph('Revisa la evidencia y aprueba o rechaza el avance', style_td_left),
-         Paragraph('Avance en estado "Aprobado" o "Rechazado"', style_td_left)],
-        [Paragraph('4', style_td), Paragraph('Sistema', style_td),
-         Paragraph('Los avances aprobados se integran al calculo del PAF', style_td_left),
+        [Paragraph('2', style_td), Paragraph('Contratista / Ing. Residente / Inspector',
+         style_td), Paragraph('Reporta el Avance Ejecutado con cantidad, fotos y notas', style_td_left),
+         Paragraph('Avance registrado con estado "Pendiente" en los 3 niveles', style_td_left)],
+        [Paragraph('3', style_td), Paragraph('Ing. Residente (Nivel 1)', style_td),
+         Paragraph('Declara la obra concluida: aprueba, objeta o rechaza en Nivel 1', style_td_left),
+         Paragraph('Nivel 1: Aprobado, Objetado o Rechazado', style_td_left)],
+        [Paragraph('4', style_td), Paragraph('Inspector MPPOP (Nivel 2)', style_td),
+         Paragraph('Revisa en representacion del ministerio: aprueba, objeta o rechaza en Nivel 2', style_td_left),
+         Paragraph('Nivel 2: Aprobado, Objetado o Rechazado (requiere N1 aprobado)', style_td_left)],
+        [Paragraph('5', style_td), Paragraph('Directivo Hospital (Nivel 3)', style_td),
+         Paragraph('Da conformidad final: aprueba, objeta o rechaza en Nivel 3', style_td_left),
+         Paragraph('Nivel 3: Aprobado, Objetado o Rechazado (requiere N2 aprobado)', style_td_left)],
+        [Paragraph('6', style_td), Paragraph('Sistema', style_td),
+         Paragraph('Los avances con los 3 niveles aprobados se integran al calculo del PAF', style_td_left),
          Paragraph('PAF Global y por sector actualizado', style_td_left)],
-        [Paragraph('5', style_td), Paragraph('Todos los perfiles', style_td),
-         Paragraph('Consultan el Dashboard y reportes para seguimiento', style_td_left),
-         Paragraph('Vision actualizada del progreso del proyecto', style_td_left)],
     ]
-    story.append(make_table(flow_data, [CONTENT_W*0.08, CONTENT_W*0.17, CONTENT_W*0.40, CONTENT_W*0.35]))
+    story.append(make_table(flow_data, [CONTENT_W*0.08, CONTENT_W*0.22, CONTENT_W*0.38, CONTENT_W*0.32]))
     story.append(Spacer(1, 12))
     
+    story.append(add_heading('Regla de Aprobacion Secuencial', style_h2, level=1))
+    story.append(Paragraph(
+        'La aprobacion es estrictamente secuencial:',
+        style_body
+    ))
+    story.extend(bullet_list([
+        '<b>Nivel 2</b> solo puede aprobarse si el <b>Nivel 1 esta aprobado</b>.',
+        '<b>Nivel 3</b> solo puede aprobarse si el <b>Nivel 2 esta aprobado</b>.',
+        'Un avance se considera <b>"Aprobado"</b> solo cuando los 3 niveles estan aprobados.',
+        'Si <b>cualquier nivel rechaza</b>, el status general es <b>"Rechazado"</b>.',
+        'El <b>Webmaster puede aprobar cualquier nivel</b> sin seguir la secuencia y puede revertir '
+        'cualquier nivel de vuelta a "Pendiente".',
+    ]))
+    story.append(Spacer(1, 10))
+
+    story.append(add_heading('Flujo de Objecion y Subsanacion', style_h2, level=1))
+    story.append(Paragraph(
+        'El mecanismo de objecion/subsanacion es un estado intermedio entre aprobar y rechazar '
+        'que permite la correccion del avance:',
+        style_body
+    ))
+    story.append(Spacer(1, 6))
+    
+    objection_data = [
+        [Paragraph('<b>Paso</b>', style_th), Paragraph('<b>Accion</b>', style_th), Paragraph('<b>Descripcion</b>', style_th), Paragraph('<b>Indicador</b>', style_th)],
+        [Paragraph('1', style_td), Paragraph('Objetar', style_td),
+         Paragraph('El revisor objeta el avance con una razon obligatoria. No es un rechazo definitivo sino una solicitud de correccion.', style_td_left),
+         Paragraph('Naranja (Objetado)', style_td)],
+        [Paragraph('2', style_td), Paragraph('Declarar Subsanada', style_td),
+         Paragraph('El creador del avance declara que la objecion fue atendida, con notas explicativas de las correcciones.', style_td_left),
+         Paragraph('Azul (Subsanado)', style_td)],
+        [Paragraph('3', style_td), Paragraph('Re-evaluacion', style_td),
+         Paragraph('El revisor re-evalua el avance: puede aprobar, objetar nuevamente o rechazar.', style_td_left),
+         Paragraph('Segun decision', style_td)],
+    ]
+    story.append(make_table(objection_data, [CONTENT_W*0.08, CONTENT_W*0.18, CONTENT_W*0.54, CONTENT_W*0.20]))
+    story.append(Spacer(1, 8))
+    
+    story.append(add_heading('Prioridad de Estados de Aprobacion', style_h2, level=1))
+    story.append(Paragraph(
+        'El estado general de aprobacion (status_aprobacion) se calcula automaticamente con la '
+        'siguiente prioridad:',
+        style_body
+    ))
+    story.extend(numbered_list([
+        '<b>Rechazado</b> (prioridad maxima) - Si cualquier nivel rechaza.',
+        '<b>Objetado</b> - Si cualquier nivel objeta y no ha sido subsanado.',
+        '<b>Subsanado</b> - Si una objecion fue declarada subsanada y espera re-evaluacion.',
+        '<b>Aprobado</b> - Si los 3 niveles estan aprobados.',
+        '<b>Pendiente</b> (prioridad minima) - Si algun nivel aun no ha sido revisado.',
+    ]))
+    story.append(Spacer(1, 8))
+    
     story.append(tip_box(
-        '<b>Clave del exito:</b> La comunicacion oportuna entre Contratista e Inspector es fundamental. '
-        'El Contratista debe reportar avances con evidencia completa, y el Inspector debe revisar '
-        'y aprobar/rechazar en el menor tiempo posible para mantener el PAF actualizado.'
+        '<b>Clave del exito:</b> La comunicacion oportuna entre todos los actores es fundamental. '
+        'Los creadores deben reportar avances con evidencia completa, los revisores deben '
+        'evaluar en el menor tiempo posible, y el mecanismo de objecion/subsanacion debe usarse '
+        'agilmente para mantener el PAF actualizado.'
     ))
     story.append(Spacer(1, 12))
 
@@ -910,25 +1161,32 @@ def build_content():
     faqs = [
         ('Olvide mi contrasena. Que puedo hacer?',
          'Desde el menu de usuario, seleccione <b>"Cambiar Contrasena"</b> si aun recuerda su contrasena '
-         'actual. Si la olvido completamente, comuniquese con el Administrador del sistema para que '
+         'actual. Si la olvido completamente, comuniquese con el Webmaster del sistema para que '
          'restablezca su acceso. No hay funcion de recuperacion automatica de contrasena.'),
         
         ('Por que no veo la pestana "Alcance Planificado"?',
-         'Si tiene el perfil de Directivo de Hospital, esta pestana no esta disponible para su rol. '
-         'Los demas perfiles pueden verla en la barra de navegacion superior.'),
+         'Si tiene el perfil de Directivo de Hospital o Visitante, esta pestana no esta disponible '
+         'para su rol. Los demas perfiles pueden verla en la barra de navegacion superior.'),
         
         ('Puedo crear un avance si no hay alcances activos?',
          'No. Para reportar un avance, debe existir al menos un Alcance Planificado con estado "Activo". '
-         'El Contratista solo puede seleccionar de la lista de alcances activos disponibles.'),
+         'Solo puede seleccionar de la lista de alcances activos disponibles para su Unidad Ejecutora.'),
         
-        ('Que pasa si mi avance es rechazado?',
-         'Si el Inspector rechaza su avance, recibira la razon del rechazo en las notas del registro. '
-         'Puede revisar las observaciones y crear un nuevo avance con la informacion corregida.'),
+        ('Que pasa si mi avance es objetado?',
+         'Si un revisor objeta su avance, recibira la razon de la objecion en las notas del registro. '
+         'Puede revisar las observaciones y hacer clic en <b>"Declarar Subsanada"</b> con notas explicativas '
+         'de las correcciones realizadas. El revisor entonces re-evaluara el avance y podra aprobar, '
+         'objetar nuevamente o rechazar.'),
+        
+        ('Que significa que un avance este "Objetado" o "Subsanado"?',
+         '<b>Objetado</b> (indicador naranja) significa que un revisor solicita correcciones antes de '
+         'aprobar. No es un rechazo definitivo. <b>Subsanado</b> (indicador azul) significa que el '
+         'creador declaro que las correcciones fueron realizadas y espera re-evaluacion del revisor.'),
         
         ('Como se calcula el PAF Global?',
          'El PAF Global es un promedio ponderado donde cada frente de trabajo contribuye segun su '
          'Peso Relativo. Solo se consideran los alcances con estado "Activo" y los avances con '
-         'estado "Aprobado".'),
+         'los 3 niveles de aprobacion "Aprobados".'),
         
         ('Puedo usar el sistema desde mi telefono movil?',
          'Si, el sistema es responsive y se adapta a dispositivos moviles. Sin embargo, para una '
@@ -940,8 +1198,18 @@ def build_content():
          'actualizacion usando el boton de recarga manual.'),
         
         ('Puedo cambiar mi perfil de usuario?',
-         'No. Los perfiles son asignados por el Administrador del sistema y no pueden ser '
-         'modificados por el usuario. Si cree que su perfil es incorrecto, contacte al Administrador.'),
+         'No. Los perfiles son asignados por el Webmaster del sistema y no pueden ser '
+         'modificados por el usuario. Si cree que su perfil es incorrecto, contacte al Webmaster.'),
+        
+        ('Que puede hacer el perfil Visitante?',
+         'El Visitante tiene acceso de solo lectura a Dashboard, Alcance Planificado y Avance Ejecutado. '
+         'No puede crear, editar, aprobar, objetar ni eliminar ningun registro. Tampoco puede acceder '
+         'a la pestana de Administracion. Es un perfil orientado a la transparencia y consulta publica.'),
+        
+        ('Cuales son los requisitos de contrasena?',
+         'La contrasena debe tener un minimo de 8 caracteres e incluir al menos: una letra mayuscula, '
+         'una letra minuscula, un numero y un caracter especial. Esto aplica para el primer cambio de '
+         'contrasena, cambio voluntario, creacion de nuevos usuarios y restablecimiento de contrasena.'),
     ]
     
     for i, (q, a) in enumerate(faqs, 1):
@@ -966,7 +1234,12 @@ def build_content():
         [Paragraph('Especialidad', style_td), Paragraph('Tipo de trabajo tecnico (ej: Electricidad, Plomeria, Estructura).', style_td_left)],
         [Paragraph('Sector', style_td), Paragraph('Area del hospital donde se ejecuta el trabajo (ej: Emergencia, Hospitalizacion).', style_td_left)],
         [Paragraph('Subsector', style_td), Paragraph('Subdivision del sector que identifica la ubicacion especifica dentro del area.', style_td_left)],
-        [Paragraph('Estado de Aprobacion', style_td), Paragraph('Estado de revision del avance reportado: Pendiente, Aprobado o Rechazado.', style_td_left)],
+        [Paragraph('Estado de Aprobacion', style_td), Paragraph('Estado de revision del avance reportado: Pendiente, Objetado, Subsanado, Aprobado o Rechazado.', style_td_left)],
+        [Paragraph('Objecion', style_td), Paragraph('Estado intermedio donde el revisor solicita correcciones al avance sin rechazarlo definitivamente. Indicador naranja.', style_td_left)],
+        [Paragraph('Subsanacion', style_td), Paragraph('Declaracion del creador indicando que las objeciones fueron atendidas. Indicador azul. Requiere re-evaluacion del revisor.', style_td_left)],
+        [Paragraph('Aprobacion Secuencial', style_td), Paragraph('Sistema de 3 niveles donde cada nivel requiere la aprobacion del nivel anterior: N1 (Residente), N2 (Inspector), N3 (Directivo).', style_td_left)],
+        [Paragraph('Webmaster', style_td), Paragraph('Rol de administrador integral del sistema. Puede aprobar cualquier nivel sin seguir la secuencia, gestionar usuarios y tablas catalogo.', style_td_left)],
+        [Paragraph('Visitante', style_td), Paragraph('Rol de solo lectura con acceso a Dashboard, Alcance y Avance. No puede realizar ninguna accion modificatoria.', style_td_left)],
     ]
     story.append(make_table(glossary_data, [CONTENT_W*0.28, CONTENT_W*0.72]))
     story.append(Spacer(1, 18))
@@ -982,7 +1255,7 @@ def build_content():
     ))
     story.append(Spacer(1, 8))
     story.extend(bullet_list([
-        '<b>Administrador del Sistema:</b> Para problemas de acceso, cambio de credenciales, o errores en la plataforma.',
+        '<b>Webmaster del Sistema:</b> Para problemas de acceso, cambio de credenciales, errores en la plataforma o gestion de usuarios.',
         '<b>Inspector Asignado:</b> Para consultas sobre alcances, aprobacion de avances o flujo de trabajo.',
         '<b>Equipo de Gestion del Proyecto:</b> Para consultas sobre el contenido de los datos o modificaciones en los frentes de trabajo.',
     ]))
@@ -1050,7 +1323,7 @@ def build_content():
     story.append(Spacer(1, 8))
     story.append(Paragraph(
         'Plataforma de seguimiento de obras desarrollada para el '
-        'Hospital de Ninos J.M. de los Rios — Marzo 2026',
+        'Hospital de Ninos J.M. de los Rios — Junio 2026',
         style_credits_small
     ))
 
@@ -1245,14 +1518,14 @@ def create_cover_html():
     <div class="summary">
       Manual de instrucciones para el uso del sistema de seguimiento de 
       Porcentaje de Avance Fisico (PAF) del Hospital de Ninos 
-      J.M. de los Rios. Documento organizado por perfil de usuario 
-      con instrucciones paso a paso.
+      J.M. de los Rios. Incluye 7 perfiles de usuario, sistema de 
+      aprobacion secuencial de 3 niveles y flujo de objecion/subsanacion.
     </div>
     <div class="meta-block">
       <div class="meta-line"><span class="meta-label">Institucion:</span> Hospital de Ninos J.M. de los Rios</div>
       <div class="meta-line"><span class="meta-label">Proyecto:</span> Recuperacion Institucional</div>
-      <div class="meta-line"><span class="meta-label">Fecha:</span> Marzo 2026</div>
-      <div class="meta-line"><span class="meta-label">Clasificacion:</span> Uso Interno <span class="version-badge">v1.0</span></div>
+      <div class="meta-line"><span class="meta-label">Fecha:</span> Junio 2026</div>
+      <div class="meta-line"><span class="meta-label">Clasificacion:</span> Uso Interno <span class="version-badge">v3.2</span></div>
     </div>
     <div class="footer-left">Hospital de Ninos J.M. de los Rios</div>
     <div class="footer-right">VSOPS - Obras JM</div>

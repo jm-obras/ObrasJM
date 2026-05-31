@@ -52,7 +52,7 @@ export function FooterSection({ onLoginClick }: FooterSectionProps) {
               ))}
               <li>
                 <a
-                  href="/Manual_Usuario_ObrasJM_v2.pdf"
+                  href="/Manual_Usuario_ObrasJM_v3.2.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-sm text-slate-400 transition-colors hover:text-white"
