@@ -8,6 +8,7 @@ const VALID_ROLES = [
   'contratista',
   'inspector',
   'ingeniera_residente',
+  'ing_campo',
   'directivo_hospital',
   'ingenieria_hospital',
   'visitante',

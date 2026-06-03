@@ -35,7 +35,7 @@ function computeOverallStatus(
 }
 
 /** Roles that can create/edit avance data */
-const DATA_EDIT_ROLES = ['contratista', 'ingeniera_residente', 'inspector', 'webmaster']
+const DATA_EDIT_ROLES = ['contratista', 'ingeniera_residente', 'ing_campo', 'inspector', 'webmaster']
 
 /** Roles that can object/approve at each level */
 const LEVEL_ROLES: Record<ApprovalLevel, string[]> = {

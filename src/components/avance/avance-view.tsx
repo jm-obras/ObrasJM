@@ -32,6 +32,7 @@ const APPROVAL_LEVEL_BY_ROLE: Record<UserRol, 'residente' | 'inspector' | 'direc
   inspector: 'inspector',
   directivo_hospital: 'directivo',
   contratista: null,
+  ing_campo: null, // NO approval participation
   ingenieria_hospital: null,
   visitante: null,
 }
@@ -45,13 +46,14 @@ export function AvanceView({ profile }: AvanceViewProps) {
   const isInspector = profile.rol === 'inspector'
   const isContratista = profile.rol === 'contratista'
   const isResidente = profile.rol === 'ingeniera_residente'
+  const isIngCampo = profile.rol === 'ing_campo'
   const isDirectivo = profile.rol === 'directivo_hospital'
   const isVisitante = profile.rol === 'visitante'
 
-  const canCreate = !isVisitante && (isAdmin || isContratista || isInspector || isResidente)
-  const canEdit = !isVisitante && (isAdmin || isInspector || isContratista || isResidente)
+  const canCreate = !isVisitante && (isAdmin || isContratista || isInspector || isResidente || isIngCampo)
+  const canEdit = !isVisitante && (isAdmin || isInspector || isContratista || isResidente || isIngCampo)
   const canApprove = !isVisitante && (isAdmin || isResidente || isInspector || isDirectivo)
-  const canSubsanate = !isVisitante && !isDirectivo && (isAdmin || isContratista || isInspector || isResidente)
+  const canSubsanate = !isVisitante && !isDirectivo && (isAdmin || isContratista || isInspector || isResidente || isIngCampo)
 
   // Data
   const [avances, setAvances] = useState<AvanceEjecutado[]>([])

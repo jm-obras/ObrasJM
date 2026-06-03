@@ -358,6 +358,7 @@ export function UsersTab({ profile, unidadesEjecutoras }: UsersTabProps) {
                     <SelectItem value="contratista">Contratista</SelectItem>
                     <SelectItem value="inspector">Inspector</SelectItem>
                     <SelectItem value="ingeniera_residente">Ing. Residente</SelectItem>
+                    <SelectItem value="ing_campo">Ing. Campo</SelectItem>
                     <SelectItem value="directivo_hospital">Directivo Hospital</SelectItem>
                     <SelectItem value="ingenieria_hospital">Ing. Hospital</SelectItem>
                     <SelectItem value="visitante">Visitante</SelectItem>
@@ -416,6 +417,7 @@ export function UsersTab({ profile, unidadesEjecutoras }: UsersTabProps) {
                     <SelectItem value="contratista">Contratista</SelectItem>
                     <SelectItem value="inspector">Inspector</SelectItem>
                     <SelectItem value="ingeniera_residente">Ing. Residente</SelectItem>
+                    <SelectItem value="ing_campo">Ing. Campo</SelectItem>
                     <SelectItem value="directivo_hospital">Directivo Hospital</SelectItem>
                     <SelectItem value="ingenieria_hospital">Ing. Hospital</SelectItem>
                     <SelectItem value="visitante">Visitante</SelectItem>

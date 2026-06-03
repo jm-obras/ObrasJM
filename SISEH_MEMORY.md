@@ -174,7 +174,7 @@
 
 | Enum | Valores |
 |------|---------|
-| `user_rol` | `administrador` *(obsoleto, migrado a webmaster)*, `webmaster`, `contratista`, `inspector`, `ingeniera_residente`, `directivo_hospital`, `ingenieria_hospital`, `visitante` |
+| `user_rol` | `administrador` *(obsoleto, migrado a webmaster)*, `webmaster`, `contratista`, `inspector`, `ingeniera_residente`, `ing_campo`, `directivo_hospital`, `ingenieria_hospital`, `visitante` |
 | `trabajo_tipo` | `Planificado`, `Imprevisto` |
 | `aprobacion_status` | `Pendiente`, `Aprobado`, `Rechazado`, `Objetado`, `Subsanado` |
 | `alcance_status` | `Activo`, `Completado`, `Suspendido` |
@@ -321,7 +321,7 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 #### `alcance_planificado`
 | Operación | Quién |
 |-----------|-------|
-| SELECT | authenticated + contratista/ingeniera_residente (su UE) |
+| SELECT | authenticated + contratista/ingeniera_residente/ing_campo (su UE) |
 | INSERT | webmaster + inspector |
 | UPDATE | webmaster + inspector |
 | DELETE | webmaster |
@@ -330,8 +330,8 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 | Operación | Quién |
 |-----------|-------|
 | SELECT | authenticated |
-| INSERT | contratista + ingeniera_residente + inspector + webmaster |
-| UPDATE (datos) | contratista + ingeniera_residente + inspector + webmaster |
+| INSERT | contratista + ingeniera_residente + ing_campo + inspector + webmaster |
+| UPDATE (datos) | contratista + ingeniera_residente + ing_campo + inspector + webmaster |
 | UPDATE (aprobación residente) | ingeniera_residente + webmaster |
 | UPDATE (aprobación inspector) | inspector + webmaster |
 | UPDATE (aprobación directivo) | directivo_hospital + webmaster |
@@ -443,35 +443,36 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 
 ### E.1 Visibilidad de Tabs por Rol
 
-| Tab | webmaster | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital | visitante |
-|-----|:---------:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|:--------:|
-| Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Alcance Planificado | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
-| Avance Ejecutado | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Administración | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Tab | webmaster | contratista | inspector | ingeniera_residente | ing_campo | directivo_hospital | ingenieria_hospital | visitante |
+|-----|:---------:|:-----------:|:---------:|:-------------------:|:---------:|:------------------:|:-------------------:|:--------:|
+| Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Alcance Planificado | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
+| Avance Ejecutado | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Administración | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ### E.2 Capacidades por Rol en Avance Ejecutado
 
-| Acción | webmaster | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital | visitante |
-|--------|:---------:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|:--------:|
-| Crear avance | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Editar datos | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Aprobar Nivel 1 (Residente) | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Aprobar Nivel 2 (Inspector) | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Aprobar Nivel 3 (Directivo) | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Rechazar (su nivel) | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Acción | webmaster | contratista | inspector | ingeniera_residente | ing_campo | directivo_hospital | ingenieria_hospital | visitante |
+|--------|:---------:|:-----------:|:---------:|:-------------------:|:---------:|:------------------:|:-------------------:|:--------:|
+| Crear avance | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Editar datos | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Aprobar Nivel 1 (Residente) | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Aprobar Nivel 2 (Inspector) | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Aprobar Nivel 3 (Directivo) | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Rechazar (su nivel) | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
+| Declarar subsanación | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-> **Cadena de aprobación secuencial:** Nivel 1 (Ing. Residente declara concluida) → Nivel 2 (Inspector aprueba por MPPOP) → Nivel 3 (Directivo Hospital conformidad). El Webmaster puede aprobar cualquier nivel. Visitante: solo lectura, sin acciones.
+> **Cadena de aprobación secuencial:** Nivel 1 (Ing. Residente declara concluida) → Nivel 2 (Inspector aprueba por MPPOP) → Nivel 3 (Directivo Hospital conformidad). El Webmaster puede aprobar cualquier nivel. **Ing. Campo:** Puede crear/editar avances y declarar subsanaciones, pero NO participa en la cadena de aprobación. Visitante: solo lectura, sin acciones.
 
 ### E.3 Capacidades por Rol en Alcance Planificado
 
-| Acción | webmaster | contratista | inspector | ingeniera_residente | directivo_hospital | ingenieria_hospital | visitante |
-|--------|:---------:|:-----------:|:---------:|:-------------------:|:------------------:|:-------------------:|:--------:|
-| Ver | ✅ | ✅ (su UE) | ✅ | ✅ (su UE) | ❌ | ✅ | ✅ |
-| Crear | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Editar | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Acción | webmaster | contratista | inspector | ingeniera_residente | ing_campo | directivo_hospital | ingenieria_hospital | visitante |
+|--------|:---------:|:-----------:|:---------:|:-------------------:|:---------:|:------------------:|:-------------------:|:--------:|
+| Ver | ✅ | ✅ (su UE) | ✅ | ✅ (su UE) | ✅ (su UE) | ❌ | ✅ | ✅ |
+| Crear | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Editar | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ---
 
@@ -638,6 +639,8 @@ contratista/inspector/residente/webmaster → Crea Avance
 | `supabase/migrations/015a_add_objecion_enum_values.sql` | Agrega `Objetado` y `Subsanado` al enum aprobacion_status | ~8 |
 | `supabase/migrations/015b_add_objecion_fields.sql` | Agrega 6 campos de objeción/subsanación a avance_ejecutado + RLS | ~80 |
 | `supabase/migrations/016_storage_and_rls_fixes.sql` | VULN-005: Storage lectura→autenticado + VULN-006: delete policy administrador→webmaster | ~25 |
+| `supabase/migrations/017_add_ing_campo_role.sql` | Agrega `ing_campo` al enum `user_rol` (DEBE ejecutarse primero, en transacción separada) | ~8 |
+| `supabase/migrations/017b_add_ing_campo_policies.sql` | RLS policies para ing_campo: SELECT alcance (su UE), INSERT/UPDATE avance datos (sin aprobación) | ~50 |
 
 ---
 
@@ -715,6 +718,7 @@ contratista/inspector/residente/webmaster → Crea Avance
 | **v3.2.1** | **04-Jun-2026** | **Security Hardening + Technical Debt Cleanup:** (1) VULN-002: `/api/dashboard` (3 endpoints) requieren autenticación, (2) VULN-003: `/api/init` requiere rol webmaster, (3) VULN-004: GET `/api/alcance` y `/api/avance` (4 endpoints) requieren autenticación, (4) VULN-005: Storage `evidencias` lectura cambiada de público a autenticado (migración 016), (5) VULN-006: API unidades-ejecutoras alineada con RLS (solo webmaster), (6) VULN-007: Política de complejidad de contraseñas (mín 8, mayús, mín, núm, especial), (7) DEBT-001: `ignoreBuildErrors` deshabilitado, (8) DEBT-002: `reactStrictMode` habilitado, (9) DEBT-008: Prisma/SQLite eliminados del proyecto, (10) DEBT-010: `updated_at` manual redundante eliminado, (11) DEBT-011: Archivos SQL legacy marcados con advertencias de obsolescencia | **Migración 016 + deps cleanup + push** | ✅ Operativo |
 | **v3.2.2** | **04-Jun-2026** | **Fix:** (1) Restaurar `/api/upload` eliminado accidentalmente (causaba 404 al subir evidencias), (2) Corregir errores TypeScript que bloqueaban build de Vercel (consecuencia de DEBT-001: `ignoreBuildErrors: false`): hero-section ease tuple, services-section ease const, alcance route type assertion, (3) VULN-005 reclasificado como PARCIAL (bucket público, URLs accesibles directamente) | **Push** | ✅ Operativo |
 | **v3.2.3** | **31-May-2026** | **Logos y Manual PDF:** (1) Reemplazar logo CORPOELEC por CORPOELEC__IND_LOGO_II en carrusel landing y manual, (2) Agregar logotipo FUNDEEH__LOGO_II (fundeeh-ii.png) al carrusel y manual, (3) Corregir FUNDEEH duplicado en carrusel (eliminar fundeeh.png viejo, usar solo fundeeh-ii.png), (4) Portada del manual PDF: solo VSOPS.png y logo_hospital.png, (5) Corregir rutas de imágenes en generate_manual_v3.html: agregar prefijo `public/` a todos los src (instituciones/, VSOPS.png, logo_hospital.png, images/macro-especialidades/) para Playwright PDF generation, (6) Agregar FUNDEEH y Alcaldía CCS a sección de instituciones y créditos del manual, (7) Regenerar PDF manual (6MB con todas las imágenes incrustadas), (8) Nombres de institución actualizados: CORPOELEC → CORPOELEC Industrial, FUNDEEH y Alcaldía CCS agregados | **Commits: bbc8384, 7e06d1c, 8193480, 7e62ef9** | ✅ Operativo |
+| **v3.3.0** | **04-Jun-2026** | **Nuevo rol Ing. Campo:** (1) Rol `ing_campo` agregado al enum `user_rol`, (2) Permisos idénticos a `ingeniera_residente` para datos (crear/editar avances, ver alcance de su UE, declarar subsanaciones) PERO sin participación en la cadena de aprobación de 3 niveles, (3) Migraciones SQL 017 (enum) + 017b (RLS policies), (4) API routes actualizadas: `/api/avance` POST allowedRoles, `/api/avance/[id]` DATA_EDIT_ROLES, admin users VALID_ROLES, auth register validRoles, (5) Frontend: types.ts, page.tsx (tabs, ROL_LABELS, ROL_COLORS), avance-view.tsx (APPROVAL_LEVEL_BY_ROLE, canCreate, canEdit, canSubsanate), users-tab.tsx (select options), admin-types.ts (ROL_COLORS, ROL_LABELS), (6) Color badge: teal para Ing. Campo | **Migraciones 017+017b + push** | ✅ Operativo |
 
 ### L.3 Próximo Snapshot (Plantilla)
 
@@ -872,5 +876,5 @@ interface AvanceEjecutado {
 ---
 
 *Documento generado: Mayo 2026 — Versión v2.0.0*
-*Última actualización: 31-May-2026 — v3.2.3 — Logos y Manual PDF actualizados*
+*Última actualización: 04-Jun-2026 — v3.3.0 — Nuevo rol Ing. Campo (sin aprobación)*
 *Próxima revisión programada: Antes de cualquier cambio significativo al sistema*
