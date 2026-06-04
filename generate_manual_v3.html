@@ -306,6 +306,7 @@
   .role-residente { background: #D1FAE5; color: #065F46; }
   .role-directivo { background: #FEE2E2; color: #991B1B; }
   .role-ing-hospital { background: #E0E7FF; color: #3730A3; }
+.role-ing-campo { background: #CCFBF1; color: #0F766E; }
 
   /* ===== FLOW STEPS ===== */
   .flow-steps {
@@ -728,7 +729,7 @@
       </div>
       <div class="col">
         <h3>¿Quiénes lo utilizan?</h3>
-        <p>El sistema define <strong>7 roles</strong> con permisos diferenciados:</p>
+        <p>El sistema define <strong>8 roles</strong> con permisos diferenciados:</p>
 
         <div class="card" style="border-top:3px solid #6D28D9; margin-top:10px;">
           <h3>👑 Webmaster</h3>
@@ -736,15 +737,19 @@
         </div>
         <div class="card" style="border-top:3px solid #B45309;">
           <h3>🔍 Inspector MPPOP</h3>
-          <p>Crear/editar alcances planificados. Crear, editar y aprobar avances. Representa al ministerio.</p>
+          <p>Crear, editar y eliminar alcances planificados. Crear, editar y aprobar avances. Representa al ministerio.</p>
         </div>
         <div class="card" style="border-top:3px solid #1D4ED8;">
           <h3>👷 Contratista</h3>
-          <p>Reportar y editar avances ejecutados. Subir fotos de evidencia de su unidad ejecutora.</p>
+          <p>Crear y editar alcances planificados. Reportar y editar avances ejecutados. Subir fotos de evidencia de su unidad ejecutora.</p>
         </div>
         <div class="card" style="border-top:3px solid #065F46;">
           <h3>📋 Ingeniera Residente</h3>
           <p>Reportar avances y aprobar Nivel 1 del flujo. Declara concluida la obra en su unidad.</p>
+        </div>
+        <div class="card" style="border-top:3px solid #0F766E;">
+          <h3>🏗️ Ingeniero de Campo</h3>
+          <p>Reportar y editar avances ejecutados. Sin participación en los flujos de aprobación.</p>
         </div>
         <div class="card" style="border-top:3px solid #991B1B;">
           <h3>🏥 Directivo Hospital</h3>
@@ -985,6 +990,7 @@
         <div style="margin-top:6px;">
           <span class="role-badge role-webmaster">👑 Webmaster</span>
           <span class="role-badge role-inspector">🔍 Inspector</span>
+          <span class="role-badge role-contratista">👷 Contratista</span>
         </div>
 
         <h3 style="margin-top:14px;">¿Cómo crear un nuevo alcance?</h3>
@@ -1047,22 +1053,23 @@
     <table class="feature-table" style="margin-top:16px;">
       <thead>
         <tr>
-          <th style="width:28%;">Acción</th>
+          <th style="width:22%;">Acción</th>
           <th style="text-align:center;">👑 Webmaster</th>
           <th style="text-align:center;">🔍 Inspector</th>
           <th style="text-align:center;">👷 Contratista</th>
           <th style="text-align:center;">📋 Ing. Residente</th>
+          <th style="text-align:center;">🏗️ Ing. Campo</th>
           <th style="text-align:center;">🏥 Directivo</th>
-          <th style="text-align:center;">🏗️ Ing. Hospital</th>
+          <th style="text-align:center;">🏗️ Ing. Hosp.</th>
           <th style="text-align:center;">👁️ Visitante</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>Ver alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Crear alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Filtrar por sector/especialidad</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Ver alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Crear alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Filtrar por sector/especialidad</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
       </tbody>
     </table>
 
@@ -1079,7 +1086,7 @@
       <div class="col">
         <h3>Eliminar un Alcance</h3>
         <div class="annotation warning">
-          ⚠️ Solo el <strong>Webmaster</strong> puede eliminar alcances. Esta acción es irreversible y eliminará todos los avances asociados.
+          ⚠️ Solo el <strong>Webmaster</strong> y el <strong>Inspector</strong> pueden eliminar alcances. Esta acción es irreversible y eliminará todos los avances asociados.
         </div>
       </div>
     </div>
@@ -1126,6 +1133,7 @@
           <span class="role-badge role-inspector">🔍 Inspector</span>
           <span class="role-badge role-contratista">👷 Contratista</span>
           <span class="role-badge role-residente">📋 Ing. Residente</span>
+          <span class="role-badge role-ing-campo">🏗️ Ing. Campo</span>
         </div>
 
         <h3 style="margin-top:14px;">Campos del Formulario</h3>
@@ -1448,36 +1456,37 @@
     <div class="section-title">Roles y Permisos</div>
     <div class="section-subtitle">Tabla completa de funcionalidades por rol</div>
 
-    <table class="feature-table" style="font-size:10.5px;">
+    <table class="feature-table" style="font-size:10px;">
       <thead>
         <tr>
-          <th style="width:26%;">Funcionalidad</th>
+          <th style="width:22%;">Funcionalidad</th>
           <th style="text-align:center;">👑 Webmaster</th>
           <th style="text-align:center;">🔍 Inspector</th>
           <th style="text-align:center;">👷 Contratista</th>
           <th style="text-align:center;">📋 Ing. Residente</th>
+          <th style="text-align:center;">🏗️ Ing. Campo</th>
           <th style="text-align:center;">🏥 Directivo</th>
           <th style="text-align:center;">🏗️ Ing. Hosp.</th>
           <th style="text-align:center;">👁️ Visitante</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td><strong>Dashboard</strong></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Ver alcances planificados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Crear / editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Ver avances ejecutados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Crear / editar avances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar Nivel 1 (Ing. Residente)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar Nivel 2 (Inspector MPPOP)</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar Nivel 3 (Directivo Hospital)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar cualquier nivel</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Objetar avances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Declarar subsanación</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Subir fotos de evidencia</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td><strong>Administración</strong></td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Gestión de usuarios</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Gestión de catálogos</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td><strong>Dashboard</strong></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Ver alcances planificados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Crear / editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Ver avances ejecutados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Crear / editar avances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar Nivel 1 (Ing. Residente)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar Nivel 2 (Inspector MPPOP)</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar Nivel 3 (Directivo Hospital)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar cualquier nivel</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Objetar avances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Declarar subsanación</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Subir fotos de evidencia</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td><strong>Administración</strong></td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Gestión de usuarios</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Gestión de catálogos</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
       </tbody>
     </table>
 
@@ -1534,6 +1543,7 @@
           <span class="role-badge role-inspector">Inspector</span>
           <span class="role-badge role-contratista">Contratista</span>
           <span class="role-badge role-residente">Ing. Residente</span>
+          <span class="role-badge role-ing-campo">Ing. Campo</span>
           <span class="role-badge role-directivo">Directivo Hospital</span>
           <span class="role-badge role-ing-hospital">Ing. Hospital</span>
           <span class="role-badge role-visitante">Visitante</span>

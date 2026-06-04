@@ -66,3 +66,40 @@ Stage Summary:
 - Contratista now has CREATE and EDIT on alcances (was missing both)
 - Changes made at 3 layers: Frontend UI (buttons visibility), API routes (auth checks), Supabase RLS (database policies)
 - Migration SQL ready to execute on Supabase for production
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Update Manual de Usuario sections 4 and 7 for ing_campo role and updated permissions
+
+Work Log:
+- Updated generate_manual_v3.html (HTML manual source):
+  - Added CSS style `.role-ing-campo` for teal-colored badge
+  - Updated intro section: 7 roles → 8 roles, added Ing. Campo card
+  - Updated Inspector card description to include "eliminar alcances"
+  - Updated Contratista card description to include "Crear y editar alcances"
+  - Section 4 (Page 6): Added Contratista badge to "Roles que pueden crear alcances"
+  - Section 4 (Page 7): Added Ing. Campo column to permissions table, updated Inspector Delete=✓, Contratista Create=✓ Edit=✓
+  - Section 4 (Page 7): Updated "Eliminar un Alcance" warning to mention Webmaster + Inspector
+  - Section 5 (Avance): Added Ing. Campo badge to "Roles que pueden reportar avances"
+  - Section 7 (Page 12): Added Ing. Campo column, updated all permission rows
+  - Section 8 (Admin): Added Ing. Campo badge to role assignment list
+- Updated generate_manual.py (Python PDF generator):
+  - Updated roles count: siete → ocho
+  - Added Ing. Campo row to roles table
+  - Updated Contratista description to include "Crear/editar alcances"
+  - Updated Inspector description to include "eliminar alcances"
+  - Updated Contratista access table: "Solo lectura" → "Lectura + Creacion + Edicion"
+  - Updated Contratista note about alcance permissions
+  - Updated Inspector access table: added "Eliminacion"
+  - Updated Inspector warning about deleting alcances
+- Installed puppeteer and created scripts/html-to-pdf.mjs
+- Regenerated PDF: public/Manual_Usuario_ObrasJM_v3.2.pdf (5.75MB)
+- Copied updated HTML to public/Manual_Usuario_ObrasJM_v3.html
+- Lint check passed clean
+- Dev server running on port 3000
+
+Stage Summary:
+- Manual sections 4 and 7 updated with Ing. Campo role and corrected permissions
+- PDF regenerated with all changes
+- Both HTML source and Python generator updated for consistency

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Manual de Usuario - Sistema ObrasJM v3.1</title>
+<title>Manual de Usuario - Sistema ObrasJM v3.2</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Inter+Variable:wght@300..900&display=swap');
 
@@ -31,6 +31,11 @@
     --warning: #F59E0B;
     --danger: #EF4444;
     --purple: #6D28D9;
+    --orange: #F97316;
+    --objected-bg: #FFF7ED;
+    --objected-border: #F97316;
+    --subsanado-bg: #EFF6FF;
+    --subsanado-border: #3B82F6;
   }
 
   html, body {
@@ -45,8 +50,9 @@
 
   .page {
     width: 210mm;
-    min-height: 297mm;
-    position: relative;
+    height: 297mm;
+    display: flex;
+    flex-direction: column;
     page-break-after: always;
     background: var(--bg);
     overflow: hidden;
@@ -85,8 +91,6 @@
 
   /* ===== FOOTER ===== */
   .page-footer {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -95,11 +99,15 @@
     color: var(--text-light);
     border-top: 1px solid var(--border);
     background: var(--bg);
+    flex-shrink: 0;
+    margin-top: auto;
   }
 
   /* ===== CONTENT AREA ===== */
   .content {
     padding: 32px 42px;
+    flex: 1 1 auto;
+    overflow: hidden;
   }
 
   /* ===== COVER ===== */
@@ -251,6 +259,10 @@
     border-left-color: var(--accent);
     border-left-width: 5px;
   }
+  .annotation.orange {
+    background: #FFF7ED;
+    border-left-color: var(--orange);
+  }
 
   /* ===== TWO COLUMN LAYOUT ===== */
   .two-col {
@@ -294,6 +306,7 @@
   .role-residente { background: #D1FAE5; color: #065F46; }
   .role-directivo { background: #FEE2E2; color: #991B1B; }
   .role-ing-hospital { background: #E0E7FF; color: #3730A3; }
+.role-ing-campo { background: #CCFBF1; color: #0F766E; }
 
   /* ===== FLOW STEPS ===== */
   .flow-steps {
@@ -622,12 +635,51 @@
   .status-card.pending { background: #FFF8E1; border: 1px solid #F59E0B; }
   .status-card.approved { background: #E8F5E9; border: 1px solid #10B981; }
   .status-card.rejected { background: #FEF2F2; border: 1px solid #EF4444; }
+  .status-card.objeted { background: var(--objected-bg); border: 1px solid var(--objected-border); }
+  .status-card.subsanado { background: var(--subsanado-bg); border: 1px solid var(--subsanado-border); }
   .status-card .status-icon { font-size: 22px; margin-bottom: 4px; }
   .status-card .status-label { font-size: 13px; font-weight: 700; }
   .status-card.pending .status-label { color: #B45309; }
   .status-card.approved .status-label { color: #065F46; }
   .status-card.rejected .status-label { color: #991B1B; }
+  .status-card.objeted .status-label { color: #C2410C; }
+  .status-card.subsanado .status-label { color: #1D4ED8; }
   .status-card .status-desc { font-size: 10.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+
+  /* ===== OBJECTION FLOW ===== */
+  .objection-flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .objection-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--primary);
+  }
+  .objection-step .step-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .objection-arrow {
+    font-size: 16px;
+    color: var(--text-light);
+  }
 </style>
 </head>
 <body>
@@ -635,10 +687,8 @@
 <!-- ===================== PAGE 1: COVER ===================== -->
 <div class="page cover-page">
   <div class="cover-logos">
-    <img src="logo_hospital.png" alt="Hospital J.M. de los Ríos" class="rounded" style="height:80px; width:80px;">
-    <img src="instituciones/mppop.png" alt="MPPOP" style="height:68px;">
-    <img src="VSOPS.png" alt="VSOPS" style="height:68px;">
-    <img src="instituciones/alcaldia.png" alt="Alcaldía de Caracas" style="height:68px;">
+    <img src="public/VSOPS.png" alt="VSOPS" style="height:80px;">
+    <img src="public/logo_hospital.png" alt="Hospital J.M. de los Ríos" class="rounded" style="height:80px; width:80px;">
   </div>
   <div class="cover-divider"></div>
   <h1>Manual de Usuario</h1>
@@ -647,15 +697,15 @@
   <div class="cover-plan">
     <p>Plan de Recuperación de Infraestructura Hospitalaria<br><strong>Dr. José Gregorio Hernández</strong></p>
   </div>
-  <div class="cover-version">VERSIÓN 3.1 &mdash; MAYO 2026</div>
+  <div class="cover-version">VERSIÓN 3.2 &mdash; JUNIO 2026</div>
 </div>
 
 <!-- ===================== PAGE 2: INTRODUCCIÓN ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">1</div>
@@ -679,7 +729,7 @@
       </div>
       <div class="col">
         <h3>¿Quiénes lo utilizan?</h3>
-        <p>El sistema define <strong>7 roles</strong> con permisos diferenciados:</p>
+        <p>El sistema define <strong>8 roles</strong> con permisos diferenciados:</p>
 
         <div class="card" style="border-top:3px solid #6D28D9; margin-top:10px;">
           <h3>👑 Webmaster</h3>
@@ -687,15 +737,19 @@
         </div>
         <div class="card" style="border-top:3px solid #B45309;">
           <h3>🔍 Inspector MPPOP</h3>
-          <p>Crear/editar alcances planificados. Crear, editar y aprobar avances. Representa al ministerio.</p>
+          <p>Crear, editar y eliminar alcances planificados. Crear, editar y aprobar avances. Representa al ministerio.</p>
         </div>
         <div class="card" style="border-top:3px solid #1D4ED8;">
           <h3>👷 Contratista</h3>
-          <p>Reportar y editar avances ejecutados. Subir fotos de evidencia de su unidad ejecutora.</p>
+          <p>Crear y editar alcances planificados. Reportar y editar avances ejecutados. Subir fotos de evidencia de su unidad ejecutora.</p>
         </div>
         <div class="card" style="border-top:3px solid #065F46;">
           <h3>📋 Ingeniera Residente</h3>
           <p>Reportar avances y aprobar Nivel 1 del flujo. Declara concluida la obra en su unidad.</p>
+        </div>
+        <div class="card" style="border-top:3px solid #0F766E;">
+          <h3>🏗️ Ingeniero de Campo</h3>
+          <p>Reportar y editar avances ejecutados. Sin participación en los flujos de aprobación.</p>
         </div>
         <div class="card" style="border-top:3px solid #991B1B;">
           <h3>🏥 Directivo Hospital</h3>
@@ -712,15 +766,15 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>2 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>2 / 20</span></div>
 </div>
 
 <!-- ===================== PAGE 3: ACCESO AL SISTEMA ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">2</div>
@@ -765,7 +819,7 @@
           </div>
           <div class="flow-step">
             <div class="flow-icon">2</div>
-            <div class="flow-text">Cree su nueva contraseña (mínimo 6 caracteres)</div>
+            <div class="flow-text">Cree su nueva contraseña (mínimo 8 caracteres incluyendo mayúscula, minúscula, número y carácter especial)</div>
           </div>
           <div class="flow-step">
             <div class="flow-icon">3</div>
@@ -781,24 +835,28 @@
           ✅ Puede cambiar su contraseña en cualquier momento desde el menú de usuario (esquina superior derecha).
         </div>
 
-        <h3 style="margin-top:16px;">💡 Recomendaciones</h3>
+        <h3 style="margin-top:16px;">💡 Requisitos de Contraseña</h3>
         <ul class="bullet-list">
-          <li>Use letras, números y símbolos para mayor seguridad</li>
+          <li>Mínimo <strong>8 caracteres</strong></li>
+          <li>Al menos una <strong>letra mayúscula</strong> (A-Z)</li>
+          <li>Al menos una <strong>letra minúscula</strong> (a-z)</li>
+          <li>Al menos un <strong>número</strong> (0-9)</li>
+          <li>Al menos un <strong>carácter especial</strong> (!@#$%&amp;*)</li>
           <li>No comparta sus credenciales con terceros</li>
           <li>Cierre sesión al terminar su jornada</li>
         </ul>
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>3 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>3 / 20</span></div>
 </div>
 
 <!-- ===================== PAGE 4: DASHBOARD - VISTA GENERAL ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">3</div>
@@ -841,15 +899,15 @@
     <h3 style="margin-top:14px;">🔧 Pestaña 3: Vista por Macro Especialidades</h3>
     <p>Presenta 6 áreas de especialidad con anillos de avance individuales y desglose operativo.</p>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>4 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>4 / 20</span></div>
 </div>
 
 <!-- ===================== PAGE 5: DASHBOARD - MACRO ESPECIALIDADES ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">3</div>
@@ -860,27 +918,27 @@
 
     <div class="macro-grid">
       <div class="macro-card">
-        <img src="images/macro-especialidades/sistema_electrico.png" alt="Sistema Eléctrico">
+        <img src="public/images/macro-especialidades/sistema_electrico.png" alt="Sistema Eléctrico">
         <div class="macro-name">Sistema<br>Eléctrico</div>
       </div>
       <div class="macro-card">
-        <img src="images/macro-especialidades/sistema_hidrico_y_sanitario.png" alt="Sistema Hídrico">
+        <img src="public/images/macro-especialidades/sistema_hidrico_y_sanitario.png" alt="Sistema Hídrico">
         <div class="macro-name">Sistema Hídrico<br>y Sanitario</div>
       </div>
       <div class="macro-card">
-        <img src="images/macro-especialidades/infraestructura_civil.png" alt="Infraestructura Civil">
+        <img src="public/images/macro-especialidades/infraestructura_civil.png" alt="Infraestructura Civil">
         <div class="macro-name">Infraestructura<br>Civil</div>
       </div>
       <div class="macro-card">
-        <img src="images/macro-especialidades/climatizacion.png" alt="Climatización">
+        <img src="public/images/macro-especialidades/climatizacion.png" alt="Climatización">
         <div class="macro-name">Climatización</div>
       </div>
       <div class="macro-card">
-        <img src="images/macro-especialidades/transporte_vertical.png" alt="Transporte Vertical">
+        <img src="public/images/macro-especialidades/transporte_vertical.png" alt="Transporte Vertical">
         <div class="macro-name">Transporte<br>Vertical</div>
       </div>
       <div class="macro-card">
-        <img src="images/macro-especialidades/sistemas_y_servicios.png" alt="Sistemas y Servicios">
+        <img src="public/images/macro-especialidades/sistemas_y_servicios.png" alt="Sistemas y Servicios">
         <div class="macro-name">Sistemas<br>y Servicios</div>
       </div>
     </div>
@@ -908,15 +966,15 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>5 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>5 / 20</span></div>
 </div>
 
 <!-- ===================== PAGE 6: ALCANCE PLANIFICADO ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">4</div>
@@ -932,6 +990,7 @@
         <div style="margin-top:6px;">
           <span class="role-badge role-webmaster">👑 Webmaster</span>
           <span class="role-badge role-inspector">🔍 Inspector</span>
+          <span class="role-badge role-contratista">👷 Contratista</span>
         </div>
 
         <h3 style="margin-top:14px;">¿Cómo crear un nuevo alcance?</h3>
@@ -976,15 +1035,15 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>6 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>6 / 20</span></div>
 </div>
 
 <!-- ===================== PAGE 7: ALCANCE - PERMISOS ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">4</div>
@@ -994,22 +1053,23 @@
     <table class="feature-table" style="margin-top:16px;">
       <thead>
         <tr>
-          <th style="width:28%;">Acción</th>
+          <th style="width:22%;">Acción</th>
           <th style="text-align:center;">👑 Webmaster</th>
           <th style="text-align:center;">🔍 Inspector</th>
           <th style="text-align:center;">👷 Contratista</th>
           <th style="text-align:center;">📋 Ing. Residente</th>
+          <th style="text-align:center;">🏗️ Ing. Campo</th>
           <th style="text-align:center;">🏥 Directivo</th>
-          <th style="text-align:center;">🏗️ Ing. Hospital</th>
+          <th style="text-align:center;">🏗️ Ing. Hosp.</th>
           <th style="text-align:center;">👁️ Visitante</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>Ver alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Crear alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Filtrar por sector/especialidad</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Ver alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Crear alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Filtrar por sector/especialidad</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
       </tbody>
     </table>
 
@@ -1026,7 +1086,7 @@
       <div class="col">
         <h3>Eliminar un Alcance</h3>
         <div class="annotation warning">
-          ⚠️ Solo el <strong>Webmaster</strong> puede eliminar alcances. Esta acción es irreversible y eliminará todos los avances asociados.
+          ⚠️ Solo el <strong>Webmaster</strong> y el <strong>Inspector</strong> pueden eliminar alcances. Esta acción es irreversible y eliminará todos los avances asociados.
         </div>
       </div>
     </div>
@@ -1047,15 +1107,15 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>7 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>7 / 20</span></div>
 </div>
 
 <!-- ===================== PAGE 8: AVANCE EJECUTADO ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">5</div>
@@ -1073,6 +1133,7 @@
           <span class="role-badge role-inspector">🔍 Inspector</span>
           <span class="role-badge role-contratista">👷 Contratista</span>
           <span class="role-badge role-residente">📋 Ing. Residente</span>
+          <span class="role-badge role-ing-campo">🏗️ Ing. Campo</span>
         </div>
 
         <h3 style="margin-top:14px;">Campos del Formulario</h3>
@@ -1124,19 +1185,19 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>8 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>8 / 20</span></div>
 </div>
 
 <!-- ===================== PAGE 9: FLUJO DE APROBACIÓN EN 3 NIVELES ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">6</div>
-    <div class="section-title">Flujo de Aprobación en 3 Niveles <span class="new-badge">NUEVO</span></div>
+    <div class="section-title">Flujo de Aprobación en 3 Niveles</div>
     <div class="section-subtitle">Proceso secuencial de validación y conformidad de avances</div>
 
     <div class="annotation highlight" style="margin-bottom:16px;">
@@ -1191,18 +1252,18 @@
     </div>
 
     <div class="annotation warning" style="margin-top:10px;">
-      ⚠️ <strong>Webmaster:</strong> Puede aprobar cualquier nivel del flujo, incluso si los niveles anteriores no han sido aprobados. Esta es una capacidad especial para casos excepcionales.
+      ⚠️ <strong>Webmaster:</strong> Puede aprobar cualquier nivel del flujo, incluso si los niveles anteriores no han sido aprobados. También puede revertir cualquier nivel a Pendiente. Esta es una capacidad especial para casos excepcionales.
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>9 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>9 / 20</span></div>
 </div>
 
 <!-- ===================== PAGE 10: FLUJO - DETALLES ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">6</div>
@@ -1216,27 +1277,21 @@
           <li>El flujo es <strong>estrictamente secuencial</strong>: cada nivel requiere la aprobación del nivel anterior</li>
           <li>No se puede saltar niveles (excepto el Webmaster)</li>
           <li>Si un nivel <strong>rechaza</strong> el avance, se debe corregir y volver a iniciar el flujo</li>
+          <li>Si un nivel <strong>objeta</strong> el avance, el creador puede subsanar y el revisor reevalúa</li>
           <li>El <strong>status_aprobacion</strong> se calcula automáticamente según el progreso de los 3 niveles</li>
         </ul>
 
         <h3 style="margin-top:16px;">🔄 Cálculo Automático del Status</h3>
         <div class="card" style="background:linear-gradient(135deg, #F0F4F8, #E8F5E9); border-left:4px solid var(--accent);">
-          <p><strong>status_aprobacion</strong> se determina así:</p>
+          <p><strong>status_aprobacion</strong> se determina por prioridad:</p>
           <ul class="bullet-list">
-            <li><strong style="color:#F59E0B;">Pendiente</strong> — Si al menos un nivel no ha sido aprobado</li>
+            <li><strong style="color:#EF4444;">Rechazado</strong> — Si cualquier nivel rechaza el avance (máxima prioridad)</li>
+            <li><strong style="color:#F97316;">Objetado</strong> — Si cualquier nivel objeta con motivo obligatorio</li>
+            <li><strong style="color:#3B82F6;">Subsanado</strong> — El creador declaró resuelta la objeción</li>
             <li><strong style="color:#10B981;">Aprobado</strong> — Solo cuando los 3 niveles han aprobado</li>
-            <li><strong style="color:#EF4444;">Rechazado</strong> — Si cualquier nivel rechaza el avance</li>
+            <li><strong style="color:#F59E0B;">Pendiente</strong> — Si al menos un nivel no ha sido aprobado</li>
           </ul>
         </div>
-
-        <h3 style="margin-top:16px;">¿Cómo aprobar un avance?</h3>
-        <ul class="bullet-list">
-          <li>Navegue a <strong>Avance Ejecutado</strong></li>
-          <li>Busque el avance pendiente de su nivel</li>
-          <li>Haga clic en el botón de <strong>aprobación</strong></li>
-          <li>Revise los detalles, fotos y notas</li>
-          <li>Haga clic en <strong>"Aprobar"</strong> o <strong>"Rechazar"</strong></li>
-        </ul>
       </div>
       <div class="col">
         <h3>📊 Tabla de Permisos por Nivel</h3>
@@ -1281,85 +1336,173 @@
             </tr>
           </tbody>
         </table>
-        <div class="status-cards">
-          <div class="status-card pending">
+
+        <h3 style="margin-top:14px;">Estados del Avance</h3>
+        <div class="status-cards" style="gap:8px;">
+          <div class="status-card pending" style="padding:10px;">
             <div class="status-icon">⏳</div>
-            <div class="status-label">Pendiente</div>
-            <div class="status-desc">Esperando aprobación de uno o más niveles</div>
+            <div class="status-label" style="font-size:11px;">Pendiente</div>
           </div>
-          <div class="status-card approved">
+          <div class="status-card approved" style="padding:10px;">
             <div class="status-icon">✅</div>
-            <div class="status-label">Aprobado</div>
-            <div class="status-desc">Los 3 niveles han aprobado</div>
+            <div class="status-label" style="font-size:11px;">Aprobado</div>
           </div>
-          <div class="status-card rejected">
+          <div class="status-card objeted" style="padding:10px;">
+            <div class="status-icon">🟠</div>
+            <div class="status-label" style="font-size:11px;">Objetado</div>
+          </div>
+          <div class="status-card subsanado" style="padding:10px;">
+            <div class="status-icon">🔵</div>
+            <div class="status-label" style="font-size:11px;">Subsanado</div>
+          </div>
+          <div class="status-card rejected" style="padding:10px;">
             <div class="status-icon">❌</div>
-            <div class="status-label">Rechazado</div>
-            <div class="status-desc">Un nivel rechazó el avance</div>
+            <div class="status-label" style="font-size:11px;">Rechazado</div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>10 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>10 / 20</span></div>
 </div>
 
-<!-- ===================== PAGE 11: ROLES Y PERMISOS ===================== -->
+<!-- ===================== PAGE 11: FLUJO - OBJECIÓN Y SUBSANACIÓN ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="section-number">6</div>
+    <div class="section-title">Flujo: Objeción y Subsanación <span class="new-badge">NUEVO v3.2</span></div>
+    <div class="section-subtitle">Mecanismo intermedio entre aprobación y rechazo</div>
+
+    <div class="annotation orange" style="margin-bottom:16px;">
+      🟠 <strong>Característica nueva de la versión 3.2:</strong> Los revisores ahora pueden objetar un avance como alternativa intermedia entre aprobar y rechazar. Esto permite señalar observaciones que deben ser corregidas sin necesidad de rechazar completamente el avance.
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <h3>🟠 Objeción</h3>
+        <p>Un revisor puede <strong>objetar</strong> un avance en lugar de aprobarlo o rechazarlo. La objeción es un estado intermedio que indica que el avance tiene problemas que deben ser atendidos.</p>
+        <ul class="bullet-list">
+          <li>El revisor debe ingresar un <strong>motivo obligatorio</strong> al objetar</li>
+          <li>El status del avance cambia a <strong>Objetado</strong></li>
+          <li>La objeción no reinicia el flujo de aprobación como sí lo hace el rechazo</li>
+          <li>El creador del avance recibe la notificación de la objeción</li>
+        </ul>
+
+        <h3 style="margin-top:16px;">🔵 Subsanación</h3>
+        <p>El creador del avance puede <strong>declarar subsanada</strong> la objeción, indicando que los problemas señalados han sido corregidos:</p>
+        <ul class="bullet-list">
+          <li>El creador agrega <strong>notas de subsanación</strong> explicando las correcciones</li>
+          <li>El status cambia a <strong>Subsanado</strong></li>
+          <li>El revisor original es notificado para reevaluar</li>
+          <li>El revisor puede: <strong>aprobar</strong>, <strong>objetar nuevamente</strong> o <strong>rechazar</strong></li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3>🔄 Flujo de Objeción-Subsanación</h3>
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-icon" style="background:var(--orange);">🟠</div>
+            <div class="flow-text">Revisor objeta el avance (con motivo obligatorio)</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon" style="background:var(--blue);">🔵</div>
+            <div class="flow-text">Creador declara subsanada la objeción (con notas)</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon" style="background:var(--accent);">🔄</div>
+            <div class="flow-text">Revisor reevalúa: aprobar, objetar o rechazar</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon" style="background:var(--success);">✅</div>
+            <div class="flow-text" style="color:var(--success); font-weight:700;">Si aprueba, el flujo continúa al siguiente nivel</div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:16px;">⚡ Prioridad de Estados</h3>
+        <div class="card" style="border-left:4px solid var(--danger); background:#FEF2F2;">
+          <p>El <strong>status_aprobacion</strong> se calcula por prioridad descendente:</p>
+          <ul class="bullet-list" style="margin-top:8px;">
+            <li><strong style="color:#EF4444;">❌ Rechazado</strong> — Máxima prioridad</li>
+            <li><strong style="color:#F97316;">🟠 Objetado</strong> — Pendiente de corrección</li>
+            <li><strong style="color:#3B82F6;">🔵 Subsanado</strong> — Esperando reevaluación</li>
+            <li><strong style="color:#10B981;">✅ Aprobado</strong> — Conformidad completa</li>
+            <li><strong style="color:#F59E0B;">⏳ Pendiente</strong> — Mínima prioridad</li>
+          </ul>
+        </div>
+
+        <div class="annotation info" style="margin-top:14px;">
+          ✅ El <strong>Webmaster</strong> puede revertir cualquier nivel de vuelta a Pendiente, incluyendo estados Objetado y Subsanado, lo que permite corregir errores administrativos.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>11 / 20</span></div>
+</div>
+
+<!-- ===================== PAGE 12: ROLES Y PERMISOS ===================== -->
+<div class="page">
+  <div class="page-header">
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">7</div>
     <div class="section-title">Roles y Permisos</div>
     <div class="section-subtitle">Tabla completa de funcionalidades por rol</div>
 
-    <table class="feature-table" style="font-size:10.5px;">
+    <table class="feature-table" style="font-size:10px;">
       <thead>
         <tr>
-          <th style="width:26%;">Funcionalidad</th>
+          <th style="width:22%;">Funcionalidad</th>
           <th style="text-align:center;">👑 Webmaster</th>
           <th style="text-align:center;">🔍 Inspector</th>
           <th style="text-align:center;">👷 Contratista</th>
           <th style="text-align:center;">📋 Ing. Residente</th>
+          <th style="text-align:center;">🏗️ Ing. Campo</th>
           <th style="text-align:center;">🏥 Directivo</th>
           <th style="text-align:center;">🏗️ Ing. Hosp.</th>
           <th style="text-align:center;">👁️ Visitante</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td><strong>Dashboard</strong></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Ver alcances planificados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Crear / editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Ver avances ejecutados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
-        <tr><td>Crear / editar avances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar Nivel 1 (Ing. Residente)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar Nivel 2 (Inspector MPPOP)</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar Nivel 3 (Directivo Hospital)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Aprobar cualquier nivel</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Subir fotos de evidencia</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td><strong>Administración</strong></td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Gestión de usuarios</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
-        <tr><td>Gestión de catálogos</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td><strong>Dashboard</strong></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Ver alcances planificados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Crear / editar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Eliminar alcances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Ver avances ejecutados</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Crear / editar avances</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar Nivel 1 (Ing. Residente)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar Nivel 2 (Inspector MPPOP)</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar Nivel 3 (Directivo Hospital)</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Aprobar cualquier nivel</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Objetar avances</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Declarar subsanación</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Subir fotos de evidencia</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td><strong>Administración</strong></td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Gestión de usuarios</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Gestión de catálogos</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td></tr>
       </tbody>
     </table>
 
     <div class="annotation info" style="margin-top:16px;">
-      ✅ Todos los roles pueden ver el Dashboard y las secciones de Alcance Planificado y Avance Ejecutado. Las diferencias están en las acciones de creación, edición y aprobación.
+      ✅ Todos los roles pueden ver el Dashboard y las secciones de Alcance Planificado y Avance Ejecutado. Las diferencias están en las acciones de creación, edición, aprobación, objeción y subsanación.
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>11 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>12 / 20</span></div>
 </div>
 
-<!-- ===================== PAGE 12: ADMINISTRACIÓN ===================== -->
+<!-- ===================== PAGE 13: ADMINISTRACIÓN ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">8</div>
@@ -1400,6 +1543,7 @@
           <span class="role-badge role-inspector">Inspector</span>
           <span class="role-badge role-contratista">Contratista</span>
           <span class="role-badge role-residente">Ing. Residente</span>
+          <span class="role-badge role-ing-campo">Ing. Campo</span>
           <span class="role-badge role-directivo">Directivo Hospital</span>
           <span class="role-badge role-ing-hospital">Ing. Hospital</span>
           <span class="role-badge role-visitante">Visitante</span>
@@ -1419,7 +1563,7 @@
         </div>
         <div class="card" style="border-left:4px solid var(--purple);">
           <h3>🏗️ Unidades Ejecutoras</h3>
-          <p>Empresas y organismos responsables de ejecutar las obras (Corpoelec, Hidroven, CANTV, etc.). Incluye logo y nombre.</p>
+          <p>Empresas y organismos responsables de ejecutar las obras (Corpoelec Industrial, Hidroven, CANTV, etc.). Incluye logo y nombre.</p>
         </div>
         <div class="card" style="border-left:4px solid var(--warning);">
           <h3>📏 Unidades de Medida</h3>
@@ -1428,15 +1572,15 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>12 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>13 / 20</span></div>
 </div>
 
-<!-- ===================== PAGE 13: PREGUNTAS FRECUENTES ===================== -->
+<!-- ===================== PAGE 14: PREGUNTAS FRECUENTES ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">9</div>
@@ -1445,27 +1589,32 @@
 
     <div class="faq-item">
       <div class="faq-q">🔑 ¿Qué hago si olvidé mi contraseña?</div>
-      <div class="faq-a">Comuníquese con el <strong>Webmaster del sistema</strong> para que restablezca su contraseña. El Webmaster puede generar una nueva contraseña temporal desde el panel de Gestión de Usuarios. Al ingresar con la nueva contraseña, el sistema le pedirá cambiarla nuevamente.</div>
+      <div class="faq-a">Comuníquese con el <strong>Webmaster del sistema</strong> para que restablezca su contraseña. El Webmaster puede generar una nueva contraseña temporal desde el panel de Gestión de Usuarios. Al ingresar con la nueva contraseña, el sistema le pedirá cambiarla por una que cumpla los requisitos: mínimo 8 caracteres con mayúscula, minúscula, número y carácter especial.</div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q">📊 ¿Cómo sé si un avance fue aprobado?</div>
-      <div class="faq-a">En la sección <strong>Avance Ejecutado</strong>, cada avance muestra su status de aprobación con un indicador visual: <strong style="color:#F59E0B;">⏳ Pendiente</strong> (esperando aprobación), <strong style="color:#10B981;">✅ Aprobado</strong> (los 3 niveles completados) o <strong style="color:#EF4444;">❌ Rechazado</strong>. Además, puede filtrar por status para ver rápidamente los pendientes de su nivel.</div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q">👁️ ¿Quién puede ver mis avances?</div>
-      <div class="faq-a"><strong>Todos los roles</strong> pueden ver los avances reportados. Sin embargo, solo el <strong>Inspector</strong>, <strong>Ing. Residente</strong>, <strong>Directivo</strong> y <strong>Webmaster</strong> pueden aprobar o rechazar avances según su nivel. Los contratistas pueden ver sus propios reportes pero no pueden aprobarlos.</div>
+      <div class="faq-a">En la sección <strong>Avance Ejecutado</strong>, cada avance muestra su status de aprobación con un indicador visual: <strong style="color:#F59E0B;">⏳ Pendiente</strong>, <strong style="color:#10B981;">✅ Aprobado</strong>, <strong style="color:#F97316;">🟠 Objetado</strong>, <strong style="color:#3B82F6;">🔵 Subsanado</strong> o <strong style="color:#EF4444;">❌ Rechazado</strong>. Además, puede filtrar por status para ver rápidamente los pendientes de su nivel.</div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q">🔄 ¿Qué pasa si un avance es rechazado?</div>
-      <div class="faq-a">Si cualquier nivel del flujo de aprobación rechaza un avance, el <strong>status_aprobacion</strong> cambia a "Rechazado" y se incluye una nota con el motivo. El contratista o creador del avance puede editarlo, corregir los problemas y volver a enviarlo. Al editar un avance rechazado, se reinicia el flujo de aprobación desde el Nivel 1.</div>
+      <div class="faq-a">Si cualquier nivel del flujo de aprobación rechaza un avance, el <strong>status_aprobacion</strong> cambia a "Rechazado" y se incluye una nota con el motivo. El contratista o creador del avance puede editarlo, corregir los problemas y volver a enviarlo. Al editar un avance rechazado, se reinicia el flujo de aprobación desde el Nivel 1. Alternativamente, el revisor puede <strong>objetar</strong> en lugar de rechazar, lo que permite correcciones sin reiniciar el flujo.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">🟠 ¿Qué significa si un avance está Objetado? <span class="new-badge">NUEVO</span></div>
+      <div class="faq-a">Un avance <strong>Objetado</strong> indica que un revisor encontró observaciones que deben ser atendidas, pero no lo suficientemente graves como para rechazarlo. El revisor debe ingresar un <strong>motivo obligatorio</strong> al objetar. El creador del avance puede entonces <strong>declarar subsanada</strong> la objeción agregando notas explicativas, tras lo cual el revisor reevaluará y podrá aprobar, objetar nuevamente o rechazar.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">👁️ ¿Quién puede ver mis avances?</div>
+      <div class="faq-a"><strong>Todos los roles</strong> pueden ver los avances reportados. Sin embargo, solo el <strong>Inspector</strong>, <strong>Ing. Residente</strong>, <strong>Directivo</strong> y <strong>Webmaster</strong> pueden aprobar, objetar o rechazar avances según su nivel. Los contratistas pueden ver sus propios reportes pero no pueden aprobarlos.</div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q">👑 ¿Puede el Webmaster aprobar cualquier nivel?</div>
-      <div class="faq-a"><strong>Sí.</strong> El Webmaster tiene la capacidad especial de aprobar cualquier nivel del flujo, incluso si los niveles anteriores no han sido completados. Esto permite resolver situaciones excepcionales o urgencias sin esperar el flujo completo.</div>
+      <div class="faq-a"><strong>Sí.</strong> El Webmaster tiene la capacidad especial de aprobar cualquier nivel del flujo, incluso si los niveles anteriores no han sido completados. También puede revertir cualquier nivel a Pendiente, incluyendo estados Objetado y Subsanado. Esto permite resolver situaciones excepcionales o urgencias sin esperar el flujo completo.</div>
     </div>
 
     <div class="faq-item">
@@ -1480,18 +1629,18 @@
 
     <div class="faq-item">
       <div class="faq-q">🔒 ¿Es segura mi información?</div>
-      <div class="faq-a">El sistema utiliza <strong>autenticación con credenciales</strong> y cada acción queda registrada con trazabilidad completa. Solo los usuarios autorizados con los roles correspondientes pueden acceder a las funciones de creación, edición y aprobación.</div>
+      <div class="faq-a">El sistema utiliza <strong>autenticación con credenciales</strong> y cada acción queda registrada con trazabilidad completa. Las contraseñas requieren mínimo 8 caracteres con mayúscula, minúscula, número y carácter especial. Solo los usuarios autorizados con los roles correspondientes pueden acceder a las funciones de creación, edición y aprobación.</div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>13 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>14 / 20</span></div>
 </div>
 
-<!-- ===================== PAGE 14: INSTITUCIONES ===================== -->
+<!-- ===================== PAGE 15: INSTITUCIONES ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">10</div>
@@ -1502,36 +1651,44 @@
 
     <div class="institution-grid">
       <div class="institution-card">
-        <img src="instituciones/mppop.png" alt="MPPOP">
+        <img src="public/instituciones/mppop.png" alt="MPPOP">
         <span>Ministerio del Poder Popular para Obras Públicas (MPPOP)</span>
       </div>
       <div class="institution-card">
-        <img src="logo_hospital.png" alt="Hospital J.M. de los Ríos">
+        <img src="public/logo_hospital.png" alt="Hospital J.M. de los Ríos">
         <span>Hospital de Niños J.M. de los Ríos</span>
       </div>
       <div class="institution-card">
-        <img src="VSOPS.png" alt="VSOPS">
+        <img src="public/VSOPS.png" alt="VSOPS">
         <span>VSOPS</span>
       </div>
       <div class="institution-card">
-        <img src="instituciones/alcaldia.png" alt="Alcaldía de Caracas">
+        <img src="public/instituciones/alcaldia.png" alt="Alcaldía de Caracas">
         <span>Alcaldía de Caracas</span>
       </div>
       <div class="institution-card">
-        <img src="instituciones/corpoelec.png" alt="Corpoelec">
-        <span>Corpoelec</span>
+        <img src="public/instituciones/corpoelec.png" alt="Corpoelec Industrial">
+        <span>Corpoelec Industrial</span>
       </div>
       <div class="institution-card">
-        <img src="instituciones/hidroven.png" alt="Hidroven">
+        <img src="public/instituciones/hidroven.png" alt="Hidroven">
         <span>Hidroven</span>
       </div>
       <div class="institution-card">
-        <img src="instituciones/cantv.png" alt="CANTV">
+        <img src="public/instituciones/cantv.png" alt="CANTV">
         <span>CANTV</span>
       </div>
       <div class="institution-card">
-        <img src="instituciones/minaguas.png" alt="Minaguas">
+        <img src="public/instituciones/minaguas.png" alt="Minaguas">
         <span>Ministerio del Poder Popular para el Agua (Minaguas)</span>
+      </div>
+      <div class="institution-card">
+        <img src="public/instituciones/fundeeh-ii.png" alt="FUNDEEH">
+        <span>Fundación para el Desarrollo Endógeno Energético y Habitacional (FUNDEEH)</span>
+      </div>
+      <div class="institution-card">
+        <img src="public/instituciones/alcaldia-ccs.png" alt="Alcaldía CCS">
+        <span>Alcaldía del Municipio Libertador (CCS)</span>
       </div>
     </div>
 
@@ -1539,15 +1696,15 @@
       ✅ Cada unidad ejecutora tiene asignados alcances específicos dentro del sistema. Los contratistas de cada unidad reportan los avances correspondientes a su área de responsabilidad.
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>14 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>15 / 20</span></div>
 </div>
 
-<!-- ===================== PAGE 15: RESUMEN DE NAVEGACIÓN ===================== -->
+<!-- ===================== PAGE 16: RESUMEN DE NAVEGACIÓN ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">11</div>
@@ -1565,7 +1722,7 @@
       </div>
       <div class="card" style="border-top:4px solid var(--success);">
         <h3>📝 Avance Ejecutado</h3>
-        <p>Reportes de progreso real. Crear avances con evidencia fotográfica. Aprobación en 3 niveles secuenciales.</p>
+        <p>Reportes de progreso real. Crear avances con evidencia fotográfica. Aprobación en 3 niveles con objeción y subsanación.</p>
       </div>
       <div class="card" style="border-top:4px solid var(--purple);">
         <h3>⚙️ Administración</h3>
@@ -1618,15 +1775,15 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>15 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>16 / 20</span></div>
 </div>
 
-<!-- ===================== PAGE 16: GLOSARIO ===================== -->
+<!-- ===================== PAGE 17: GLOSARIO ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">12</div>
@@ -1645,26 +1802,28 @@
         <tr><td><strong>Alcance Planificado</strong></td><td>Meta o actividad definida para una especialidad, sector y subsector con su peso relativo, unidad de medida y cantidad objetivo.</td></tr>
         <tr><td><strong>Avance Ejecutado</strong></td><td>Reporte del progreso real de una actividad planificada, incluyendo cantidad ejecutada, tipo de trabajo, fecha y evidencia fotográfica.</td></tr>
         <tr><td><strong>Macro Especialidad</strong></td><td>Agrupación principal de especialidades técnicas: Sistema Eléctrico, Sistema Hídrico, Infraestructura Civil, Climatización, Transporte Vertical, Sistemas y Servicios.</td></tr>
-        <tr><td><strong>Unidad Ejecutora</strong></td><td>Empresa u organismo responsable de ejecutar las obras en un área específica (Ej: Corpoelec para electricidad).</td></tr>
+        <tr><td><strong>Unidad Ejecutora</strong></td><td>Empresa u organismo responsable de ejecutar las obras en un área específica (Ej: Corpoelec Industrial para electricidad).</td></tr>
         <tr><td><strong>Sector</strong></td><td>Área principal del hospital (Ej: Torre Hospitalización, Torre Consulta).</td></tr>
         <tr><td><strong>Subsector</strong></td><td>Subdivisión dentro de un sector (Ej: Piso 7, Área de Neonatología).</td></tr>
-        <tr><td><strong>Flujo de Aprobación</strong></td><td>Proceso secuencial de 3 niveles para validar un avance: Ing. Residente → Inspector MPPOP → Directivo Hospital.</td></tr>
-        <tr><td><strong>status_aprobacion</strong></td><td>Estado automático del avance: Pendiente, Aprobado (3 niveles completados) o Rechazado (algún nivel rechazó).</td></tr>
+        <tr><td><strong>Flujo de Aprobación</strong></td><td>Proceso secuencial de 3 niveles para validar un avance: Ing. Residente → Inspector MPPOP → Directivo Hospital. Incluye objeción y subsanación.</td></tr>
+        <tr><td><strong>status_aprobacion</strong></td><td>Estado automático del avance calculado por prioridad: Rechazado &gt; Objetado &gt; Subsanado &gt; Aprobado &gt; Pendiente.</td></tr>
+        <tr><td><strong>Objeción</strong> <span class="new-badge">NUEVO</span></td><td>Estado intermedio donde un revisor señala observaciones que deben ser atendidas antes de aprobar. Requiere motivo obligatorio.</td></tr>
+        <tr><td><strong>Subsanación</strong> <span class="new-badge">NUEVO</span></td><td>Declaración del creador del avance indicando que las observaciones de una objeción han sido corregidas. El revisor reevalúa tras la subsanación.</td></tr>
         <tr><td><strong>Peso Relativo</strong></td><td>Porcentaje de ponderación de un alcance dentro de su especialidad para el cálculo del PAF.</td></tr>
         <tr><td><strong>Tipo de Trabajo</strong></td><td>Clasificación del avance: Planificado (previsto) o Imprevisto (no contemplado originalmente).</td></tr>
         <tr><td><strong>Evidencia Fotográfica</strong></td><td>Imágenes que documentan el avance de la obra (antes, durante y después de la ejecución).</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>16 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>17 / 20</span></div>
 </div>
 
-<!-- ===================== PAGE 17: NOTAS ===================== -->
+<!-- ===================== PAGE 18: NOTAS ===================== -->
 <div class="page">
   <div class="page-header">
-    <div class="logo-left"><img src="VSOPS.png" alt="VSOPS"></div>
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
     <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
-    <div class="logo-right"><img src="logo_hospital.png" alt="Hospital"></div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
   </div>
   <div class="content">
     <div class="section-number">13</div>
@@ -1676,22 +1835,23 @@
         <h3>💻 Información Técnica</h3>
         <div class="card" style="background:var(--bg-alt); border:none;">
           <table style="width:100%; font-size:12px;">
-            <tr><td style="padding:6px 0; color:var(--text-light); width:40%;">Sistema</td><td style="padding:6px 0; font-weight:600;">ObrasJM v3.1</td></tr>
+            <tr><td style="padding:6px 0; color:var(--text-light); width:40%;">Sistema</td><td style="padding:6px 0; font-weight:600;">ObrasJM v3.2</td></tr>
             <tr><td style="padding:6px 0; color:var(--text-light);">Plataforma</td><td style="padding:6px 0; font-weight:600;">Web (Next.js)</td></tr>
             <tr><td style="padding:6px 0; color:var(--text-light);">URL</td><td style="padding:6px 0; font-weight:600;">https://obras.hospitaljmdelosrios.org.ve</td></tr>
             <tr><td style="padding:6px 0; color:var(--text-light);">Navegadores</td><td style="padding:6px 0; font-weight:600;">Chrome, Firefox, Edge, Safari</td></tr>
             <tr><td style="padding:6px 0; color:var(--text-light);">Responsive</td><td style="padding:6px 0; font-weight:600;">Sí (móvil, tablet, escritorio)</td></tr>
             <tr><td style="padding:6px 0; color:var(--text-light);">Autenticación</td><td style="padding:6px 0; font-weight:600;">Credenciales + cambio obligatorio</td></tr>
+            <tr><td style="padding:6px 0; color:var(--text-light);">Política de contraseña</td><td style="padding:6px 0; font-weight:600;">Mín. 8 caracteres + complejidad</td></tr>
           </table>
         </div>
 
-        <h3 style="margin-top:18px;">📝 Novedades de la Versión 3.1</h3>
+        <h3 style="margin-top:18px;">📝 Novedades de la Versión 3.2</h3>
         <ul class="bullet-list">
-          <li><strong>Flujo de Aprobación en 3 Niveles</strong> — Sistema secuencial de validación</li>
-          <li><strong>status_aprobacion automático</strong> — Se calcula según el progreso de los 3 niveles</li>
-          <li><strong>Vista por Ejecutoras</strong> — Tarjetas con logo y anillo de progreso</li>
-          <li><strong>Vista por Macro Especialidades</strong> — Reporte operativo por área</li>
-          <li><strong>7 roles diferenciados</strong> — Permisos granulares por funcionalidad</li>
+          <li><strong>Sistema de Objeción y Subsanación</strong> — Los revisores pueden objetar avances con motivo obligatorio; el creador puede declarar subsanada la objeción</li>
+          <li><strong>Política de contraseñas robusta</strong> — Mínimo 8 caracteres con mayúscula, minúscula, número y carácter especial</li>
+          <li><strong>Corpoelec → Corpoelec Industrial</strong> — Actualización del nombre de la unidad ejecutora</li>
+          <li><strong>status_aprobacion ampliado</strong> — Incluye Objetado y Subsanado en el cálculo por prioridad</li>
+          <li><strong>Webmaster puede revertir</strong> — Capacidad de revertir cualquier nivel a Pendiente</li>
         </ul>
       </div>
       <div class="col">
@@ -1702,6 +1862,7 @@
             <li>Reporte avances <strong>inmediatamente</strong> después de completar el trabajo</li>
             <li>Suba fotos claras como evidencia</li>
             <li>Incluya observaciones detalladas</li>
+            <li>Si un avance es objetado, <strong>subsane pronto</strong> con notas claras</li>
           </ul>
         </div>
         <div class="card" style="border-left:4px solid var(--blue);">
@@ -1710,6 +1871,7 @@
             <li>Revise los avances <strong>pendientes</strong> regularmente</li>
             <li>Verifique las fotos y notas antes de aprobar</li>
             <li>Si rechaza, explique el motivo en las notas</li>
+            <li>Use <strong>objetar</strong> en lugar de rechazar cuando las correcciones sean menores</li>
           </ul>
         </div>
         <div class="card" style="border-left:4px solid var(--purple);">
@@ -1718,6 +1880,7 @@
             <li>Mantenga los <strong>catálogos actualizados</strong></li>
             <li>Desactive usuarios que ya no laboran</li>
             <li>Use la aprobación de cualquier nivel solo en casos excepcionales</li>
+            <li>Revise objeciones y subsanaciones pendientes</li>
           </ul>
         </div>
 
@@ -1726,30 +1889,114 @@
       </div>
     </div>
   </div>
-  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.1</span><span>17 / 18</span></div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>18 / 20</span></div>
 </div>
 
-<!-- ===================== PAGE 18: CRÉDITOS ===================== -->
+<!-- ===================== PAGE 19: HISTORIAL DE VERSIONES ===================== -->
+<div class="page">
+  <div class="page-header">
+    <div class="logo-left"><img src="public/VSOPS.png" alt="VSOPS"></div>
+    <div class="header-title">Manual de Usuario &mdash; ObrasJM</div>
+    <div class="logo-right"><img src="public/logo_hospital.png" alt="Hospital"></div>
+  </div>
+  <div class="content">
+    <div class="section-number">13</div>
+    <div class="section-title">Historial de Versiones</div>
+    <div class="section-subtitle">Evolución del sistema</div>
+
+    <table class="feature-table" style="margin-top:16px;">
+      <thead>
+        <tr>
+          <th style="width:15%;">Versión</th>
+          <th style="width:15%;">Fecha</th>
+          <th>Novedades Principales</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>v3.2</strong></td>
+          <td>Junio 2026</td>
+          <td>Sistema de Objeción y Subsanación. Política de contraseñas robusta (mín. 8 caracteres + complejidad). Corpoelec → Corpoelec Industrial. status_aprobacion ampliado con Objetado y Subsanado. Webmaster puede revertir cualquier nivel.</td>
+        </tr>
+        <tr>
+          <td><strong>v3.1</strong></td>
+          <td>Mayo 2026</td>
+          <td>Flujo de Aprobación en 3 Niveles. status_aprobacion automático. Vista por Ejecutoras. Vista por Macro Especialidades. 7 roles diferenciados.</td>
+        </tr>
+        <tr>
+          <td><strong>v3.0</strong></td>
+          <td>Abril 2026</td>
+          <td>Rediseño completo del sistema. Dashboard con KPIs. Evidencia fotográfica. Filtros avanzados. Autenticación con cambio obligatorio de contraseña.</td>
+        </tr>
+        <tr>
+          <td><strong>v2.0</strong></td>
+          <td>Marzo 2026</td>
+          <td>Versión inicial con funcionalidades básicas: alcances, avances y reportes simples.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:24px;">🗺️ Mapa de Estados del Avance (v3.2)</h3>
+    <div style="display:flex; align-items:center; gap:6px; margin-top:14px; justify-content:center; flex-wrap:wrap;">
+      <div style="padding:12px 18px; background:#FFF8E1; border:1px solid #F59E0B; border-radius:10px; text-align:center; min-width:100px;">
+        <div style="font-size:20px;">⏳</div>
+        <div style="font-size:12px; font-weight:700; color:#B45309;">Pendiente</div>
+      </div>
+      <div style="font-size:20px; color:var(--text-light);">→</div>
+      <div style="padding:12px 18px; background:#E8F5E9; border:1px solid #10B981; border-radius:10px; text-align:center; min-width:100px;">
+        <div style="font-size:20px;">✅</div>
+        <div style="font-size:12px; font-weight:700; color:#065F46;">Aprobado</div>
+      </div>
+      <div style="margin-left:24px; padding:12px 18px; background:#FFF7ED; border:1px solid #F97316; border-radius:10px; text-align:center; min-width:100px;">
+        <div style="font-size:20px;">🟠</div>
+        <div style="font-size:12px; font-weight:700; color:#C2410C;">Objetado</div>
+      </div>
+      <div style="font-size:20px; color:var(--text-light);">→</div>
+      <div style="padding:12px 18px; background:#EFF6FF; border:1px solid #3B82F6; border-radius:10px; text-align:center; min-width:100px;">
+        <div style="font-size:20px;">🔵</div>
+        <div style="font-size:12px; font-weight:700; color:#1D4ED8;">Subsanado</div>
+      </div>
+      <div style="font-size:20px; color:var(--text-light);">→</div>
+      <div style="padding:12px 18px; background:#E8F5E9; border:1px solid #10B981; border-radius:10px; text-align:center; min-width:100px;">
+        <div style="font-size:20px;">🔄</div>
+        <div style="font-size:12px; font-weight:700; color:#065F46;">Reevaluar</div>
+      </div>
+      <div style="margin-left:24px; padding:12px 18px; background:#FEF2F2; border:1px solid #EF4444; border-radius:10px; text-align:center; min-width:100px;">
+        <div style="font-size:20px;">❌</div>
+        <div style="font-size:12px; font-weight:700; color:#991B1B;">Rechazado</div>
+      </div>
+    </div>
+
+    <div class="annotation info" style="margin-top:20px;">
+      💡 <strong>Consejo:</strong> Use la objeción cuando las observaciones sean correctables sin necesidad de reiniciar todo el flujo de aprobación. Reserve el rechazo para casos donde el avance es fundamentalmente incorrecto o no corresponde al trabajo planificado.
+    </div>
+  </div>
+  <div class="page-footer"><span>Manual de Usuario ObrasJM v3.2</span><span>19 / 20</span></div>
+</div>
+
+<!-- ===================== PAGE 20: CRÉDITOS ===================== -->
 <div class="page credits-page">
   <div class="credits-logos">
-    <img src="logo_hospital.png" alt="Hospital J.M. de los Ríos" style="height:56px; width:56px; border-radius:8px; border:2px solid rgba(255,255,255,0.2);">
-    <img src="instituciones/mppop.png" alt="MPPOP" style="height:52px;">
-    <img src="VSOPS.png" alt="VSOPS" style="height:52px;">
-    <img src="instituciones/alcaldia.png" alt="Alcaldía de Caracas" style="height:52px;">
-    <img src="instituciones/corpoelec.png" alt="Corpoelec" style="height:52px;">
-    <img src="instituciones/hidroven.png" alt="Hidroven" style="height:52px;">
-    <img src="instituciones/cantv.png" alt="CANTV" style="height:52px;">
-    <img src="instituciones/minaguas.png" alt="Minaguas" style="height:52px;">
+    <img src="public/logo_hospital.png" alt="Hospital J.M. de los Ríos" style="height:56px; width:56px; border-radius:8px; border:2px solid rgba(255,255,255,0.2);">
+    <img src="public/instituciones/mppop.png" alt="MPPOP" style="height:52px;">
+    <img src="public/VSOPS.png" alt="VSOPS" style="height:52px;">
+    <img src="public/instituciones/alcaldia.png" alt="Alcaldía de Caracas" style="height:52px;">
+    <img src="public/instituciones/corpoelec.png" alt="Corpoelec Industrial" style="height:52px;">
+    <img src="public/instituciones/hidroven.png" alt="Hidroven" style="height:52px;">
+    <img src="public/instituciones/cantv.png" alt="CANTV" style="height:52px;">
+    <img src="public/instituciones/minaguas.png" alt="Minaguas" style="height:52px;">
+    <img src="public/instituciones/fundeeh-ii.png" alt="FUNDEEH" style="height:52px;">
+    <img src="public/instituciones/alcaldia-ccs.png" alt="Alcaldía CCS" style="height:52px;">
   </div>
   <div class="credits-divider"></div>
   <h2>Hospital de Niños J.M. de los Ríos</h2>
   <div class="credits-sub">Plan de Recuperación de Infraestructura Hospitalaria Dr. José Gregorio Hernández</div>
   <div class="credits-divider" style="margin-top:24px;"></div>
   <div class="credits-dev">
-    <strong>Sistema de Control de Avance Físico (PAF) — ObrasJM v3.1</strong><br><br>
+    <strong>Sistema de Control de Avance Físico (PAF) — ObrasJM v3.2</strong><br><br>
     Desarrollado por <strong>Z.ai</strong><br>
     IT Development by <strong>@libnimaster</strong><br><br>
-    <span style="font-size:11px; color:rgba(255,255,255,0.45);">Caracas, Venezuela — Mayo 2026</span>
+    <span style="font-size:11px; color:rgba(255,255,255,0.45);">Caracas, Venezuela — Junio 2026</span>
   </div>
 </div>
 

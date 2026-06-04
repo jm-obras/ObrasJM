@@ -328,7 +328,7 @@ def build_content():
     
     story.append(add_heading('Perfiles de Usuario', style_h2, level=1))
     story.append(Paragraph(
-        'El sistema cuenta con siete perfiles operativos, cada uno con funciones especificas '
+        'El sistema cuenta con ocho perfiles operativos, cada uno con funciones especificas '
         'que se ajustan a su rol dentro del proyecto. Los avances pasan por un sistema de '
         'aprobacion secuencial de 3 niveles: Nivel 1 (Ingeniera Residente), Nivel 2 (Inspector MPPOP) '
         'y Nivel 3 (Directivo Hospital). El Webmaster puede aprobar cualquier nivel sin seguir '
@@ -340,9 +340,10 @@ def build_content():
     roles_data = [
         [Paragraph('<b>Perfil</b>', style_th), Paragraph('<b>Funcion Principal</b>', style_th)],
         [Paragraph('Webmaster', style_td), Paragraph('Administracion total del sistema, usuarios y aprobacion de cualquier nivel', style_td_left)],
-        [Paragraph('Contratista', style_td), Paragraph('Reportar avances de obra, subir evidencia fotografica y declarar subsanaciones', style_td_left)],
-        [Paragraph('Inspector', style_td), Paragraph('Crear alcances, aprobar en Nivel 2 (MPPOP), objetar y crear avances', style_td_left)],
+        [Paragraph('Contratista', style_td), Paragraph('Crear/editar alcances, reportar avances de obra, subir evidencia fotografica y declarar subsanaciones', style_td_left)],
+        [Paragraph('Inspector', style_td), Paragraph('Crear, editar y eliminar alcances, aprobar en Nivel 2 (MPPOP), objetar y crear avances', style_td_left)],
         [Paragraph('Ingeniera Residente', style_td), Paragraph('Declarar obra concluida en Nivel 1, crear avances y objetar', style_td_left)],
+        [Paragraph('Ingeniero de Campo', style_td), Paragraph('Reportar avances, subir evidencia y declarar subsanaciones (sin participacion en aprobacion)', style_td_left)],
         [Paragraph('Directivo Hospital', style_td), Paragraph('Dar conformidad final en Nivel 3 y objetar', style_td_left)],
         [Paragraph('Ingenieria Hospital', style_td), Paragraph('Consulta de avance y alcance (solo lectura)', style_td_left)],
         [Paragraph('Visitante', style_td), Paragraph('Solo lectura en Dashboard, Alcance y Avance (sin acciones)', style_td_left)],
@@ -626,7 +627,7 @@ def build_content():
     access_contratista = [
         [Paragraph('<b>Seccion</b>', style_th), Paragraph('<b>Acceso</b>', style_th), Paragraph('<b>Acciones</b>', style_th)],
         [Paragraph('Dashboard', style_td), Paragraph('Completo', style_td), Paragraph('Ver indicadores, mapa de calor, graficos', style_td_left)],
-        [Paragraph('Alcance Planificado', style_td), Paragraph('Solo lectura (su UE)', style_td), Paragraph('Consultar y filtrar alcances', style_td_left)],
+        [Paragraph('Alcance Planificado', style_td), Paragraph('Lectura + Creacion + Edicion', style_td), Paragraph('Crear, editar, consultar y filtrar alcances', style_td_left)],
         [Paragraph('Avance Ejecutado', style_td), Paragraph('Lectura + Creacion', style_td), Paragraph('Crear reportes, ver detalles, subir fotos, declarar subsanada', style_td_left)],
     ]
     story.append(make_table(access_contratista, [CONTENT_W*0.25, CONTENT_W*0.2, CONTENT_W*0.55]))
@@ -647,8 +648,8 @@ def build_content():
     story.append(Spacer(1, 8))
     
     story.append(warning_box(
-        '<b>Nota:</b> Como Contratista, usted <b>no puede crear ni editar</b> alcances planificados. '
-        'Esta funcion es exclusiva del Inspector. Si necesita crear un nuevo alcance, contacte al Inspector asignado.'
+        '<b>Nota:</b> Como Contratista, usted puede <b>crear y editar</b> alcances planificados, '
+        'pero no puede eliminarlos. Para eliminar un alcance, contacte al Inspector o al Webmaster del sistema.'
     ))
     story.append(Spacer(1, 10))
     
@@ -724,7 +725,7 @@ def build_content():
     access_inspector = [
         [Paragraph('<b>Seccion</b>', style_th), Paragraph('<b>Acceso</b>', style_th), Paragraph('<b>Acciones</b>', style_th)],
         [Paragraph('Dashboard', style_td), Paragraph('Completo', style_td), Paragraph('Ver indicadores, mapa de calor, graficos', style_td_left)],
-        [Paragraph('Alcance Planificado', style_td), Paragraph('Lectura + Creacion + Edicion', style_td), Paragraph('Crear, editar, consultar y filtrar alcances', style_td_left)],
+        [Paragraph('Alcance Planificado', style_td), Paragraph('Lectura + Creacion + Edicion + Eliminacion', style_td), Paragraph('Crear, editar, eliminar, consultar y filtrar alcances', style_td_left)],
         [Paragraph('Avance Ejecutado', style_td), Paragraph('Lectura + Creacion + Aprobacion N2', style_td), Paragraph('Aprobar/objetar/rechazar en N2, crear avances, ver detalles, declarar subsanada', style_td_left)],
     ]
     story.append(make_table(access_inspector, [CONTENT_W*0.25, CONTENT_W*0.25, CONTENT_W*0.50]))
@@ -765,7 +766,7 @@ def build_content():
     
     story.append(warning_box(
         '<b>Precaucion:</b> Cambiar el estado de un alcance a "Completado" o "Suspendido" lo elimina '
-        'del calculo del PAF de frentes activos. Solo el Webmaster puede eliminar alcances.'
+        'del calculo del PAF de frentes activos. Tanto el Webmaster como el Inspector pueden eliminar alcances definitivamente.'
     ))
     story.append(Spacer(1, 10))
     
