@@ -322,9 +322,9 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 | Operación | Quién |
 |-----------|-------|
 | SELECT | authenticated + contratista/ingeniera_residente/ing_campo (su UE) |
-| INSERT | webmaster + inspector |
-| UPDATE | webmaster + inspector |
-| DELETE | webmaster |
+| INSERT | webmaster + inspector + contratista |
+| UPDATE | webmaster + inspector + contratista |
+| DELETE | webmaster + inspector |
 
 #### `avance_ejecutado`
 | Operación | Quién |
@@ -396,10 +396,10 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 | Endpoint | Método | Auth | Roles Permitidos | Admin Client | Notas |
 |----------|--------|------|-----------------|--------------|-------|
 | `/api/alcance` | GET | No | — | No | Filtros: especialidad_id, subsector_id, sector_id, status |
-| `/api/alcance` | POST | Sí | admin, inspector | No | Fuerza status='Activo' |
+| `/api/alcance` | POST | Sí | admin, inspector, contratista | No | Fuerza status='Activo' |
 | `/api/alcance/[id]` | GET | No | — | No | — |
-| `/api/alcance/[id]` | PUT | Sí | admin, inspector | No | `updated_at` manual (redundante con trigger) |
-| `/api/alcance/[id]` | DELETE | Sí | admin | No | — |
+| `/api/alcance/[id]` | PUT | Sí | admin, inspector, contratista | No | `updated_at` manual (redundante con trigger) |
+| `/api/alcance/[id]` | DELETE | Sí | admin, inspector | No | — |
 | `/api/avance` | GET | No | — | No | Filtros: alcance_id, status_aprobacion, fecha_desde, fecha_hasta |
 | `/api/avance` | POST | Sí | contratista, ingeniera_residente, inspector, admin | No | Todos los niveles Pendiente, status_aprobacion=Pendiente |
 | `/api/avance/[id]` | GET | No | — | No | Incluye residente + directivo profiles |
@@ -470,9 +470,9 @@ alcance_planificado ◄── avance_ejecutado.alcance_id (CASCADE)
 | Acción | webmaster | contratista | inspector | ingeniera_residente | ing_campo | directivo_hospital | ingenieria_hospital | visitante |
 |--------|:---------:|:-----------:|:---------:|:-------------------:|:---------:|:------------------:|:-------------------:|:--------:|
 | Ver | ✅ | ✅ (su UE) | ✅ | ✅ (su UE) | ✅ (su UE) | ❌ | ✅ | ✅ |
-| Crear | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Editar | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Eliminar | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Crear | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Editar | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Eliminar | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ---
 
@@ -641,6 +641,7 @@ contratista/inspector/residente/webmaster → Crea Avance
 | `supabase/migrations/016_storage_and_rls_fixes.sql` | VULN-005: Storage lectura→autenticado + VULN-006: delete policy administrador→webmaster | ~25 |
 | `supabase/migrations/017_add_ing_campo_role.sql` | Agrega `ing_campo` al enum `user_rol` (DEBE ejecutarse primero, en transacción separada) | ~8 |
 | `supabase/migrations/017b_add_ing_campo_policies.sql` | RLS policies para ing_campo: SELECT alcance (su UE), INSERT/UPDATE avance datos (sin aprobación) | ~50 |
+| `supabase/migrations/018_alcance_permissions_inspector_contratista.sql` | Inspector DELETE en alcance + Contratista INSERT/UPDATE en alcance | ~31 |
 
 ---
 
@@ -719,6 +720,7 @@ contratista/inspector/residente/webmaster → Crea Avance
 | **v3.2.2** | **04-Jun-2026** | **Fix:** (1) Restaurar `/api/upload` eliminado accidentalmente (causaba 404 al subir evidencias), (2) Corregir errores TypeScript que bloqueaban build de Vercel (consecuencia de DEBT-001: `ignoreBuildErrors: false`): hero-section ease tuple, services-section ease const, alcance route type assertion, (3) VULN-005 reclasificado como PARCIAL (bucket público, URLs accesibles directamente) | **Push** | ✅ Operativo |
 | **v3.2.3** | **31-May-2026** | **Logos y Manual PDF:** (1) Reemplazar logo CORPOELEC por CORPOELEC__IND_LOGO_II en carrusel landing y manual, (2) Agregar logotipo FUNDEEH__LOGO_II (fundeeh-ii.png) al carrusel y manual, (3) Corregir FUNDEEH duplicado en carrusel (eliminar fundeeh.png viejo, usar solo fundeeh-ii.png), (4) Portada del manual PDF: solo VSOPS.png y logo_hospital.png, (5) Corregir rutas de imágenes en generate_manual_v3.html: agregar prefijo `public/` a todos los src (instituciones/, VSOPS.png, logo_hospital.png, images/macro-especialidades/) para Playwright PDF generation, (6) Agregar FUNDEEH y Alcaldía CCS a sección de instituciones y créditos del manual, (7) Regenerar PDF manual (6MB con todas las imágenes incrustadas), (8) Nombres de institución actualizados: CORPOELEC → CORPOELEC Industrial, FUNDEEH y Alcaldía CCS agregados | **Commits: bbc8384, 7e06d1c, 8193480, 7e62ef9** | ✅ Operativo |
 | **v3.3.0** | **04-Jun-2026** | **Nuevo rol Ing. Campo:** (1) Rol `ing_campo` agregado al enum `user_rol`, (2) Permisos idénticos a `ingeniera_residente` para datos (crear/editar avances, ver alcance de su UE, declarar subsanaciones) PERO sin participación en la cadena de aprobación de 3 niveles, (3) Migraciones SQL 017 (enum) + 017b (RLS policies), (4) API routes actualizadas: `/api/avance` POST allowedRoles, `/api/avance/[id]` DATA_EDIT_ROLES, admin users VALID_ROLES, auth register validRoles, (5) Frontend: types.ts, page.tsx (tabs, ROL_LABELS, ROL_COLORS), avance-view.tsx (APPROVAL_LEVEL_BY_ROLE, canCreate, canEdit, canSubsanate), users-tab.tsx (select options), admin-types.ts (ROL_COLORS, ROL_LABELS), (6) Color badge: teal para Ing. Campo | **Migraciones 017+017b + push** | ✅ Operativo |
+| **v3.3.1** | **04-Jun-2026** | **Permisos Alcance actualizados (Inspector + Contratista):** (1) Inspector: habilitado DELETE en alcance_planificado (antes solo webmaster), (2) Contratista: habilitados INSERT y UPDATE en alcance_planificado (antes solo lectura), (3) Migración SQL 018: RLS policies actualizadas, (4) Frontend: alcance-view.tsx agrega `isContratista` + `canDelete`, alcance-table.tsx cambia prop `isAdmin`→`canDelete`, (5) API routes: `/api/alcance` POST agrega `contratista`, `/api/alcance/[id]` PUT agrega `contratista`, DELETE agrega `inspector`, (6) Manual de usuario actualizado: Secciones 4 y 7 con Ing. Campo + permisos corregidos, (7) Python generator actualizado para consistencia, (8) PDF regenerado con Puppeteer | **Migración 018 + push (commit 015dd1a)** | ✅ Operativo en producción |
 
 ### L.3 Próximo Snapshot (Plantilla)
 
@@ -796,7 +798,7 @@ src/
 interface Profile {
   id: string;
   nombre_completo: string;
-  rol: 'webmaster' | 'contratista' | 'inspector' | 'ingeniera_residente' | 'directivo_hospital' | 'ingenieria_hospital' | 'visitante';
+  rol: 'webmaster' | 'contratista' | 'inspector' | 'ingeniera_residente' | 'ing_campo' | 'directivo_hospital' | 'ingenieria_hospital' | 'visitante';
   unidad_ejecutora_id: string | null;
   telefono: string | null;
   ente_pertenece: string | null;
@@ -852,9 +854,9 @@ interface AvanceEjecutado {
 | `/instituciones/*.png` | 10 logos de instituciones asociadas (incluye fundeeh-ii.png = FUNDEEH__LOGO_II) |
 | `/obras/*.jpeg` | 9 fotos de obras |
 | `/Informe_Tecnico_Auditoria_ObrasJM.pdf` | Informe de auditoría técnica |
-| `/Manual_Usuario_ObrasJM_v3.2.pdf` | Manual de usuario v3.2 (6MB, logos actualizados, FUNDEEH y Alcaldía CCS agregados) |
+| `/Manual_Usuario_ObrasJM_v3.2.pdf` | Manual de usuario v3.2 (5.75MB, Ing. Campo agregado, permisos Inspector/Contratista actualizados, Secciones 4 y 7 corregidas) |
 | `/Manual_Usuario_ObrasJM_v3.1.pdf` | Manual de usuario v3.1 (webmaster, visitante, dominio propio) |
-| `/Manual_Usuario_ObrasJM_v3.html` | Fuente HTML del manual v3.1 |
+| `/Manual_Usuario_ObrasJM_v3.html` | Fuente HTML del manual v3.2 (actualizada con Ing. Campo y permisos) |
 | `/Manual_Usuario_ObrasJM_v2.pdf` | Manual de usuario v2 (obsoleto) |
 
 ---
@@ -876,5 +878,5 @@ interface AvanceEjecutado {
 ---
 
 *Documento generado: Mayo 2026 — Versión v2.0.0*
-*Última actualización: 04-Jun-2026 — v3.3.0 — Nuevo rol Ing. Campo (sin aprobación)*
+*Última actualización: 04-Jun-2026 — v3.3.1 — Permisos Alcance actualizados (Inspector DELETE, Contratista CREATE/EDIT)*
 *Próxima revisión programada: Antes de cualquier cambio significativo al sistema*
