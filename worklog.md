@@ -43,3 +43,26 @@ Stage Summary:
 - After fix, deployment succeeded and new code is live on production
 - All 8 institution logos now accessible on production
 - Marquee animation fixed with inline style instead of broken Tailwind arbitrary class
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Update alcance planificado permissions - Inspector gets DELETE, Contratista gets CREATE and EDIT
+
+Work Log:
+- Analyzed current permission model across frontend, API routes, and Supabase RLS policies
+- Current state: Inspector can Create/Edit (not Delete), Contratista has no CRUD on alcances
+- Updated `src/components/alcance/alcance-view.tsx`: Added `isContratista` check, expanded `canEdit` to include contratista, created new `canDelete` flag for webmaster+inspector
+- Updated `src/components/alcance/alcance-table.tsx`: Replaced `isAdmin` prop with `canDelete` prop for delete button visibility
+- Updated `src/app/api/alcance/route.ts` (POST): Added `contratista` to allowed roles
+- Updated `src/app/api/alcance/[id]/route.ts` (PUT): Added `contratista` to allowed roles
+- Updated `src/app/api/alcance/[id]/route.ts` (DELETE): Added `inspector` to allowed roles (was webmaster-only)
+- Created `supabase/migrations/018_alcance_permissions_inspector_contratista.sql` with updated RLS policies
+- Lint check passed clean
+- Dev server running on port 3000
+
+Stage Summary:
+- Inspector now has full CRUD on alcances (was missing DELETE)
+- Contratista now has CREATE and EDIT on alcances (was missing both)
+- Changes made at 3 layers: Frontend UI (buttons visibility), API routes (auth checks), Supabase RLS (database policies)
+- Migration SQL ready to execute on Supabase for production

@@ -34,7 +34,7 @@ interface AlcanceTableProps {
   setCurrentPage: (page: number) => void
   totalPages: number
   canEdit: boolean
-  isAdmin: boolean
+  canDelete: boolean
   onEdit: (alcance: AlcancePlanificado) => void
   onDelete: (alcance: AlcancePlanificado) => void
   onAddClick: () => void
@@ -47,7 +47,7 @@ export function AlcanceTable({
   setCurrentPage,
   totalPages,
   canEdit,
-  isAdmin,
+  canDelete,
   onEdit,
   onDelete,
   onAddClick,
@@ -147,7 +147,7 @@ export function AlcanceTable({
                             <Pencil className="h-4 w-4" />
                             <span className="sr-only">Editar</span>
                           </Button>
-                          {isAdmin && (
+                          {canDelete && (
                             <Button
                               variant="ghost"
                               size="icon"

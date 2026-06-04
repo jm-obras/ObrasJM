@@ -25,8 +25,10 @@ interface AlcanceViewProps {
 export function AlcanceView({ profile }: AlcanceViewProps) {
   const isAdmin = profile.rol === 'webmaster'
   const isInspector = profile.rol === 'inspector'
+  const isContratista = profile.rol === 'contratista'
   const isVisitante = profile.rol === 'visitante'
-  const canEdit = !isVisitante && (isAdmin || isInspector)
+  const canEdit = !isVisitante && (isAdmin || isInspector || isContratista)
+  const canDelete = isAdmin || isInspector
 
   // Data
   const [alcances, setAlcances] = useState<AlcancePlanificado[]>([])
@@ -251,7 +253,7 @@ export function AlcanceView({ profile }: AlcanceViewProps) {
         setCurrentPage={setCurrentPage}
         totalPages={totalPages}
         canEdit={canEdit}
-        isAdmin={isAdmin}
+        canDelete={canDelete}
         onEdit={handleEditOpen}
         onDelete={handleDeleteOpen}
         onAddClick={handleAddOpen}
