@@ -103,3 +103,47 @@ Stage Summary:
 - Manual sections 4 and 7 updated with Ing. Campo role and corrected permissions
 - PDF regenerated with all changes
 - Both HTML source and Python generator updated for consistency
+
+---
+Task ID: 5
+Agent: Main Agent (GLM-6.0)
+Task: Retomar proyecto ObrasJM desde GitHub y corregir Error 1016 en dominio propio tras migración DNS InfinityFree -> Cloudflare
+
+Work Log:
+- Clonado repo desde https://github.com/jm-obras/ObrasJM.git (rama main, HEAD 50f9d21) usando PAT
+- Creado .env.local con credenciales Supabase (URL + anon + service_role + DB password), Vercel token y GitHub token
+- Verificado que .env.local está en .gitignore (no se sube a GitHub)
+- Instaladas 541 dependencias con Bun (--frozen-lockfile) en 12.17s
+- Lint: 0 errores (eslint .)
+- Dev server levantado con bun run dev en puerto 3000 (Next.js 16.1.3 + Turbopack)
+- APIs verificadas en local:
+  * GET / -> 200 (landing)
+  * GET /api/landing/stats -> 200 (3 frentes activos, 12500 m2, 16 especialidades, 56 subsectores, PAF 33.33%)
+  * GET /api/sectores -> 200
+  * GET /api/especialidades -> 200
+  * GET /api/auth/me -> 401 (esperado sin sesión)
+  * GET /api/dashboard -> 401 (protegido, correcto)
+- Diagnóstico DNS del dominio obras.hospitaljmdelosrios.org.ve:
+  * NS migrados correctamente a Cloudflare (tia.ns.cloudflare.com, roan.ns.cloudflare.com)
+  * Error 530/1016 (Origin DNS error) detectado en respuesta HTTP
+  * Vercel confirma dominio agregado y verificado en proyecto obras-jm (project_id prj_Xtz8gItXkMTw1PCvHC4bokBMy5M6)
+  * Root cause: registro wildcard *.hospitaljmdelosrios.org.ve -> 11776.BODIS.COM (parking de dominios, proxied nube naranja) capturaba el subdominio obras porque no tenia registro propio
+- Fix aplicado por el usuario en Cloudflare DNS:
+  * Creado CNAME: obras -> cname.vercel-dns.com (proxy status: DNS only / nube gris, TTL: auto)
+- Verificación post-fix:
+  * DNS: obras -> CNAME cname.vercel-dns.com -> IPs 66.33.60.34, 76.76.21.164 (Vercel edge)
+  * HTTPS: HTTP/2 200, server: Vercel, HSTS habilitado, x-nextjs-prerender: 1
+  * Sitio en producción operativo: https://obras.hospitaljmdelosrios.org.ve/
+
+Stage Summary:
+- Proyecto ObrasJM retomado exitosamente desde GitHub, dependencias instaladas, dev server corriendo en local (puerto 3000)
+- Stack confirmado: Next.js 16.1.3 + React 19 + TypeScript estricto + Tailwind 4 + shadcn/ui + Supabase (auth + Postgres + RLS) + Z-AI SDK 0.0.18, con 8 roles de usuario (incluye ing_campo)
+- Error 1016 en dominio propio resuelto: la causa no era un registro explicito roto, sino un wildcard (*.hospitaljmdelosrios.org.ve -> 11776.BODIS.COM) que capturaba el subdominio obras. Fix: crear CNAME especifico obras -> cname.vercel-dns.com con nube gris (DNS only)
+- Producción verificada: https://obras.hospitaljmdelosrios.org.ve/ sirve la app desde Vercel con HTTP/2 200 y SSL activo
+- Registros CAA revisados: la advertencia de Cloudflare sobre CAA adicionales es informativa, la configuracion actual ya incluye letsencrypt.org (necesario para Vercel) y pki.goog (Cloudflare), no requiere cambios
+- Pendientes identificados para proximas sesiones:
+  * Eliminar wildcard *.hospitaljmdelosrios.org.ve -> 11776.BODIS.COM (parking de dominios, riesgo de seguridad)
+  * Revisar registros rotos apuntando a InfinityFree: apex (185.27.134.135), www (185.27.134.135), cpanel (51.91.152.213)
+  * Aplicar migraciones SQL pendientes de supabase/migrations/
+  * Probar login con usuarios existentes y revisar dashboard
+
