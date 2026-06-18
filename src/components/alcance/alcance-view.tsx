@@ -26,9 +26,12 @@ export function AlcanceView({ profile }: AlcanceViewProps) {
   const isAdmin = profile.rol === 'webmaster'
   const isInspector = profile.rol === 'inspector'
   const isContratista = profile.rol === 'contratista'
+  const isIngCampo = profile.rol === 'ing_campo'
   const isVisitante = profile.rol === 'visitante'
-  const canEdit = !isVisitante && (isAdmin || isInspector || isContratista)
-  const canDelete = isAdmin || isInspector
+  // CREATE + EDIT: webmaster, inspector, contratista, ing_campo
+  const canEdit = !isVisitante && (isAdmin || isInspector || isContratista || isIngCampo)
+  // DELETE: webmaster, inspector, ing_campo
+  const canDelete = isAdmin || isInspector || isIngCampo
 
   // Data
   const [alcances, setAlcances] = useState<AlcancePlanificado[]>([])

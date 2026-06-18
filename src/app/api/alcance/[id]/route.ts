@@ -71,7 +71,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'webmaster' && profile.rol !== 'inspector' && profile.rol !== 'contratista') {
+    if (profile.rol !== 'webmaster' && profile.rol !== 'inspector' && profile.rol !== 'contratista' && profile.rol !== 'ing_campo') {
       return NextResponse.json(
         { error: 'No tiene permisos para actualizar alcance planificado' },
         { status: 403 }
@@ -158,7 +158,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'webmaster' && profile.rol !== 'inspector') {
+    if (profile.rol !== 'webmaster' && profile.rol !== 'inspector' && profile.rol !== 'ing_campo') {
       return NextResponse.json(
         { error: 'No tiene permisos para eliminar alcance planificado' },
         { status: 403 }

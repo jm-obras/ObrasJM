@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 403 })
     }
 
-    if (profile.rol !== 'webmaster' && profile.rol !== 'inspector' && profile.rol !== 'contratista') {
+    if (profile.rol !== 'webmaster' && profile.rol !== 'inspector' && profile.rol !== 'contratista' && profile.rol !== 'ing_campo') {
       return NextResponse.json(
         { error: 'No tiene permisos para crear alcance planificado' },
         { status: 403 }

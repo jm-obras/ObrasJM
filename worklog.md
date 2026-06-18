@@ -147,3 +147,47 @@ Stage Summary:
   * Aplicar migraciones SQL pendientes de supabase/migrations/
   * Probar login con usuarios existentes y revisar dashboard
 
+
+---
+Task ID: 6
+Agent: Main Agent (GLM-6.0)
+Task: Ampliar permisos del rol Ing. Campo (ing_campo) en Alcance Planificado - crear/editar/eliminar
+
+Work Log:
+- Análisis previo: Ing. Campo solo tenia SELECT en alcance_planificado (filtrado por su UE), sin CRUD. Mig 018 habia extendido permisos de inspector (DELETE) y contratista (INSERT/UPDATE) pero dejo fuera a ing_campo.
+- Cambios aplicados en 3 capas:
+
+  1) Frontend (src/components/alcance/alcance-view.tsx):
+     - Agregada bandera `isIngCampo = profile.rol === 'ing_campo'`
+     - `canEdit` ahora incluye ing_campo (webmaster, inspector, contratista, ing_campo)
+     - `canDelete` ahora incluye ing_campo (webmaster, inspector, ing_campo)
+
+  2) API routes:
+     - src/app/api/alcance/route.ts (POST): agregado 'ing_campo' a los roles permitidos para crear
+     - src/app/api/alcance/[id]/route.ts (PUT): agregado 'ing_campo' a los roles permitidos para editar
+     - src/app/api/alcance/[id]/route.ts (DELETE): agregado 'ing_campo' a los roles permitidos para eliminar
+
+  3) Base de datos (supabase/migrations/019_add_ing_campo_alcance_policies.sql):
+     - DROP de las 3 politicas creadas en mig 018 (INSERT, UPDATE, DELETE)
+     - Recreacion con ing_campo incluido:
+       * INSERT: webmaster, inspector, contratista, ing_campo
+       * UPDATE: webmaster, inspector, contratista, ing_campo
+       * DELETE: webmaster, inspector, ing_campo
+     - Politica SELECT (ing_campo_select_alcance de mig 017b) se mantiene intacta
+
+- Lint: 0 errores (eslint .)
+- Dev server: corriendo en puerto 3000, GET / -> 200, GET /api/alcance -> 401 (esperado sin sesion)
+- Intento de aplicar migracion 019 a Supabase desde este entorno: FALLIDO
+  - Razón: el host db.pmueicotcnsfildkpggp.supabase.co solo tiene registro AAAA (IPv6), el entorno de ejecucion no tiene salida IPv6
+  - Pooler Supabase (aws-0-*.pooler.supabase.com): devuelve "tenant/user postgres.pmueicotcnsfildkpggp not found" en todas las regiones
+  - SQL API via rpc/query: funcion no existe en este proyecto
+  - Endpoints /pg/*: requieren Supabase Studio access, no exponen API publica
+  - Conclusion: la migracion debe aplicarse manualmente via Supabase Studio (SQL Editor)
+
+Stage Summary:
+- Ing. Campo ahora tiene CRUD completo en Alcance Planificado: crear, editar, eliminar (alineado con Inspector)
+- Cambios commiteados en codigo (frontend + API + migracion SQL)
+- IMPORTANTE: la migracion 019 NO ha sido aplicada a la base de datos de Supabase en produccion
+- Accion requerida por el usuario: aplicar manualmente el contenido de supabase/migrations/019_add_ing_campo_alcance_policies.sql via Supabase Studio -> SQL Editor
+- Sin esa aplicacion, el frontend y la API permitiran la accion pero la base de datos la rechazara con error de RLS
+
